@@ -1,0 +1,27 @@
+{
+  "name": "web_app_temp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "check:apply": "biome check --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Retsuki/web-app-temp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Retsuki/web-app-temp/issues"
+  },
+  "homepage": "https://github.com/Retsuki/web-app-temp#readme",
+  "description": "",
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.5"
+  }
+}
