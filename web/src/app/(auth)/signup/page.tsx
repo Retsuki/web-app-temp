@@ -7,7 +7,7 @@ import { signUp } from '@/lib/auth/actions'
 import Link from 'next/link'
 import { Form } from '@/components/ui/form'
 import { FormInput } from '@/components/app/input'
-import { Button } from '@/components/ui/button'
+import { PrimaryButton } from '@/components/app/button'
 import { formSchema, FormValues } from './_schema'
 
 export default function SignUpPage() {
@@ -91,13 +91,13 @@ export default function SignUpPage() {
             )}
 
             <div>
-              <Button
+              <PrimaryButton
                 type="submit"
                 disabled={loading}
                 className="w-full"
               >
                 {loading ? '作成中...' : 'アカウントを作成'}
-              </Button>
+              </PrimaryButton>
             </div>
           </form>
         </Form>
