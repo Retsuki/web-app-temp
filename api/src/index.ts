@@ -1,15 +1,16 @@
-import { serve } from '@hono/node-server'
-import { Hono } from 'hono'
+import { serve } from "@hono/node-server";
+import { createApp } from "./_shared/factory/create-app.js";
 
-const app = new Hono()
+const app = createApp();
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
-
-serve({
-  fetch: app.fetch,
-  port: 3000
-}, (info) => {
-  console.log(`Server is running on http://localhost:${info.port}`)
-})
+const port = 8080;
+serve(
+  {
+    fetch: app.fetch,
+    port,
+  },
+  () => {
+    console.log(`🚀 サーバーが起動しました！ポート: http://localhost:${port}`);
+    console.log(`🚀 Swagger UI: http://localhost:${port}/api/v1/ui`);
+  }
+);
