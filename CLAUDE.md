@@ -2,6 +2,21 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project Goal
+
+このプロジェクトは、新規アプリ開発を爆速化するためのテンプレートアプリケーションです。
+
+### 存在意義
+新規アプリ開発時に必要となる基本機能を事前に実装しておくことで、開発者がメイン機能の開発に集中できる環境を提供します。
+
+### 実装予定の基本機能
+- 認証システム（サインアップ・サインイン）
+- 決済機能
+- API連携基盤
+- その他、アプリケーションに共通して必要となる最低限の機能
+
+これらの機能が事前に実装されていることで、新しいアプリケーションのアイデアを素早く形にすることが可能になります。
+
 ## Project Overview
 
 This is a monorepo structure with:
