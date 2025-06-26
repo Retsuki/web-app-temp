@@ -3,35 +3,19 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { signUp } from '@/lib/auth/actions'
 import Link from 'next/link'
 import { Form } from '@/components/ui/form'
 import { FormInput } from '@/components/app/input'
 import { Button } from '@/components/ui/button'
-
-const signUpSchema = z.object({
-  nickname: z
-    .string()
-    .min(2, 'ニックネームは2文字以上で入力してください')
-    .max(50, 'ニックネームは50文字以内で入力してください'),
-  email: z
-    .string()
-    .email('有効なメールアドレスを入力してください'),
-  password: z
-    .string()
-    .min(6, 'パスワードは6文字以上で入力してください')
-    .max(100, 'パスワードは100文字以内で入力してください'),
-})
-
-type SignUpFormData = z.infer<typeof signUpSchema>
+import { formSchema, FormValues } from './_schema'
 
 export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const form = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       nickname: '',
       email: '',
@@ -39,7 +23,7 @@ export default function SignUpPage() {
     },
   })
 
-  const onSubmit = async (data: SignUpFormData) => {
+  const onSubmit = async (data: FormValues) => {
     setError(null)
     setLoading(true)
 
