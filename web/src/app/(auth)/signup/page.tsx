@@ -1,22 +1,49 @@
 'use client'
 
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { signUp } from '@/lib/auth/actions'
 import Link from 'next/link'
+import { Form } from '@/components/ui/form'
+import { FormInput } from '@/components/app/input'
+import { Button } from '@/components/ui/button'
+
+const signUpSchema = z.object({
+  nickname: z
+    .string()
+    .min(2, 'ニックネームは2文字以上で入力してください')
+    .max(50, 'ニックネームは50文字以内で入力してください'),
+  email: z
+    .string()
+    .email('有効なメールアドレスを入力してください'),
+  password: z
+    .string()
+    .min(6, 'パスワードは6文字以上で入力してください')
+    .max(100, 'パスワードは100文字以内で入力してください'),
+})
+
+type SignUpFormData = z.infer<typeof signUpSchema>
 
 export default function SignUpPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [nickname, setNickname] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const form = useForm<SignUpFormData>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      nickname: '',
+      email: '',
+      password: '',
+    },
+  })
+
+  const onSubmit = async (data: SignUpFormData) => {
     setError(null)
     setLoading(true)
 
-    const result = await signUp({ email, password, nickname })
+    const result = await signUp(data)
     
     if (result?.error) {
       setError(result.error)
@@ -38,77 +65,58 @@ export default function SignUpPage() {
             </Link>
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="nickname" className="sr-only">
-                ニックネーム
-              </label>
-              <input
-                id="nickname"
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 space-y-6">
+            <div className="space-y-4">
+              <FormInput
+                control={form.control}
                 name="nickname"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                label="ニックネーム"
                 placeholder="ニックネーム"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
+                autoComplete="nickname"
               />
-            </div>
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                メールアドレス
-              </label>
-              <input
-                id="email-address"
+              
+              <FormInput
+                control={form.control}
                 name="email"
+                label="メールアドレス"
                 type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="メールアドレス"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
               />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                パスワード
-              </label>
-              <input
-                id="password"
+              
+              <FormInput
+                control={form.control}
                 name="password"
+                label="パスワード"
                 type="password"
-                autoComplete="new-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="パスワード"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
               />
             </div>
-          </div>
 
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">{error}</h3>
+            {error && (
+              <div className="rounded-md bg-red-50 p-4">
+                <div className="flex">
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-red-800">{error}</h3>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? '作成中...' : 'アカウントを作成'}
-            </button>
-          </div>
-        </form>
+            <div>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full"
+              >
+                {loading ? '作成中...' : 'アカウントを作成'}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </div>
     </div>
   )
