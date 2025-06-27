@@ -1,21 +1,44 @@
 'use client'
 
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { signIn } from '@/lib/auth/actions'
 import Link from 'next/link'
+import { Form } from '@/components/ui/form'
+import { FormInput } from '@/components/app/input'
+import { PrimaryButton } from '@/components/app/button'
+import { GoogleAuthForm } from '@/components/app/auth/google-auth-form'
+
+const formSchema = z.object({
+  email: z
+    .string()
+    .email('有効なメールアドレスを入力してください'),
+  password: z
+    .string()
+    .min(1, 'パスワードを入力してください'),
+})
+
+type FormValues = z.infer<typeof formSchema>
 
 export default function SignInPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  })
+
+  const onSubmit = async (data: FormValues) => {
     setError(null)
     setLoading(true)
 
-    const result = await signIn({ email, password })
+    const result = await signIn(data)
     
     if (result?.error) {
       setError(result.error)
@@ -37,62 +60,67 @@ export default function SignInPage() {
             </Link>
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                メールアドレス
-              </label>
-              <input
-                id="email-address"
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8 space-y-6">
+            <div className="space-y-4">
+              <FormInput
+                control={form.control}
                 name="email"
+                label="メールアドレス"
                 type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="メールアドレス"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
               />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                パスワード
-              </label>
-              <input
-                id="password"
+              
+              <FormInput
+                control={form.control}
                 name="password"
+                label="パスワード"
                 type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="パスワード"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
               />
             </div>
-          </div>
 
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">{error}</h3>
+            {error && (
+              <div className="rounded-md bg-red-50 p-4">
+                <div className="flex">
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-red-800">{error}</h3>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'ログイン中...' : 'ログイン'}
-            </button>
+            <div>
+              <PrimaryButton
+                type="submit"
+                disabled={loading}
+                className="w-full"
+              >
+                {loading ? 'ログイン中...' : 'ログイン'}
+              </PrimaryButton>
+            </div>
+          </form>
+        </Form>
+
+        <div className="mt-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-gray-50 px-2 text-gray-500">または</span>
+            </div>
           </div>
-        </form>
+
+          <div className="mt-6">
+            <GoogleAuthForm>
+              Googleでログイン
+            </GoogleAuthForm>
+          </div>
+        </div>
       </div>
     </div>
   )
