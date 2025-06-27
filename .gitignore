@@ -41,3 +41,8 @@ next-env.d.ts
 # Supabase
 **/supabase/.branches
 **/supabase/.temp
+
+# Google Cloud
+sa-key.json
+.env.gcp
+.env.production
