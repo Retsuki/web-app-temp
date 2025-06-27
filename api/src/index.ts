@@ -3,7 +3,7 @@ import { createApp } from "./_shared/factory/create-app.js";
 
 const app = createApp();
 
-const port = 8080;
+const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
 serve(
   {
     fetch: app.fetch,
