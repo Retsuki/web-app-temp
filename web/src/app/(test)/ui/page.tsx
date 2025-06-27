@@ -6,11 +6,14 @@ import { z } from "zod";
 import { OutlineButton } from "@/components/app/button/outline-button";
 import { PrimaryButton } from "@/components/app/button/primary-button";
 import { FormInput } from "@/components/app/input/form-input";
+import { FormRadioGroup } from "@/components/app/radio/form-radio-group";
 import { Form } from "@/components/ui/form";
 
 const formSchema = z.object({
   email: z.string().email("有効なメールアドレスを入力してください"),
   password: z.string().min(1, "パスワードを入力してください"),
+  plan: z.string().min(1, "プランを選択してください"),
+  orientation: z.string().optional(),
 });
 
 export default function UIComponentsPage() {
@@ -19,6 +22,8 @@ export default function UIComponentsPage() {
     defaultValues: {
       email: "",
       password: "",
+      plan: "",
+      orientation: "vertical",
     },
   });
 
@@ -91,6 +96,39 @@ export default function UIComponentsPage() {
                     label="パスワード"
                     type="password"
                     placeholder="••••••••"
+                  />
+                </form>
+              </Form>
+            </div>
+            
+            {/* FormRadioGroup */}
+            <div>
+              <h3 className="text-lg font-medium mb-3 text-gray-700 dark:text-gray-300">
+                Form Radio Group (React Hook Form対応)
+              </h3>
+              <Form {...form}>
+                <form className="max-w-md space-y-6">
+                  <FormRadioGroup
+                    control={form.control}
+                    name="plan"
+                    label="料金プラン"
+                    description="ご利用になるプランを選択してください"
+                    options={[
+                      { value: "free", label: "無料プラン", description: "基本機能のみ利用可能" },
+                      { value: "pro", label: "プロプラン", description: "月額 ¥1,000" },
+                      { value: "enterprise", label: "エンタープライズ", description: "カスタム料金" },
+                    ]}
+                  />
+                  
+                  <FormRadioGroup
+                    control={form.control}
+                    name="orientation"
+                    label="表示方向（横配置）"
+                    orientation="horizontal"
+                    options={[
+                      { value: "vertical", label: "縦" },
+                      { value: "horizontal", label: "横" },
+                    ]}
                   />
                 </form>
               </Form>
