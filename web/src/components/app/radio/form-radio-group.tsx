@@ -58,22 +58,23 @@ export function FormRadioGroup<TFieldValues extends FieldValues>({
               )}
             >
               {options.map((option) => (
-                <div key={option.value} className="flex items-center space-x-2">
-                  <RadioGroupItem value={option.value} id={`${name}-${option.value}`} />
-                  <div className="flex flex-col">
-                    <FormLabel
-                      htmlFor={`${name}-${option.value}`}
-                      className="font-normal cursor-pointer"
-                    >
+                <FormLabel
+                  key={option.value}
+                  htmlFor={`${name}-${option.value}`}
+                  className="flex items-start space-x-2 cursor-pointer"
+                >
+                  <RadioGroupItem value={option.value} id={`${name}-${option.value}`} className="mt-0.5" />
+                  <div className="flex flex-col flex-1">
+                    <span className="font-normal">
                       {option.label}
-                    </FormLabel>
+                    </span>
                     {option.description && (
                       <FormDescription className="mt-1">
                         {option.description}
                       </FormDescription>
                     )}
                   </div>
-                </div>
+                </FormLabel>
               ))}
             </RadioGroup>
           </FormControl>

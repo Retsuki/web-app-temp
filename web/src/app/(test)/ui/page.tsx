@@ -7,6 +7,7 @@ import { OutlineButton } from "@/components/app/button/outline-button";
 import { PrimaryButton } from "@/components/app/button/primary-button";
 import { FormInput } from "@/components/app/input/form-input";
 import { FormRadioGroup } from "@/components/app/radio/form-radio-group";
+import { FormCheckbox } from "@/components/app/checkbox/form-checkbox";
 import { Form } from "@/components/ui/form";
 
 const formSchema = z.object({
@@ -14,6 +15,9 @@ const formSchema = z.object({
   password: z.string().min(1, "パスワードを入力してください"),
   plan: z.string().min(1, "プランを選択してください"),
   orientation: z.string().optional(),
+  terms: z.boolean().default(false),
+  newsletter: z.boolean().default(false),
+  notifications: z.boolean().default(false),
 });
 
 export default function UIComponentsPage() {
@@ -24,6 +28,9 @@ export default function UIComponentsPage() {
       password: "",
       plan: "",
       orientation: "vertical",
+      terms: false,
+      newsletter: false,
+      notifications: false,
     },
   });
 
@@ -129,6 +136,37 @@ export default function UIComponentsPage() {
                       { value: "vertical", label: "縦" },
                       { value: "horizontal", label: "横" },
                     ]}
+                  />
+                </form>
+              </Form>
+            </div>
+            
+            {/* FormCheckbox */}
+            <div>
+              <h3 className="text-lg font-medium mb-3 text-gray-700 dark:text-gray-300">
+                Form Checkbox (React Hook Form対応)
+              </h3>
+              <Form {...form}>
+                <form className="max-w-md space-y-4">
+                  <FormCheckbox
+                    control={form.control}
+                    name="terms"
+                    label="利用規約に同意する"
+                    description="サービスの利用規約とプライバシーポリシーに同意します"
+                  />
+                  
+                  <FormCheckbox
+                    control={form.control}
+                    name="newsletter"
+                    label="ニュースレターを受け取る"
+                  />
+                  
+                  <FormCheckbox
+                    control={form.control}
+                    name="notifications"
+                    label="通知を有効にする"
+                    description="重要なアップデートやお知らせを受け取ります"
+                    disabled
                   />
                 </form>
               </Form>
