@@ -1,6 +1,7 @@
-'use client';
+"use client";
 
-import type { FieldPath, FieldValues, Control } from 'react-hook-form';
+import type { FieldPath, FieldValues, Control } from "react-hook-form";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   FormControl,
   FormDescription,
@@ -8,9 +9,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Checkbox } from '@/components/ui/checkbox';
-import { cn } from '@/lib/utils';
+} from "@/components/ui/form";
 
 type FormCheckboxProps<TFieldValues extends FieldValues> = {
   control: Control<TFieldValues>;
@@ -34,27 +33,26 @@ export function FormCheckbox<TFieldValues extends FieldValues>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn('flex flex-row items-start space-x-3 space-y-0', className)}>
-          <FormControl>
-            <Checkbox
-              checked={field.value}
-              onCheckedChange={field.onChange}
-              disabled={disabled}
-            />
-          </FormControl>
-          <div className="space-y-1 leading-none">
-            {label && (
-              <FormLabel className="font-normal cursor-pointer">
-                {label}
-              </FormLabel>
-            )}
-            {description && (
-              <FormDescription>
-                {description}
-              </FormDescription>
-            )}
-            <FormMessage />
-          </div>
+        <FormItem className={className}>
+          <FormLabel
+            htmlFor={`checkbox-${name}`}
+            className="flex items-start space-x-3 cursor-pointer"
+          >
+            <FormControl>
+              <Checkbox
+                id={`checkbox-${name}`}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+                disabled={disabled}
+                className="mt-0.5"
+              />
+            </FormControl>
+            <div className="space-y-1 leading-none">
+              {label && <span className="font-normal">{label}</span>}
+              {description && <FormDescription>{description}</FormDescription>}
+            </div>
+          </FormLabel>
+          <FormMessage />
         </FormItem>
       )}
     />

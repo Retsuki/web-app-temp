@@ -5,9 +5,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { OutlineButton } from "@/components/app/button/outline-button";
 import { PrimaryButton } from "@/components/app/button/primary-button";
+import { FormCheckbox } from "@/components/app/checkbox/form-checkbox";
 import { FormInput } from "@/components/app/input/form-input";
 import { FormRadioGroup } from "@/components/app/radio/form-radio-group";
-import { FormCheckbox } from "@/components/app/checkbox/form-checkbox";
 import { Form } from "@/components/ui/form";
 
 const formSchema = z.object({
@@ -107,7 +107,7 @@ export default function UIComponentsPage() {
                 </form>
               </Form>
             </div>
-            
+
             {/* FormRadioGroup */}
             <div>
               <h3 className="text-lg font-medium mb-3 text-gray-700 dark:text-gray-300">
@@ -121,12 +121,24 @@ export default function UIComponentsPage() {
                     label="料金プラン"
                     description="ご利用になるプランを選択してください"
                     options={[
-                      { value: "free", label: "無料プラン", description: "基本機能のみ利用可能" },
-                      { value: "pro", label: "プロプラン", description: "月額 ¥1,000" },
-                      { value: "enterprise", label: "エンタープライズ", description: "カスタム料金" },
+                      {
+                        value: "free",
+                        label: "無料プラン",
+                        description: "基本機能のみ利用可能",
+                      },
+                      {
+                        value: "pro",
+                        label: "プロプラン",
+                        description: "月額 ¥1,000",
+                      },
+                      {
+                        value: "enterprise",
+                        label: "エンタープライズ",
+                        description: "カスタム料金",
+                      },
                     ]}
                   />
-                  
+
                   <FormRadioGroup
                     control={form.control}
                     name="orientation"
@@ -140,7 +152,7 @@ export default function UIComponentsPage() {
                 </form>
               </Form>
             </div>
-            
+
             {/* FormCheckbox */}
             <div>
               <h3 className="text-lg font-medium mb-3 text-gray-700 dark:text-gray-300">
@@ -154,19 +166,11 @@ export default function UIComponentsPage() {
                     label="利用規約に同意する"
                     description="サービスの利用規約とプライバシーポリシーに同意します"
                   />
-                  
+
                   <FormCheckbox
                     control={form.control}
                     name="newsletter"
                     label="ニュースレターを受け取る"
-                  />
-                  
-                  <FormCheckbox
-                    control={form.control}
-                    name="notifications"
-                    label="通知を有効にする"
-                    description="重要なアップデートやお知らせを受け取ります"
-                    disabled
                   />
                 </form>
               </Form>
