@@ -64,21 +64,38 @@
 
 Supabaseのダッシュボードに表示される「Callback URL」をコピーし、Google Cloud ConsoleのOAuth設定に追加されていることを確認。
 
-### 3. 環境変数の設定
+### 3. ローカル開発環境の設定
 
-#### 3.1 必要な環境変数
+#### 3.1 Supabase設定ファイルの確認
+
+`/supabase/config.toml` ファイルに以下の設定が含まれていることを確認:
+
+```toml
+[auth.external.google]
+enabled = true
+client_id = "env(GOOGLE_CLIENT_ID)"
+secret = "env(GOOGLE_CLIENT_SECRET)"
+skip_nonce_check = true  # ローカル開発で必要
+```
+
+#### 3.2 必要な環境変数
 
 ```bash
-# .env.local (Next.js)
-NEXT_PUBLIC_SUPABASE_URL=https://<your-project-ref>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
-NEXT_PUBLIC_SITE_URL=http://localhost:3000  # 本番環境では実際のURLに変更
+# ルートディレクトリの .env ファイル (Supabase CLI用)
+GOOGLE_CLIENT_ID=<your-client-id>
+GOOGLE_CLIENT_SECRET=<your-client-secret>
 
-# Supabase CLI用（ローカル開発時）
-SUPABASE_AUTH_EXTERNAL_GOOGLE_ENABLED=true
-SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID=<your-client-id>
-SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET=<your-client-secret>
+# /web/.env.local (Next.js)
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321  # ローカル開発時
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-local-anon-key>
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# 本番環境では
+# NEXT_PUBLIC_SUPABASE_URL=https://<your-project-ref>.supabase.co
+# NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ```
+
+**注意**: ローカル開発時のAnon Keyは `supabase status` コマンドで確認できます。
 
 ### 4. コードの実装確認
 
@@ -113,19 +130,31 @@ SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET=<your-client-secret>
 
 ### 5. テスト手順
 
-1. 開発サーバーを起動:
+1. 環境変数を設定:
+   ```bash
+   # ルートディレクトリに .env ファイルを作成
+   echo "GOOGLE_CLIENT_ID=your-client-id" >> .env
+   echo "GOOGLE_CLIENT_SECRET=your-client-secret" >> .env
+   ```
+
+2. Supabaseをローカルで起動:
+   ```bash
+   supabase start
+   ```
+
+3. 開発サーバーを起動:
    ```bash
    cd web
    npm run dev
    ```
 
-2. ブラウザで `http://localhost:3000/signup` または `http://localhost:3000/signin` にアクセス
+4. ブラウザで `http://localhost:3000/signup` または `http://localhost:3000/signin` にアクセス
 
-3. 「Googleで登録」または「Googleでログイン」ボタンをクリック
+5. 「Googleで登録」または「Googleでログイン」ボタンをクリック
 
-4. Googleアカウントを選択してログイン
+6. Googleアカウントを選択してログイン
 
-5. 正常にリダイレクトされ、ダッシュボードが表示されることを確認
+7. 正常にリダイレクトされ、ダッシュボードが表示されることを確認
 
 ## トラブルシューティング
 

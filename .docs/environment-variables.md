@@ -69,14 +69,24 @@ LOG_LEVEL=info  # development | production で自動切り替え
 ### `/.env` (ルートディレクトリ)
 
 ```bash
-# Supabase プロジェクト設定
-SUPABASE_PROJECT_ID=[YOUR_PROJECT_ID]
-SUPABASE_ACCESS_TOKEN=[YOUR_ACCESS_TOKEN]
-
 # Google OAuth設定（ローカル開発用）
-SUPABASE_AUTH_EXTERNAL_GOOGLE_ENABLED=true
-SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID=[YOUR_GOOGLE_CLIENT_ID]
-SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET=[YOUR_GOOGLE_CLIENT_SECRET]
+# supabase/config.toml で参照される環境変数
+GOOGLE_CLIENT_ID=[YOUR_GOOGLE_CLIENT_ID]
+GOOGLE_CLIENT_SECRET=[YOUR_GOOGLE_CLIENT_SECRET]
+
+# Supabase プロジェクト設定（リモート接続時に必要）
+# SUPABASE_PROJECT_ID=[YOUR_PROJECT_ID]
+# SUPABASE_ACCESS_TOKEN=[YOUR_ACCESS_TOKEN]
+```
+
+**重要**: これらの環境変数は `supabase/config.toml` の以下の設定で参照されます：
+
+```toml
+[auth.external.google]
+enabled = true
+client_id = "env(GOOGLE_CLIENT_ID)"
+secret = "env(GOOGLE_CLIENT_SECRET)"
+skip_nonce_check = true
 ```
 
 ## 環境変数の命名規則
