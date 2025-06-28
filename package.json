@@ -13,7 +13,8 @@
 		"gen:api": "cd web && npm run gen:api",
 		"api:schema": "npm run fetch:openapi && npm run gen:api",
 		"setup": "./scripts/setup.sh",
-		"setup:gcp": "./scripts/setup-gcp.sh"
+		"setup:gcp": "./scripts/setup-gcp.sh",
+		"deploy:gcp": "./scripts/deploy-gcp.sh"
 	},
 	"repository": {
 		"type": "git",
