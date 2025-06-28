@@ -1,7 +1,7 @@
 import admin from "firebase-admin";
-import { db } from "../../drizzle/db/database.js";
-import { UserContainer } from "../../features/users/container.js";
-import { logger } from "../utils/logger.js";
+import { db } from "../../../drizzle/db/database.js";
+import { UserContainer } from "../../../features/users/container.js";
+import { logger } from "../../utils/logger.js";
 
 export interface AppConfig {
   revenueCatApiKey: string;

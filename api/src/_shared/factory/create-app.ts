@@ -8,7 +8,7 @@ import { requestId } from "hono/request-id";
 import { authMiddleware } from "../middleware/auth.js";
 import { corsMiddleware } from "../middleware/cors.js";
 import { edgeAuth } from "../middleware/edge-auth.js";
-import { initMiddleware } from "../middleware/init.js";
+import { serviceContainerMiddleware } from "../middleware/service-container/index.js";
 import { handleError, handleZodError } from "../utils/error/index.js";
 import type { AppEnv } from "../types/context.js";
 
@@ -19,7 +19,7 @@ export const createApp = () => {
 
   // middleware
   app.onError(handleError);
-  app.use(initMiddleware);
+  app.use(serviceContainerMiddleware);
   app.use(edgeAuth);
   app.use(prettyJSON(), poweredBy(), logger(), requestId());
   app.use(

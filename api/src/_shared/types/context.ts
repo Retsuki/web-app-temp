@@ -1,4 +1,4 @@
-import type { ServiceContainer } from "../factory/service-container.js";
+import type { ServiceContainer } from "../middleware/service-container/index.js";
 
 export type SupabaseJWTPayload = {
   iss: string; // 発行者(issuer)
