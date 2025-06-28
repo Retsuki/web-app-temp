@@ -3,6 +3,7 @@
 	"version": "1.0.0",
 	"main": "index.js",
 	"scripts": {
+		"dev": "./scripts/dev-all.sh",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"lint": "biome lint .",
 		"format": "biome format --write .",
@@ -12,7 +13,7 @@
 		"gen:api": "cd web && npm run gen:api",
 		"api:schema": "npm run fetch:openapi && npm run gen:api",
 		"setup": "./scripts/setup.sh",
-		"dev": "./scripts/dev-all.sh"
+		"setup:gcp": "./scripts/setup-gcp.sh"
 	},
 	"repository": {
 		"type": "git",

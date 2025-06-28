@@ -1,15 +1,65 @@
 #!/bin/bash
 
 # Google Cloud Platform セットアップスクリプト
+# Cloud Run デプロイとSecret Manager設定を含む
 
 set -e
 
-# スクリプトのディレクトリを取得
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/common.sh"
+# カラー定義
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-# プロジェクトルートに移動
-cd "$(get_project_root)"
+# ログ関数
+log_info() {
+    echo -e "${BLUE}ℹ${NC} $1"
+}
+
+log_success() {
+    echo -e "${GREEN}✓${NC} $1"
+}
+
+log_warning() {
+    echo -e "${YELLOW}⚠${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}✗${NC} $1"
+}
+
+# 質問関数
+ask_question() {
+    local prompt="$1"
+    local var_name="$2"
+    local default="$3"
+    
+    if [ -n "$default" ]; then
+        read -p "$prompt [$default]: " value
+        value="${value:-$default}"
+    else
+        read -p "$prompt: " value
+    fi
+    
+    eval "$var_name='$value'"
+}
+
+# 確認関数
+confirm() {
+    local prompt="$1"
+    local default="$2"
+    
+    if [ "$default" = "y" ]; then
+        read -p "$prompt [Y/n]: " -n 1 -r
+        echo
+        [[ ! $REPLY =~ ^[Nn]$ ]]
+    else
+        read -p "$prompt [y/N]: " -n 1 -r
+        echo
+        [[ $REPLY =~ ^[Yy]$ ]]
+    fi
+}
 
 # メイン関数
 main() {
@@ -17,9 +67,7 @@ main() {
     echo ""
     
     # 前提条件の確認
-    if ! check_prerequisites; then
-        exit 1
-    fi
+    check_prerequisites
     
     # Google Cloud 認証
     setup_gcloud_auth
@@ -33,6 +81,9 @@ main() {
     # Artifact Registry の設定
     setup_artifact_registry
     
+    # Secret Manager の設定
+    setup_secret_manager
+    
     # サービスアカウントの作成
     setup_service_accounts
     
@@ -42,6 +93,37 @@ main() {
     log_success "セットアップが完了しました！"
     echo ""
     print_next_steps
+}
+
+# 前提条件の確認
+check_prerequisites() {
+    log_info "前提条件を確認しています..."
+    
+    local missing_tools=()
+    
+    # gcloud CLIの確認
+    if ! command -v gcloud &> /dev/null; then
+        missing_tools+=("gcloud")
+    fi
+    
+    # Docker の確認
+    if ! command -v docker &> /dev/null; then
+        missing_tools+=("docker")
+    fi
+    
+    if [ ${#missing_tools[@]} -gt 0 ]; then
+        log_error "以下のツールがインストールされていません:"
+        for tool in "${missing_tools[@]}"; do
+            echo "  - $tool"
+        done
+        echo ""
+        echo "インストール方法:"
+        echo "  - gcloud: https://cloud.google.com/sdk/docs/install"
+        echo "  - docker: https://docs.docker.com/get-docker/"
+        exit 1
+    fi
+    
+    log_success "前提条件を満たしています"
 }
 
 # Google Cloud 認証
@@ -104,6 +186,7 @@ enable_apis() {
         "artifactregistry.googleapis.com"
         "cloudbuild.googleapis.com"
         "secretmanager.googleapis.com"
+        "cloudresourcemanager.googleapis.com"
     )
     
     for api in "${apis[@]}"; do
@@ -116,6 +199,61 @@ enable_apis() {
     done
     
     log_success "APIの有効化が完了しました"
+}
+
+# Secret Manager の設定
+setup_secret_manager() {
+    log_info "Secret Manager を設定します"
+    
+    if ! confirm "Secret Manager に環境変数を設定しますか？" "y"; then
+        log_info "Secret Manager 設定をスキップしました"
+        return
+    fi
+    
+    # 必要な環境変数のリスト
+    local secrets=(
+        "SUPABASE_SERVICE_ROLE_KEY"
+        "NEXT_PUBLIC_SUPABASE_URL"
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+        "DATABASE_URL"
+        "GOOGLE_CLIENT_ID"
+        "GOOGLE_CLIENT_SECRET"
+    )
+    
+    log_info "環境変数を Secret Manager に保存します"
+    echo "※ 値は後で設定することもできます"
+    echo ""
+    
+    for secret_name in "${secrets[@]}"; do
+        # シークレット名を Cloud Run 互換の形式に変換（アンダースコアをハイフンに）
+        local secret_id=$(echo "$secret_name" | tr '_' '-' | tr '[:upper:]' '[:lower:]')
+        
+        # シークレットが既に存在するか確認
+        if gcloud secrets describe "$secret_id" --project="$PROJECT_ID" &>/dev/null; then
+            if confirm "  $secret_name は既に存在します。更新しますか？" "n"; then
+                ask_question "  $secret_name の値" secret_value
+                if [ -n "$secret_value" ]; then
+                    echo -n "$secret_value" | gcloud secrets versions add "$secret_id" --data-file=-
+                    log_success "  $secret_name を更新しました"
+                fi
+            fi
+        else
+            if confirm "  $secret_name を作成しますか？" "y"; then
+                # シークレットを作成
+                gcloud secrets create "$secret_id" --replication-policy="automatic" --project="$PROJECT_ID"
+                
+                ask_question "  $secret_name の値（空欄で後で設定）" secret_value
+                if [ -n "$secret_value" ]; then
+                    echo -n "$secret_value" | gcloud secrets versions add "$secret_id" --data-file=-
+                    log_success "  $secret_name を作成しました"
+                else
+                    log_warning "  $secret_name を作成しました（値は未設定）"
+                fi
+            fi
+        fi
+    done
+    
+    log_success "Secret Manager の設定が完了しました"
 }
 
 # Artifact Registry の設定
@@ -168,6 +306,7 @@ setup_service_accounts() {
             "roles/run.admin"
             "roles/artifactregistry.writer"
             "roles/iam.serviceAccountUser"
+            "roles/secretmanager.secretAccessor"
         )
         
         for role in "${roles[@]}"; do
@@ -203,12 +342,110 @@ GCP_PROJECT_ID=$PROJECT_ID
 GCP_REGION=$REGION
 GCP_ARTIFACT_REGISTRY=$REGION-docker.pkg.dev/$PROJECT_ID/web-app-temp
 
-# Cloud Run サービス URL（デプロイ後に更新）
+# Cloud Run サービス名
+CLOUD_RUN_SERVICE_NAME_WEB=web-app-web
+CLOUD_RUN_SERVICE_NAME_API=web-app-api
+
+# Cloud Run サービス URL（デプロイ後に自動更新される）
 WEB_SERVICE_URL=https://web-app-web-xxxxx.a.run.app
 API_SERVICE_URL=https://web-app-api-xxxxx.a.run.app
 EOF
     
+    # Cloud Run デプロイ用スクリプトも生成
+    local deploy_script="scripts/deploy-gcp.sh"
+    
+    cat > "$deploy_script" << 'EOF'
+#!/bin/bash
+
+# Cloud Run デプロイスクリプト
+
+set -e
+
+source scripts/setup-gcp.sh
+
+# .env.gcp を読み込む
+if [ -f .env.gcp ]; then
+    export $(cat .env.gcp | grep -v '^#' | xargs)
+fi
+
+# APIをデプロイ
+deploy_api() {
+    log_info "APIサービスをデプロイしています..."
+    
+    cd api
+    
+    # Dockerイメージをビルド
+    docker build -t "$GCP_ARTIFACT_REGISTRY/api:latest" .
+    
+    # イメージをプッシュ
+    docker push "$GCP_ARTIFACT_REGISTRY/api:latest"
+    
+    # Cloud Run にデプロイ
+    gcloud run deploy $CLOUD_RUN_SERVICE_NAME_API \
+        --image="$GCP_ARTIFACT_REGISTRY/api:latest" \
+        --platform=managed \
+        --region="$GCP_REGION" \
+        --allow-unauthenticated \
+        --set-env-vars="NODE_ENV=production" \
+        --set-secrets="DATABASE_URL=database-url:latest" \
+        --set-secrets="SUPABASE_SERVICE_ROLE_KEY=supabase-service-role-key:latest"
+    
+    cd ..
+    log_success "APIサービスのデプロイが完了しました"
+}
+
+# Webアプリをデプロイ
+deploy_web() {
+    log_info "Webアプリケーションをデプロイしています..."
+    
+    # APIのURLを取得
+    API_URL=$(gcloud run services describe $CLOUD_RUN_SERVICE_NAME_API \
+        --platform=managed \
+        --region="$GCP_REGION" \
+        --format="value(status.url)")
+    
+    cd web
+    
+    # Dockerイメージをビルド
+    docker build -t "$GCP_ARTIFACT_REGISTRY/web:latest" \
+        --build-arg NEXT_PUBLIC_API_URL="$API_URL" .
+    
+    # イメージをプッシュ
+    docker push "$GCP_ARTIFACT_REGISTRY/web:latest"
+    
+    # Cloud Run にデプロイ
+    gcloud run deploy $CLOUD_RUN_SERVICE_NAME_WEB \
+        --image="$GCP_ARTIFACT_REGISTRY/web:latest" \
+        --platform=managed \
+        --region="$GCP_REGION" \
+        --allow-unauthenticated \
+        --set-env-vars="NODE_ENV=production" \
+        --set-env-vars="NEXT_PUBLIC_API_URL=$API_URL" \
+        --set-secrets="NEXT_PUBLIC_SUPABASE_URL=next-public-supabase-url:latest" \
+        --set-secrets="NEXT_PUBLIC_SUPABASE_ANON_KEY=next-public-supabase-anon-key:latest"
+    
+    cd ..
+    log_success "Webアプリケーションのデプロイが完了しました"
+}
+
+# メイン処理
+log_info "Cloud Run へのデプロイを開始します"
+
+if confirm "APIサービスをデプロイしますか？" "y"; then
+    deploy_api
+fi
+
+if confirm "Webアプリケーションをデプロイしますか？" "y"; then
+    deploy_web
+fi
+
+log_success "デプロイが完了しました！"
+EOF
+    
+    chmod +x "$deploy_script"
+    
     log_success "環境変数ファイルを生成しました: $env_file"
+    log_success "デプロイスクリプトを生成しました: $deploy_script"
 }
 
 # 次のステップを表示
@@ -216,20 +453,22 @@ print_next_steps() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "📋 次のステップ:"
     echo ""
-    echo "1. Supabase プロジェクトを作成し、環境変数を設定:"
-    echo "   - NEXT_PUBLIC_SUPABASE_URL"
-    echo "   - NEXT_PUBLIC_SUPABASE_ANON_KEY"
-    echo "   - SUPABASE_SERVICE_ROLE_KEY"
+    echo "1. Secret Manager で環境変数の値を設定（未設定の場合）:"
+    echo "   gcloud secrets versions add <secret-name> --data-file=-"
     echo ""
-    echo "2. .env.production ファイルを作成して本番環境の設定を追加"
+    echo "2. Supabase プロジェクトの環境変数を Secret Manager に設定済みか確認"
     echo ""
     echo "3. デプロイを実行:"
-    echo "   make deploy-all"
+    echo "   ./scripts/deploy-gcp.sh"
+    echo ""
+    echo "4. デプロイ後のURL確認:"
+    echo "   - API: gcloud run services describe $CLOUD_RUN_SERVICE_NAME_API --region=$REGION --format='value(status.url)'"
+    echo "   - Web: gcloud run services describe $CLOUD_RUN_SERVICE_NAME_WEB --region=$REGION --format='value(status.url)'"
     echo ""
     if [ -f "sa-key.json" ]; then
-        echo "4. CI/CD を設定する場合:"
+        echo "5. CI/CD を設定する場合:"
         echo "   - sa-key.json の内容を GitHub Secrets の GCP_SA_KEY に設定"
-        echo "   - .env.gcp の GCP_PROJECT_ID を secrets に設定"
+        echo "   - .env.gcp の内容を GitHub Secrets に設定"
         echo ""
     fi
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
