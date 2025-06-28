@@ -1,43 +1,44 @@
-import { AppHTTPException } from "../../../../_shared/utils/error/index.js";
-import { ERROR_CODES } from "../../../../_shared/utils/error/index.js";
+import {
+	AppHTTPException,
+	ERROR_CODES,
+} from "../../../../_shared/utils/error/index.js";
 import type { UserRepository } from "../../repositories/user.repository.js";
 import type { UpdateProfileReq, UserProfileRes } from "./dto.js";
 
 export class UpdateUserProfileUseCase {
-  constructor(private userRepository: UserRepository) {}
+	constructor(private userRepository: UserRepository) {}
 
-  async execute(userId: string, data: UpdateProfileReq): Promise<UserProfileRes> {
-    // プロフィールの存在確認
-    const existingProfile = await this.userRepository.findByUserId(userId);
-    if (!existingProfile) {
-      throw new AppHTTPException(404, {
-        code: ERROR_CODES.PROFILE_NOT_FOUND,
-        message: "プロフィールが見つかりません",
-      });
-    }
+	async execute(
+		userId: string,
+		data: UpdateProfileReq,
+	): Promise<UserProfileRes> {
+		// プロフィールの存在確認
+		const existingProfile = await this.userRepository.findByUserId(userId);
+		if (!existingProfile) {
+			throw new AppHTTPException(404, {
+				code: ERROR_CODES.PROFILE_NOT_FOUND,
+				message: "プロフィールが見つかりません",
+			});
+		}
 
-    // 更新データの準備
-    const updateData = {
-      ...(data.nickname !== undefined && { nickname: data.nickname }),
-      ...(data.avatarUrl !== undefined && { avatarUrl: data.avatarUrl }),
-      ...(data.bio !== undefined && { bio: data.bio }),
-      ...(data.isPublic !== undefined && { isPublic: data.isPublic }),
-    };
+		// 更新データの準備
+		const updateData = {
+			...(data.nickname !== undefined && { nickname: data.nickname }),
+		};
 
-    // プロフィールを更新
-    const updatedProfile = await this.userRepository.update(userId, updateData);
+		// プロフィールを更新
+		const updatedProfile = await this.userRepository.update(userId, updateData);
 
-    // レスポンス形式に変換
-    return {
-      id: updatedProfile.id,
-      userId: updatedProfile.userId,
-      email: updatedProfile.email,
-      nickname: updatedProfile.nickname,
-      avatarUrl: updatedProfile.avatarUrl,
-      bio: updatedProfile.bio,
-      isPublic: updatedProfile.isPublic,
-      createdAt: updatedProfile.createdAt?.toISOString() || new Date().toISOString(),
-      updatedAt: updatedProfile.updatedAt?.toISOString() || new Date().toISOString(),
-    };
-  }
+		// レスポンス形式に変換
+		return {
+			id: updatedProfile.id,
+			userId: updatedProfile.userId,
+			email: updatedProfile.email,
+			nickname: updatedProfile.nickname,
+			createdAt:
+				updatedProfile.createdAt?.toISOString() || new Date().toISOString(),
+			updatedAt:
+				updatedProfile.updatedAt?.toISOString() || new Date().toISOString(),
+		};
+	}
 }

@@ -480,8 +480,8 @@ deploy_api() {
     
     cd api
     
-    # Dockerイメージをビルド
-    docker build -t "$GCP_ARTIFACT_REGISTRY/api:latest" .
+    # Dockerイメージをビルド（amd64プラットフォーム用）
+    docker build --platform linux/amd64 -t "$GCP_ARTIFACT_REGISTRY/api:latest" .
     
     # イメージをプッシュ
     docker push "$GCP_ARTIFACT_REGISTRY/api:latest"
@@ -511,8 +511,8 @@ deploy_web() {
     
     cd web
     
-    # Dockerイメージをビルド
-    docker build -t "$GCP_ARTIFACT_REGISTRY/web:latest" \
+    # Dockerイメージをビルド（amd64プラットフォーム用）
+    docker build --platform linux/amd64 -t "$GCP_ARTIFACT_REGISTRY/web:latest" \
         --build-arg NEXT_PUBLIC_API_URL="$API_URL" .
     
     # イメージをプッシュ

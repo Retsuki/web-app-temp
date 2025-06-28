@@ -20,18 +20,6 @@ export const userProfileResSchema = z.object({
     description: "ニックネーム",
     example: "たろう",
   }),
-  avatarUrl: z.string().url().nullable().openapi({
-    description: "アバター画像URL",
-    example: "https://example.com/avatar.jpg",
-  }),
-  bio: z.string().nullable().openapi({
-    description: "自己紹介",
-    example: "よろしくお願いします",
-  }),
-  isPublic: z.boolean().openapi({
-    description: "プロフィール公開設定",
-    example: true,
-  }),
   createdAt: z.string().datetime().openapi({
     description: "作成日時",
     example: "2024-01-01T00:00:00Z",

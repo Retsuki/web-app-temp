@@ -23,9 +23,6 @@ export class GetUserProfileUseCase {
       userId: profile.userId,
       email: profile.email,
       nickname: profile.nickname,
-      avatarUrl: profile.avatarUrl,
-      bio: profile.bio,
-      isPublic: profile.isPublic,
       createdAt: profile.createdAt?.toISOString() || new Date().toISOString(),
       updatedAt: profile.updatedAt?.toISOString() || new Date().toISOString(),
     };

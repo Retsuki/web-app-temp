@@ -72,14 +72,14 @@ export const errorResponses = {
 			},
 		},
 	},
-	422: {
-		description: "年齢確認に失敗しました。",
+	409: {
+		description: "リソースの競合が発生しました。",
 		content: {
 			"application/json": {
 				schema: createErrorSchema(
-					ERROR_CODES.AGE_VERIFICATION_FAILED,
-					422,
-				).openapi("ErrAgeVerification"),
+					ERROR_CODES.CONFLICT,
+					409,
+				).openapi("ErrConflict"),
 			},
 		},
 	},

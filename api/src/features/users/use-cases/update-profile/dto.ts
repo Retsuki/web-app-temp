@@ -9,18 +9,6 @@ export const updateProfileReqSchema = z.object({
     description: "ニックネーム",
     example: "たろう",
   }),
-  avatarUrl: z.string().url().nullable().optional().openapi({
-    description: "アバター画像URL",
-    example: "https://example.com/avatar.jpg",
-  }),
-  bio: z.string().max(500).nullable().optional().openapi({
-    description: "自己紹介",
-    example: "よろしくお願いします",
-  }),
-  isPublic: z.boolean().optional().openapi({
-    description: "プロフィール公開設定",
-    example: true,
-  }),
 }).openapi("UpdateProfileRequest");
 
 export type UpdateProfileReq = z.infer<typeof updateProfileReqSchema>;
