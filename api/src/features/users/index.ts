@@ -17,32 +17,16 @@ export const usersApi = (app: App) => {
     const userRepository = new UserRepository(db);
     const getUserProfileUseCase = new GetUserProfileUseCase(userRepository);
     
-    try {
-      const profile = await getUserProfileUseCase.execute(userId);
-      return c.json({
-        success: true,
-        data: profile,
-        metadata: {
-          timestamp: new Date().toISOString(),
-          version: "1.0.0",
-        },
-      }, 200);
-    } catch (error: any) {
-      if (error.message === "PROFILE_NOT_FOUND") {
-        return c.json({
-          success: false,
-          error: {
-            code: "PROFILE_NOT_FOUND",
-            message: "プロフィールが見つかりません",
-          },
-          metadata: {
-            timestamp: new Date().toISOString(),
-            version: "1.0.0",
-          },
-        }, 404);
-      }
-      throw error;
-    }
+    const profile = await getUserProfileUseCase.execute(userId);
+    
+    return c.json({
+      success: true,
+      data: profile,
+      metadata: {
+        timestamp: new Date().toISOString(),
+        version: "1.0.0",
+      },
+    }, 200);
   });
 
   // PUT /users/me - プロフィール更新
@@ -53,32 +37,16 @@ export const usersApi = (app: App) => {
     const userRepository = new UserRepository(db);
     const updateUserProfileUseCase = new UpdateUserProfileUseCase(userRepository);
     
-    try {
-      const profile = await updateUserProfileUseCase.execute(userId, body);
-      return c.json({
-        success: true,
-        data: profile,
-        metadata: {
-          timestamp: new Date().toISOString(),
-          version: "1.0.0",
-        },
-      }, 200);
-    } catch (error: any) {
-      if (error.message === "PROFILE_NOT_FOUND") {
-        return c.json({
-          success: false,
-          error: {
-            code: "PROFILE_NOT_FOUND",
-            message: "プロフィールが見つかりません",
-          },
-          metadata: {
-            timestamp: new Date().toISOString(),
-            version: "1.0.0",
-          },
-        }, 404);
-      }
-      throw error;
-    }
+    const profile = await updateUserProfileUseCase.execute(userId, body);
+    
+    return c.json({
+      success: true,
+      data: profile,
+      metadata: {
+        timestamp: new Date().toISOString(),
+        version: "1.0.0",
+      },
+    }, 200);
   });
 
   // DELETE /users/me - アカウント削除
@@ -89,37 +57,8 @@ export const usersApi = (app: App) => {
     const userRepository = new UserRepository(db);
     const deleteUserAccountUseCase = new DeleteUserAccountUseCase(userRepository);
     
-    try {
-      await deleteUserAccountUseCase.execute(userId, body);
-      return c.body(null, 204);
-    } catch (error: any) {
-      if (error.message === "PROFILE_NOT_FOUND") {
-        return c.json({
-          success: false,
-          error: {
-            code: "PROFILE_NOT_FOUND",
-            message: "プロフィールが見つかりません",
-          },
-          metadata: {
-            timestamp: new Date().toISOString(),
-            version: "1.0.0",
-          },
-        }, 404);
-      }
-      if (error.message === "INVALID_CONFIRMATION") {
-        return c.json({
-          success: false,
-          error: {
-            code: "INVALID_CONFIRMATION",
-            message: "確認文字列が正しくありません",
-          },
-          metadata: {
-            timestamp: new Date().toISOString(),
-            version: "1.0.0",
-          },
-        }, 400);
-      }
-      throw error;
-    }
+    await deleteUserAccountUseCase.execute(userId, body);
+    
+    return c.body(null, 204);
   });
 };

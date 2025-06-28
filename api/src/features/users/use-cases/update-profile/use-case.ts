@@ -1,3 +1,5 @@
+import { AppHTTPException } from "../../../../_shared/utils/error/index.js";
+import { ERROR_CODES } from "../../../../_shared/utils/error/index.js";
 import type { UserRepository } from "../../repositories/user.repository.js";
 import type { UpdateProfileReq, UserProfileRes } from "./dto.js";
 
@@ -8,7 +10,10 @@ export class UpdateUserProfileUseCase {
     // プロフィールの存在確認
     const existingProfile = await this.userRepository.findByUserId(userId);
     if (!existingProfile) {
-      throw new Error("PROFILE_NOT_FOUND");
+      throw new AppHTTPException(404, {
+        code: ERROR_CODES.PROFILE_NOT_FOUND,
+        message: "プロフィールが見つかりません",
+      });
     }
 
     // 更新データの準備
