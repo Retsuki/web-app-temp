@@ -1,5 +1,5 @@
 import { createRoute } from "@hono/zod-openapi";
-import { z } from "@hono/zod-openapi";
+import { errorResponses } from "../../../../_shared/utils/error/index.js";
 import { deleteAccountReqSchema } from "./dto.js";
 
 export const deleteAccountRoute = createRoute({
@@ -22,60 +22,6 @@ export const deleteAccountRoute = createRoute({
     204: {
       description: "アカウント削除成功",
     },
-    400: {
-      description: "バリデーションエラー",
-      content: {
-        "application/json": {
-          schema: z.object({
-            success: z.boolean(),
-            error: z.object({
-              code: z.string(),
-              message: z.string(),
-              details: z.any().optional(),
-            }),
-            metadata: z.object({
-              timestamp: z.string().datetime(),
-              version: z.string(),
-            }),
-          }),
-        },
-      },
-    },
-    401: {
-      description: "認証エラー",
-      content: {
-        "application/json": {
-          schema: z.object({
-            success: z.boolean(),
-            error: z.object({
-              code: z.string(),
-              message: z.string(),
-            }),
-            metadata: z.object({
-              timestamp: z.string().datetime(),
-              version: z.string(),
-            }),
-          }),
-        },
-      },
-    },
-    404: {
-      description: "プロフィールが見つかりません",
-      content: {
-        "application/json": {
-          schema: z.object({
-            success: z.boolean(),
-            error: z.object({
-              code: z.string(),
-              message: z.string(),
-            }),
-            metadata: z.object({
-              timestamp: z.string().datetime(),
-              version: z.string(),
-            }),
-          }),
-        },
-      },
-    },
+    ...errorResponses,
   },
 });

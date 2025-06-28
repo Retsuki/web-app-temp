@@ -8,7 +8,7 @@ export interface AppConfig {
   googleCloudProjectId?: string;
 }
 
-export class ServiceContainer {
+export class UseCaseContainer {
   constructor(config: AppConfig) {
     // Firebase Admin SDK の初期化 (まだ初期化されていない場合のみ)
     if (!admin.apps.length) {

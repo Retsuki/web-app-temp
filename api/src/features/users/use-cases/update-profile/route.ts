@@ -1,5 +1,6 @@
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "@hono/zod-openapi";
+import { errorResponses } from "../../../../_shared/utils/error/index.js";
 import { updateProfileReqSchema, userProfileResSchema } from "./dto.js";
 
 export const updateProfileRoute = createRoute({
@@ -34,60 +35,6 @@ export const updateProfileRoute = createRoute({
         },
       },
     },
-    400: {
-      description: "バリデーションエラー",
-      content: {
-        "application/json": {
-          schema: z.object({
-            success: z.boolean(),
-            error: z.object({
-              code: z.string(),
-              message: z.string(),
-              details: z.any().optional(),
-            }),
-            metadata: z.object({
-              timestamp: z.string().datetime(),
-              version: z.string(),
-            }),
-          }),
-        },
-      },
-    },
-    401: {
-      description: "認証エラー",
-      content: {
-        "application/json": {
-          schema: z.object({
-            success: z.boolean(),
-            error: z.object({
-              code: z.string(),
-              message: z.string(),
-            }),
-            metadata: z.object({
-              timestamp: z.string().datetime(),
-              version: z.string(),
-            }),
-          }),
-        },
-      },
-    },
-    404: {
-      description: "プロフィールが見つかりません",
-      content: {
-        "application/json": {
-          schema: z.object({
-            success: z.boolean(),
-            error: z.object({
-              code: z.string(),
-              message: z.string(),
-            }),
-            metadata: z.object({
-              timestamp: z.string().datetime(),
-              version: z.string(),
-            }),
-          }),
-        },
-      },
-    },
+    ...errorResponses,
   },
 });

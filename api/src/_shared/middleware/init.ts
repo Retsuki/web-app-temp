@@ -1,9 +1,9 @@
 import { createFactory } from "hono/factory";
-import { ServiceContainer } from "../factory/application-container.js";
+import { UseCaseContainer } from "../factory/use-case-container.js";
 import { AppHTTPException } from "../utils/error/index.js";
 
 const factory = createFactory();
-let serviceContainer: ServiceContainer;
+let serviceContainer: UseCaseContainer;
 
 export const initMiddleware = factory.createMiddleware(async (c, next) => {
   const revenueCatSecretApiKey = process.env.REVENUECAT_SECRET_API_KEY;
@@ -23,7 +23,7 @@ export const initMiddleware = factory.createMiddleware(async (c, next) => {
   const googleCloudProjectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
 
   if (!serviceContainer) {
-    serviceContainer = new ServiceContainer({
+    serviceContainer = new UseCaseContainer({
       revenueCatApiKey: revenueCatSecretApiKey,
       googlePlacesApiKey: googlePlacesApiKey,
       googleCloudProjectId: googleCloudProjectId,
