@@ -9,7 +9,7 @@ export interface AppConfig {
   googleCloudProjectId?: string;
 }
 
-export class UseCaseContainer {
+export class ServiceContainer {
   // Feature containers
   public readonly users: UserContainer;
 

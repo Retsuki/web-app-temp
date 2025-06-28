@@ -1,4 +1,4 @@
-import type { UseCaseContainer } from "../factory/use-case-container.js";
+import type { ServiceContainer } from "../factory/service-container.js";
 
 export type SupabaseJWTPayload = {
   iss: string; // 発行者(issuer)
@@ -40,6 +40,6 @@ export type AppEnv = {
 
 declare module "hono" {
   interface ContextVariableMap {
-    services: UseCaseContainer;
+    services: ServiceContainer;
   }
 }
