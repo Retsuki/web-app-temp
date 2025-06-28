@@ -11,7 +11,7 @@ export const createAuthenticatedClient = () => {
     headers: {
       'Content-Type': 'application/json',
     },
-    fetch: async (input, init) => {
+    fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
       // Supabaseのセッションを取得
       const { data: { session } } = await supabase.auth.getSession()
       

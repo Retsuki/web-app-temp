@@ -1,9 +1,13 @@
-import { signInWithGoogle } from '@/lib/auth/actions'
-import { GoogleButton } from '@/components/app/button'
+import { GoogleButton } from '@/components/app/button/google-button'
 
-export function GoogleAuthForm({ children }: { children: React.ReactNode }) {
+interface GoogleAuthFormProps {
+  children: React.ReactNode
+  action: () => Promise<void>
+}
+
+export function GoogleAuthForm({ children, action }: GoogleAuthFormProps) {
   return (
-    <form action={signInWithGoogle}>
+    <form action={action}>
       <GoogleButton type="submit" className="w-full">
         {children}
       </GoogleButton>

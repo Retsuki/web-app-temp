@@ -1,14 +1,14 @@
 import { redirect } from "next/navigation";
-import { apiClient } from "@/lib/api/client";
+import createClient from "openapi-fetch";
 import type { paths } from "@/lib/api/schema";
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createSupabase } from "@/lib/supabase/server";
 
 /**
  * 認証済みユーザーを取得（Server Component用）
  * 未認証の場合はサインインページへリダイレクト
  */
 export async function getAuthenticatedUser() {
-  const supabase = await createClient();
+  const supabase = await createSupabase();
 
   const {
     data: { user },
@@ -25,7 +25,7 @@ export async function getAuthenticatedUser() {
  * 認証付きAPIクライアントを作成（Server Component用）
  */
 export async function getAuthenticatedApiClient() {
-  const supabase = await createClient();
+  const supabase = await createSupabase();
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -34,57 +34,14 @@ export async function getAuthenticatedApiClient() {
     throw new Error("認証トークンが見つかりません");
   }
 
-  // 認証ヘッダー付きのAPIクライアントを返す
-  return {
-    GET: <P extends keyof paths>(
-      path: P,
-      options?: Parameters<typeof apiClient.GET<P>>[1]
-    ) => {
-      return apiClient.GET(path, {
-        ...options,
-        headers: {
-          ...options?.headers,
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
+  // 認証ヘッダー付きのAPIクライアントを作成
+  return createClient<paths>({
+    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
     },
-    POST: <P extends keyof paths>(
-      path: P,
-      options?: Parameters<typeof apiClient.POST<P>>[1]
-    ) => {
-      return apiClient.POST(path, {
-        ...options,
-        headers: {
-          ...options?.headers,
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-    },
-    PUT: <P extends keyof paths>(
-      path: P,
-      options?: Parameters<typeof apiClient.PUT<P>>[1]
-    ) => {
-      return apiClient.PUT(path, {
-        ...options,
-        headers: {
-          ...options?.headers,
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-    },
-    DELETE: <P extends keyof paths>(
-      path: P,
-      options?: Parameters<typeof apiClient.DELETE<P>>[1]
-    ) => {
-      return apiClient.DELETE(path, {
-        ...options,
-        headers: {
-          ...options?.headers,
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-    },
-  };
+  });
 }
 
 /**

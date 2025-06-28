@@ -4,9 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { PrimaryButton } from "@/components/app/button";
-import { FormInput } from "@/components/app/input";
+import { PrimaryButton } from "@/components/app/button/primary-button";
+import { FormInput } from "@/components/app/input/form-input";
 import { useMyProfile, useUpdateUser } from "@/lib/api/hooks/useUser";
+import { Form } from "@/components/ui/form";
 
 const profileSchema = z.object({
   nickname: z
@@ -51,7 +52,6 @@ export function ProfileEdit() {
 
     try {
       await updateUser.mutateAsync({
-        id: profile.userId,
         nickname: data.nickname,
       });
       setIsEditing(false);
@@ -95,13 +95,14 @@ export function ProfileEdit() {
       <h2 className="text-lg font-medium text-gray-900 mb-2">
         プロフィール編集（Client Component）
       </h2>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormInput
-          control={form.control}
-          name="nickname"
-          label="ニックネーム"
-          type="text"
-        />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormInput
+            control={form.control}
+            name="nickname"
+            label="ニックネーム"
+            type="text"
+          />
 
         <div className="flex gap-2">
           <PrimaryButton type="submit" disabled={updateUser.isPending}>
@@ -129,7 +130,8 @@ export function ProfileEdit() {
             プロフィールを更新しました
           </div>
         )}
-      </form>
+        </form>
+      </Form>
     </div>
   );
 }
