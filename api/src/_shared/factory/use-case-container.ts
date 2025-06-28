@@ -1,5 +1,6 @@
 import admin from "firebase-admin";
-
+import { db } from "../../drizzle/db/database.js";
+import { UserContainer } from "../../features/users/container.js";
 import { logger } from "../utils/logger.js";
 
 export interface AppConfig {
@@ -9,6 +10,9 @@ export interface AppConfig {
 }
 
 export class UseCaseContainer {
+  // Feature containers
+  public readonly users: UserContainer;
+
   constructor(config: AppConfig) {
     // Firebase Admin SDK の初期化 (まだ初期化されていない場合のみ)
     if (!admin.apps.length) {
@@ -28,5 +32,13 @@ export class UseCaseContainer {
     } else {
       logger.info("Firebase Admin SDK already initialized.");
     }
+
+    // Initialize feature containers
+    this.users = new UserContainer(db);
+    
+    // 将来的な拡張例:
+    // this.posts = new PostContainer(db);
+    // this.notifications = new NotificationContainer(db);
+    // this.files = new FileContainer(db);
   }
 }
