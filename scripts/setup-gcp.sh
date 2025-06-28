@@ -511,9 +511,40 @@ deploy_web() {
     
     cd web
     
+    # Secret Managerから環境変数を取得
+    log_info "Secret Managerから環境変数を取得しています..."
+    
+    # web-env-productionシークレットから環境変数を取得
+    if gcloud secrets versions access latest --secret="web-env-production" --project="$PROJECT_ID" > /tmp/web-env.tmp 2>/dev/null; then
+        # .env形式のファイルから必要な環境変数を抽出
+        NEXT_PUBLIC_SUPABASE_URL=$(grep "^NEXT_PUBLIC_SUPABASE_URL=" /tmp/web-env.tmp | cut -d'=' -f2-)
+        NEXT_PUBLIC_SUPABASE_ANON_KEY=$(grep "^NEXT_PUBLIC_SUPABASE_ANON_KEY=" /tmp/web-env.tmp | cut -d'=' -f2-)
+        NEXT_PUBLIC_SITE_URL=$(grep "^NEXT_PUBLIC_SITE_URL=" /tmp/web-env.tmp | cut -d'=' -f2-)
+        rm -f /tmp/web-env.tmp
+        log_success "Secret Managerから環境変数を取得しました"
+    else
+        log_warning "Secret Managerから環境変数を取得できませんでした。個別のシークレットを試します..."
+        
+        # 個別のシークレットから取得を試みる
+        NEXT_PUBLIC_SUPABASE_URL=$(gcloud secrets versions access latest --secret="next-public-supabase-url" --project="$PROJECT_ID" 2>/dev/null || echo "")
+        NEXT_PUBLIC_SUPABASE_ANON_KEY=$(gcloud secrets versions access latest --secret="next-public-supabase-anon-key" --project="$PROJECT_ID" 2>/dev/null || echo "")
+        NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL:-https://web-app-web.run.app}"
+    fi
+    
+    # 環境変数が設定されているか確認
+    if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] || [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
+        log_error "必要な環境変数が設定されていません。Secret Managerを確認してください。"
+        log_info "以下のコマンドで環境変数を設定してください:"
+        log_info "  gcloud secrets versions add web-env-production --data-file=.env.production.web"
+        exit 1
+    fi
+    
     # Dockerイメージをビルド（amd64プラットフォーム用）
     docker build --platform linux/amd64 -t "$GCP_ARTIFACT_REGISTRY/web:latest" \
-        --build-arg NEXT_PUBLIC_API_URL="$API_URL" .
+        --build-arg NEXT_PUBLIC_API_URL="$API_URL" \
+        --build-arg NEXT_PUBLIC_SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL" \
+        --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="$NEXT_PUBLIC_SUPABASE_ANON_KEY" \
+        --build-arg NEXT_PUBLIC_SITE_URL="$NEXT_PUBLIC_SITE_URL" .
     
     # イメージをプッシュ
     docker push "$GCP_ARTIFACT_REGISTRY/web:latest"
