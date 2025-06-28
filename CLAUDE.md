@@ -188,6 +188,23 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ### Import Aliases
 - `@/*` - `/web/src/*` のエイリアス
 
+### API Architecture
+
+#### Feature-based Modular Architecture
+- 機能ごとにモジュールを分割
+- 各機能は独立したコンテナを持つ
+- ユースケース単位でビジネスロジックを実装
+
+#### Service Container Pattern
+- DIコンテナによる依存性注入
+- ミドルウェアで一元的に初期化
+- テスタビリティの向上
+
+#### OpenAPI Integration
+- Hono Zod OpenAPIによる型安全なAPI定義
+- 自動的なドキュメント生成
+- フロントエンドとの型共有
+
 ## Best Practices
 
 ### コーディング規約
@@ -195,6 +212,7 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 - React Hook FormとZodでフォームバリデーション
 - Server ComponentsとClient Componentsを適切に使い分ける
 - エラーハンドリングを適切に実装する
+- APIはOpenAPI仕様に準拠
 
 ### セキュリティ
 - 環境変数でシークレット情報を管理
