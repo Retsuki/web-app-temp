@@ -1,12 +1,12 @@
-import Link from 'next/link'
-import { SignInForm } from './signin-form'
-import { GoogleAuthForm } from '@/components/app/auth/google-auth-form'
-import { signInWithGoogle } from '@/lib/auth/actions'
+import Link from "next/link";
+import { GoogleAuthForm } from "@/components/app/auth/google-auth-form";
+import { signInWithGoogle } from "@/lib/auth/actions";
+import { SignInForm } from "./signin-form";
 
 export default function SignInPage() {
   async function handleGoogleSignIn() {
-    'use server'
-    await signInWithGoogle()
+    "use server";
+    await signInWithGoogle();
   }
 
   return (
@@ -17,13 +17,13 @@ export default function SignInPage() {
             ログイン
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            または{' '}
-            <Link href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+            または{" "}
+            <Link href="/signup" className="font-medium ">
               新しいアカウントを作成
             </Link>
           </p>
         </div>
-        
+
         <SignInForm />
 
         <div className="mt-6">
@@ -44,5 +44,5 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

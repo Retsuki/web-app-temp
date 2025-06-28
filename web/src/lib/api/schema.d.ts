@@ -4,6 +4,103 @@
  */
 
 export interface paths {
+    "/api/v1/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * ユーザープロフィールを作成
+         * @description 新規ユーザーのプロフィールを作成します
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CreateUserRequest"];
+                };
+            };
+            responses: {
+                /** @description ユーザープロフィール作成成功 */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CreateUserResponse"];
+                    };
+                };
+                /** @description クライアントからのリクエストに問題があり、サーバーが処理を完了できませんでした。 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrBadRequest"];
+                    };
+                };
+                /** @description 認証が必要です。アクセストークンが無効か期限切れの可能性があります。 */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrUnauthorized"];
+                    };
+                };
+                /** @description この操作を実行する権限がありません。 */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrForbidden"];
+                    };
+                };
+                /** @description リクエストされたリソースが見つかりませんでした。 */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrNotFound"];
+                    };
+                };
+                /** @description 年齢確認に失敗しました。 */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrAgeVerification"];
+                    };
+                };
+                /** @description サーバー内部でエラーが発生しました。 */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrInternalServer"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/me": {
         parameters: {
             query?: never;
@@ -323,6 +420,179 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        CreateUserResponse: {
+            /**
+             * Format: uuid
+             * @description プロフィールID
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description ユーザーID
+             */
+            userId: string;
+            /**
+             * Format: email
+             * @description メールアドレス
+             */
+            email: string;
+            /** @description ニックネーム */
+            nickname: string;
+            /**
+             * Format: date-time
+             * @description 作成日時
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description 更新日時
+             */
+            updatedAt: string;
+        };
+        ErrBadRequest: {
+            error: {
+                /**
+                 * @description エラーコード
+                 * @example INVALID_TOKEN
+                 * @enum {string}
+                 */
+                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "CONFLICT" | "PROFILE_NOT_FOUND";
+                /** @description エラーの説明メッセージ */
+                message: string;
+                /**
+                 * @description リクエストID
+                 * @example req_1234
+                 */
+                requestId: string;
+                /**
+                 * @description HTTPステータスコード
+                 * @example 400
+                 */
+                statusCode: number;
+            };
+        };
+        ErrUnauthorized: {
+            error: {
+                /**
+                 * @description エラーコード
+                 * @example UNAUTHORIZED
+                 * @enum {string}
+                 */
+                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "CONFLICT" | "PROFILE_NOT_FOUND";
+                /** @description エラーの説明メッセージ */
+                message: string;
+                /**
+                 * @description リクエストID
+                 * @example req_1234
+                 */
+                requestId: string;
+                /**
+                 * @description HTTPステータスコード
+                 * @example 401
+                 */
+                statusCode: number;
+            };
+        };
+        ErrForbidden: {
+            error: {
+                /**
+                 * @description エラーコード
+                 * @example FORBIDDEN_OPERATION
+                 * @enum {string}
+                 */
+                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "CONFLICT" | "PROFILE_NOT_FOUND";
+                /** @description エラーの説明メッセージ */
+                message: string;
+                /**
+                 * @description リクエストID
+                 * @example req_1234
+                 */
+                requestId: string;
+                /**
+                 * @description HTTPステータスコード
+                 * @example 403
+                 */
+                statusCode: number;
+            };
+        };
+        ErrNotFound: {
+            error: {
+                /**
+                 * @description エラーコード
+                 * @example NOT_FOUND
+                 * @enum {string}
+                 */
+                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "CONFLICT" | "PROFILE_NOT_FOUND";
+                /** @description エラーの説明メッセージ */
+                message: string;
+                /**
+                 * @description リクエストID
+                 * @example req_1234
+                 */
+                requestId: string;
+                /**
+                 * @description HTTPステータスコード
+                 * @example 404
+                 */
+                statusCode: number;
+            };
+        };
+        ErrAgeVerification: {
+            error: {
+                /**
+                 * @description エラーコード
+                 * @enum {string}
+                 */
+                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "CONFLICT" | "PROFILE_NOT_FOUND";
+                /** @description エラーの説明メッセージ */
+                message: string;
+                /**
+                 * @description リクエストID
+                 * @example req_1234
+                 */
+                requestId: string;
+                /**
+                 * @description HTTPステータスコード
+                 * @example 422
+                 */
+                statusCode: number;
+            };
+        };
+        ErrInternalServer: {
+            error: {
+                /**
+                 * @description エラーコード
+                 * @enum {string}
+                 */
+                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "CONFLICT" | "PROFILE_NOT_FOUND";
+                /** @description エラーの説明メッセージ */
+                message: string;
+                /**
+                 * @description リクエストID
+                 * @example req_1234
+                 */
+                requestId: string;
+                /**
+                 * @description HTTPステータスコード
+                 * @example 500
+                 */
+                statusCode: number;
+            };
+        };
+        CreateUserRequest: {
+            /**
+             * Format: uuid
+             * @description Supabase AuthのユーザーID
+             */
+            userId: string;
+            /**
+             * Format: email
+             * @description メールアドレス
+             */
+            email: string;
+            /** @description ニックネーム */
+            nickname: string;
+        };
         UserProfile: {
             /**
              * Format: uuid
@@ -375,138 +645,6 @@ export interface components {
              * @example 2024-01-01T00:00:00Z
              */
             updatedAt: string;
-        };
-        ErrBadRequest: {
-            error: {
-                /**
-                 * @description エラーコード
-                 * @example INVALID_TOKEN
-                 * @enum {string}
-                 */
-                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "PROFILE_NOT_FOUND" | "AGE_VERIFICATION_FAILED" | "UNKNOWN_ERROR" | "SEND_NOTIFICATION_FAILED" | "SUBSCRIPTION_NOT_FOUND" | "INVALID_TYPE" | "INVALID_REQUEST" | "USER_NOT_FOUND" | "INVALID_PLACE_ID" | "PLACE_NOT_FOUND" | "PLACE_DETAILS_ERROR" | "GOOGLE_CLOUD_PROJECT_ID_NOT_FOUND" | "FRIENDSHIP_NOT_FOUND" | "FRIENDSHIP_ALREADY_EXISTS" | "FRIENDSHIP_REQUEST_NOT_FOUND" | "FRIENDSHIP_REQUEST_ALREADY_ACCEPTED" | "FRIENDSHIP_REQUEST_ALREADY_REJECTED" | "FRIENDSHIP_REQUEST_ALREADY_EXISTS" | "FRIENDSHIP_ONLY_HOMOSEXUAL" | "POST_NOT_FOUND" | "JOIN_REQUEST_NOT_FOUND" | "SAVED_SEARCH_NOT_FOUND" | "TONIGHT_PARTICIPATION_GROUP_NOT_FOUND" | "CHAT_ROOM_NOT_FOUND" | "MEMBER_NOT_FOUND";
-                /** @description エラーの説明メッセージ */
-                message: string;
-                /**
-                 * @description リクエストID
-                 * @example req_1234
-                 */
-                requestId: string;
-                /**
-                 * @description HTTPステータスコード
-                 * @example 400
-                 */
-                statusCode: number;
-            };
-        };
-        ErrUnauthorized: {
-            error: {
-                /**
-                 * @description エラーコード
-                 * @example UNAUTHORIZED
-                 * @enum {string}
-                 */
-                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "PROFILE_NOT_FOUND" | "AGE_VERIFICATION_FAILED" | "UNKNOWN_ERROR" | "SEND_NOTIFICATION_FAILED" | "SUBSCRIPTION_NOT_FOUND" | "INVALID_TYPE" | "INVALID_REQUEST" | "USER_NOT_FOUND" | "INVALID_PLACE_ID" | "PLACE_NOT_FOUND" | "PLACE_DETAILS_ERROR" | "GOOGLE_CLOUD_PROJECT_ID_NOT_FOUND" | "FRIENDSHIP_NOT_FOUND" | "FRIENDSHIP_ALREADY_EXISTS" | "FRIENDSHIP_REQUEST_NOT_FOUND" | "FRIENDSHIP_REQUEST_ALREADY_ACCEPTED" | "FRIENDSHIP_REQUEST_ALREADY_REJECTED" | "FRIENDSHIP_REQUEST_ALREADY_EXISTS" | "FRIENDSHIP_ONLY_HOMOSEXUAL" | "POST_NOT_FOUND" | "JOIN_REQUEST_NOT_FOUND" | "SAVED_SEARCH_NOT_FOUND" | "TONIGHT_PARTICIPATION_GROUP_NOT_FOUND" | "CHAT_ROOM_NOT_FOUND" | "MEMBER_NOT_FOUND";
-                /** @description エラーの説明メッセージ */
-                message: string;
-                /**
-                 * @description リクエストID
-                 * @example req_1234
-                 */
-                requestId: string;
-                /**
-                 * @description HTTPステータスコード
-                 * @example 401
-                 */
-                statusCode: number;
-            };
-        };
-        ErrForbidden: {
-            error: {
-                /**
-                 * @description エラーコード
-                 * @example FORBIDDEN_OPERATION
-                 * @enum {string}
-                 */
-                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "PROFILE_NOT_FOUND" | "AGE_VERIFICATION_FAILED" | "UNKNOWN_ERROR" | "SEND_NOTIFICATION_FAILED" | "SUBSCRIPTION_NOT_FOUND" | "INVALID_TYPE" | "INVALID_REQUEST" | "USER_NOT_FOUND" | "INVALID_PLACE_ID" | "PLACE_NOT_FOUND" | "PLACE_DETAILS_ERROR" | "GOOGLE_CLOUD_PROJECT_ID_NOT_FOUND" | "FRIENDSHIP_NOT_FOUND" | "FRIENDSHIP_ALREADY_EXISTS" | "FRIENDSHIP_REQUEST_NOT_FOUND" | "FRIENDSHIP_REQUEST_ALREADY_ACCEPTED" | "FRIENDSHIP_REQUEST_ALREADY_REJECTED" | "FRIENDSHIP_REQUEST_ALREADY_EXISTS" | "FRIENDSHIP_ONLY_HOMOSEXUAL" | "POST_NOT_FOUND" | "JOIN_REQUEST_NOT_FOUND" | "SAVED_SEARCH_NOT_FOUND" | "TONIGHT_PARTICIPATION_GROUP_NOT_FOUND" | "CHAT_ROOM_NOT_FOUND" | "MEMBER_NOT_FOUND";
-                /** @description エラーの説明メッセージ */
-                message: string;
-                /**
-                 * @description リクエストID
-                 * @example req_1234
-                 */
-                requestId: string;
-                /**
-                 * @description HTTPステータスコード
-                 * @example 403
-                 */
-                statusCode: number;
-            };
-        };
-        ErrNotFound: {
-            error: {
-                /**
-                 * @description エラーコード
-                 * @example NOT_FOUND
-                 * @enum {string}
-                 */
-                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "PROFILE_NOT_FOUND" | "AGE_VERIFICATION_FAILED" | "UNKNOWN_ERROR" | "SEND_NOTIFICATION_FAILED" | "SUBSCRIPTION_NOT_FOUND" | "INVALID_TYPE" | "INVALID_REQUEST" | "USER_NOT_FOUND" | "INVALID_PLACE_ID" | "PLACE_NOT_FOUND" | "PLACE_DETAILS_ERROR" | "GOOGLE_CLOUD_PROJECT_ID_NOT_FOUND" | "FRIENDSHIP_NOT_FOUND" | "FRIENDSHIP_ALREADY_EXISTS" | "FRIENDSHIP_REQUEST_NOT_FOUND" | "FRIENDSHIP_REQUEST_ALREADY_ACCEPTED" | "FRIENDSHIP_REQUEST_ALREADY_REJECTED" | "FRIENDSHIP_REQUEST_ALREADY_EXISTS" | "FRIENDSHIP_ONLY_HOMOSEXUAL" | "POST_NOT_FOUND" | "JOIN_REQUEST_NOT_FOUND" | "SAVED_SEARCH_NOT_FOUND" | "TONIGHT_PARTICIPATION_GROUP_NOT_FOUND" | "CHAT_ROOM_NOT_FOUND" | "MEMBER_NOT_FOUND";
-                /** @description エラーの説明メッセージ */
-                message: string;
-                /**
-                 * @description リクエストID
-                 * @example req_1234
-                 */
-                requestId: string;
-                /**
-                 * @description HTTPステータスコード
-                 * @example 404
-                 */
-                statusCode: number;
-            };
-        };
-        ErrAgeVerification: {
-            error: {
-                /**
-                 * @description エラーコード
-                 * @example AGE_VERIFICATION_FAILED
-                 * @enum {string}
-                 */
-                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "PROFILE_NOT_FOUND" | "AGE_VERIFICATION_FAILED" | "UNKNOWN_ERROR" | "SEND_NOTIFICATION_FAILED" | "SUBSCRIPTION_NOT_FOUND" | "INVALID_TYPE" | "INVALID_REQUEST" | "USER_NOT_FOUND" | "INVALID_PLACE_ID" | "PLACE_NOT_FOUND" | "PLACE_DETAILS_ERROR" | "GOOGLE_CLOUD_PROJECT_ID_NOT_FOUND" | "FRIENDSHIP_NOT_FOUND" | "FRIENDSHIP_ALREADY_EXISTS" | "FRIENDSHIP_REQUEST_NOT_FOUND" | "FRIENDSHIP_REQUEST_ALREADY_ACCEPTED" | "FRIENDSHIP_REQUEST_ALREADY_REJECTED" | "FRIENDSHIP_REQUEST_ALREADY_EXISTS" | "FRIENDSHIP_ONLY_HOMOSEXUAL" | "POST_NOT_FOUND" | "JOIN_REQUEST_NOT_FOUND" | "SAVED_SEARCH_NOT_FOUND" | "TONIGHT_PARTICIPATION_GROUP_NOT_FOUND" | "CHAT_ROOM_NOT_FOUND" | "MEMBER_NOT_FOUND";
-                /** @description エラーの説明メッセージ */
-                message: string;
-                /**
-                 * @description リクエストID
-                 * @example req_1234
-                 */
-                requestId: string;
-                /**
-                 * @description HTTPステータスコード
-                 * @example 422
-                 */
-                statusCode: number;
-            };
-        };
-        ErrInternalServer: {
-            error: {
-                /**
-                 * @description エラーコード
-                 * @example UNKNOWN_ERROR
-                 * @enum {string}
-                 */
-                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "PROFILE_NOT_FOUND" | "AGE_VERIFICATION_FAILED" | "UNKNOWN_ERROR" | "SEND_NOTIFICATION_FAILED" | "SUBSCRIPTION_NOT_FOUND" | "INVALID_TYPE" | "INVALID_REQUEST" | "USER_NOT_FOUND" | "INVALID_PLACE_ID" | "PLACE_NOT_FOUND" | "PLACE_DETAILS_ERROR" | "GOOGLE_CLOUD_PROJECT_ID_NOT_FOUND" | "FRIENDSHIP_NOT_FOUND" | "FRIENDSHIP_ALREADY_EXISTS" | "FRIENDSHIP_REQUEST_NOT_FOUND" | "FRIENDSHIP_REQUEST_ALREADY_ACCEPTED" | "FRIENDSHIP_REQUEST_ALREADY_REJECTED" | "FRIENDSHIP_REQUEST_ALREADY_EXISTS" | "FRIENDSHIP_ONLY_HOMOSEXUAL" | "POST_NOT_FOUND" | "JOIN_REQUEST_NOT_FOUND" | "SAVED_SEARCH_NOT_FOUND" | "TONIGHT_PARTICIPATION_GROUP_NOT_FOUND" | "CHAT_ROOM_NOT_FOUND" | "MEMBER_NOT_FOUND";
-                /** @description エラーの説明メッセージ */
-                message: string;
-                /**
-                 * @description リクエストID
-                 * @example req_1234
-                 */
-                requestId: string;
-                /**
-                 * @description HTTPステータスコード
-                 * @example 500
-                 */
-                statusCode: number;
-            };
         };
         UpdateProfileRequest: {
             /**
