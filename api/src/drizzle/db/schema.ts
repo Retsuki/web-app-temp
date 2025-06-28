@@ -1,6 +1,8 @@
 import { relations, sql } from "drizzle-orm";
 import {
+  boolean,
   pgTable,
+  text,
   timestamp,
   uuid,
   varchar,
@@ -22,11 +24,23 @@ export const profiles = pgTable("profiles", {
   // メールアドレス
   email: varchar("email", { length: 255 }).notNull().unique(),
 
+  // アバター画像URL
+  avatarUrl: varchar("avatar_url", { length: 500 }),
+
+  // 自己紹介
+  bio: text("bio"),
+
+  // プロフィール公開設定
+  isPublic: boolean("is_public").default(true).notNull(),
+
   // 作成日時
   createdAt: timestamp("created_at").default(sql`now()`),
 
   // 更新日時
   updatedAt: timestamp("updated_at").default(sql`now()`),
+
+  // 削除日時（論理削除）
+  deletedAt: timestamp("deleted_at"),
 });
 
 // リレーション定義
