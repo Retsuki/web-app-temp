@@ -23,15 +23,14 @@ deploy_api() {
     # イメージをプッシュ
     docker push "$GCP_ARTIFACT_REGISTRY/api:latest"
     
-    # Cloud Run にデプロイ
+    # Cloud Run にデプロイ（統合シークレットを使用）
     gcloud run deploy $CLOUD_RUN_SERVICE_NAME_API \
         --image="$GCP_ARTIFACT_REGISTRY/api:latest" \
         --platform=managed \
         --region="$GCP_REGION" \
         --allow-unauthenticated \
         --set-env-vars="NODE_ENV=production" \
-        --set-secrets="DATABASE_URL=database-url:latest" \
-        --set-secrets="SUPABASE_SERVICE_ROLE_KEY=supabase-service-role-key:latest"
+        --set-secrets="/workspace/.env=api-env-production:latest"
     
     cd ..
     log_success "APIサービスのデプロイが完了しました"
@@ -56,7 +55,7 @@ deploy_web() {
     # イメージをプッシュ
     docker push "$GCP_ARTIFACT_REGISTRY/web:latest"
     
-    # Cloud Run にデプロイ
+    # Cloud Run にデプロイ（統合シークレットを使用）
     gcloud run deploy $CLOUD_RUN_SERVICE_NAME_WEB \
         --image="$GCP_ARTIFACT_REGISTRY/web:latest" \
         --platform=managed \
@@ -64,8 +63,7 @@ deploy_web() {
         --allow-unauthenticated \
         --set-env-vars="NODE_ENV=production" \
         --set-env-vars="NEXT_PUBLIC_API_URL=$API_URL" \
-        --set-secrets="NEXT_PUBLIC_SUPABASE_URL=next-public-supabase-url:latest" \
-        --set-secrets="NEXT_PUBLIC_SUPABASE_ANON_KEY=next-public-supabase-anon-key:latest"
+        --set-secrets="/workspace/.env=web-env-production:latest"
     
     cd ..
     log_success "Webアプリケーションのデプロイが完了しました"

@@ -210,6 +210,118 @@ setup_secret_manager() {
         return
     fi
     
+    log_info "環境変数の管理方法を選択してください："
+    echo "1) 個別のシークレット（各環境変数を個別に管理）"
+    echo "2) 統合シークレット（.envファイル形式で一括管理）"
+    echo ""
+    ask_question "選択（1 or 2）" SECRET_MANAGEMENT_TYPE "2"
+    
+    if [ "$SECRET_MANAGEMENT_TYPE" = "2" ]; then
+        setup_unified_secrets
+    else
+        setup_individual_secrets
+    fi
+    
+    log_success "Secret Manager の設定が完了しました"
+}
+
+# 統合シークレット管理（推奨）
+setup_unified_secrets() {
+    log_info ".envファイル形式で環境変数を一括管理します"
+    
+    # APIとWeb用の統合シークレット
+    local env_secrets=(
+        "api-env-production:APIサーバー用環境変数"
+        "web-env-production:Webアプリ用環境変数"
+    )
+    
+    for secret_spec in "${env_secrets[@]}"; do
+        local secret_id="${secret_spec%%:*}"
+        local description="${secret_spec#*:}"
+        
+        log_info "$description を設定します"
+        
+        # シークレットが既に存在するか確認
+        if gcloud secrets describe "$secret_id" --project="$PROJECT_ID" &>/dev/null; then
+            if confirm "  $secret_id は既に存在します。更新しますか？" "n"; then
+                create_env_content "$secret_id"
+            fi
+        else
+            # シークレットを作成
+            gcloud secrets create "$secret_id" \
+                --replication-policy="automatic" \
+                --project="$PROJECT_ID" \
+                --labels="app=web-app-temp,env=production"
+            
+            create_env_content "$secret_id"
+        fi
+    done
+}
+
+# .env形式のコンテンツを作成
+create_env_content() {
+    local secret_id=$1
+    local temp_file=$(mktemp)
+    
+    if [ "$secret_id" = "api-env-production" ]; then
+        cat > "$temp_file" << 'EOF'
+# APIサーバー環境変数
+NODE_ENV=production
+PORT=8080
+
+# Database
+DATABASE_URL=
+
+# Supabase
+SUPABASE_SERVICE_ROLE_KEY=
+
+# その他の環境変数をここに追加
+EOF
+    elif [ "$secret_id" = "web-env-production" ]; then
+        cat > "$temp_file" << 'EOF'
+# Webアプリ環境変数
+NODE_ENV=production
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+
+# API
+NEXT_PUBLIC_API_URL=
+
+# Google OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# その他の環境変数をここに追加
+EOF
+    fi
+    
+    echo ""
+    echo "以下の内容でシークレットを作成します："
+    echo "----------------------------------------"
+    cat "$temp_file"
+    echo "----------------------------------------"
+    
+    if confirm "この内容で保存しますか？（後で編集可能）" "y"; then
+        echo ""
+        log_info "環境変数の値を入力してください（空欄のままにすると後で設定できます）"
+        
+        # エディタで編集
+        ${EDITOR:-nano} "$temp_file"
+        
+        # Secret Managerに保存
+        gcloud secrets versions add "$secret_id" --data-file="$temp_file"
+        log_success "$secret_id を保存しました"
+    fi
+    
+    rm -f "$temp_file"
+}
+
+# 個別シークレット管理（従来の方法）
+setup_individual_secrets() {
+    log_info "各環境変数を個別のシークレットとして管理します"
+    
     # 必要な環境変数のリスト
     local secrets=(
         "SUPABASE_SERVICE_ROLE_KEY"
@@ -219,10 +331,6 @@ setup_secret_manager() {
         "GOOGLE_CLIENT_ID"
         "GOOGLE_CLIENT_SECRET"
     )
-    
-    log_info "環境変数を Secret Manager に保存します"
-    echo "※ 値は後で設定することもできます"
-    echo ""
     
     for secret_name in "${secrets[@]}"; do
         # シークレット名を Cloud Run 互換の形式に変換（アンダースコアをハイフンに）
@@ -252,8 +360,6 @@ setup_secret_manager() {
             fi
         fi
     done
-    
-    log_success "Secret Manager の設定が完了しました"
 }
 
 # Artifact Registry の設定
@@ -380,15 +486,14 @@ deploy_api() {
     # イメージをプッシュ
     docker push "$GCP_ARTIFACT_REGISTRY/api:latest"
     
-    # Cloud Run にデプロイ
+    # Cloud Run にデプロイ（統合シークレットを使用）
     gcloud run deploy $CLOUD_RUN_SERVICE_NAME_API \
         --image="$GCP_ARTIFACT_REGISTRY/api:latest" \
         --platform=managed \
         --region="$GCP_REGION" \
         --allow-unauthenticated \
         --set-env-vars="NODE_ENV=production" \
-        --set-secrets="DATABASE_URL=database-url:latest" \
-        --set-secrets="SUPABASE_SERVICE_ROLE_KEY=supabase-service-role-key:latest"
+        --set-secrets="/workspace/.env=api-env-production:latest"
     
     cd ..
     log_success "APIサービスのデプロイが完了しました"
@@ -413,7 +518,7 @@ deploy_web() {
     # イメージをプッシュ
     docker push "$GCP_ARTIFACT_REGISTRY/web:latest"
     
-    # Cloud Run にデプロイ
+    # Cloud Run にデプロイ（統合シークレットを使用）
     gcloud run deploy $CLOUD_RUN_SERVICE_NAME_WEB \
         --image="$GCP_ARTIFACT_REGISTRY/web:latest" \
         --platform=managed \
@@ -421,8 +526,7 @@ deploy_web() {
         --allow-unauthenticated \
         --set-env-vars="NODE_ENV=production" \
         --set-env-vars="NEXT_PUBLIC_API_URL=$API_URL" \
-        --set-secrets="NEXT_PUBLIC_SUPABASE_URL=next-public-supabase-url:latest" \
-        --set-secrets="NEXT_PUBLIC_SUPABASE_ANON_KEY=next-public-supabase-anon-key:latest"
+        --set-secrets="/workspace/.env=web-env-production:latest"
     
     cd ..
     log_success "Webアプリケーションのデプロイが完了しました"
@@ -454,7 +558,12 @@ print_next_steps() {
     echo "📋 次のステップ:"
     echo ""
     echo "1. Secret Manager で環境変数の値を設定（未設定の場合）:"
-    echo "   gcloud secrets versions add <secret-name> --data-file=-"
+    echo "   # 統合シークレットの場合（推奨）"
+    echo "   gcloud secrets versions add api-env-production --data-file=.env.production.api"
+    echo "   gcloud secrets versions add web-env-production --data-file=.env.production.web"
+    echo ""
+    echo "   # または、コンソールから編集"
+    echo "   https://console.cloud.google.com/security/secret-manager"
     echo ""
     echo "2. Supabase プロジェクトの環境変数を Secret Manager に設定済みか確認"
     echo ""
