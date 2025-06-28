@@ -1,12 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '../client'
+import { createAuthenticatedClient } from '../client-with-auth'
 
-// 自分のプロフィール取得用フック
+// 自分のプロフィール取得用フック（認証付き）
 export const useMyProfile = () => {
   return useQuery({
     queryKey: ['user', 'me'],
     queryFn: async () => {
-      const { data, error } = await apiClient.GET('/api/v1/users/me')
+      const client = createAuthenticatedClient()
+      const { data, error } = await client.GET('/api/v1/users/me')
       if (error) throw error
       return data
     },
@@ -40,13 +42,14 @@ export const useUsers = () => {
   })
 }
 
-// ユーザー更新用フック
+// ユーザー更新用フック（認証付き）
 export const useUpdateUser = () => {
   const queryClient = useQueryClient()
   
   return useMutation({
     mutationFn: async ({ id, ...data }: { id: string; nickname?: string; email?: string }) => {
-      const { data: result, error } = await apiClient.PUT('/api/v1/users/{id}', {
+      const client = createAuthenticatedClient()
+      const { data: result, error } = await client.PUT('/api/v1/users/{id}', {
         params: { path: { id } },
         body: data,
       })
@@ -57,6 +60,7 @@ export const useUpdateUser = () => {
       // キャッシュを更新
       queryClient.invalidateQueries({ queryKey: ['user', variables.id] })
       queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: ['user', 'me'] })
     },
   })
 }
