@@ -58,6 +58,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run lint        # Biomeでリント
 npm run format      # Biomeでフォーマット
 npm run check       # Biomeでチェック
+npm run check:apply # Biomeでチェックと修正
+
+# APIスキーマ生成
+npm run gen:api     # OpenAPIスキーマからTypeScript型定義を生成
+npm run api:schema  # OpenAPIドキュメント取得と型生成を一括実行
+npm run fetch:openapi # OpenAPIドキュメントを取得のみ
 ```
 
 ### Frontend
@@ -67,12 +73,13 @@ npm run dev         # 開発サーバー起動 (http://localhost:3000)
 npm run build       # プロダクションビルド
 npm run start       # プロダクションサーバー起動
 npm run lint        # リントチェック
+npm run gen:api     # OpenAPIスキーマからTypeScript型定義を生成
 ```
 
 ### Backend
 ```bash
 cd api
-npm run dev         # 開発サーバー起動 (http://localhost:3001)
+npm run dev         # 開発サーバー起動 (http://localhost:8080)
 npm run build       # TypeScriptビルド
 npm run start       # プロダクションサーバー起動
 npm run db:generate # Drizzleマイグレーション生成
@@ -204,6 +211,7 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 - Hono Zod OpenAPIによる型安全なAPI定義
 - 自動的なドキュメント生成
 - フロントエンドとの型共有
+- APIドキュメント: http://localhost:8080/api/v1/doc
 
 ## Best Practices
 
