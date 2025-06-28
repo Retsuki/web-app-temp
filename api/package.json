@@ -2,9 +2,9 @@
   "name": "api",
   "type": "module",
   "scripts": {
-    "dev": "GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/service-account.json tsx watch src/index.ts",
-    "dev:build": "GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/service-account-for-ai.json tsc",
-    "dev:start": "GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/service-account.json tsc",
+    "dev": "tsx watch src/index.ts",
+    "dev:build": "tsc",
+    "dev:start": "tsc",
     "build": "tsc",
     "start": "node dist/index.js",
     "db:seed": "tsx src/drizzle/db/seed/index.ts",

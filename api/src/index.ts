@@ -1,7 +1,10 @@
+import dotenv from "dotenv";
+
+dotenv.config();
 import { serve } from "@hono/node-server";
 import { createApp } from "./_shared/factory/create-app.js";
-import { usersApi } from "./features/users/index.js";
 import { healthApi } from "./features/health/index.js";
+import { usersApi } from "./features/users/index.js";
 
 const app = createApp();
 

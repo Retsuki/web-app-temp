@@ -4,8 +4,6 @@ import { UserContainer } from "../../../features/users/container.js";
 import { logger } from "../../utils/logger.js";
 
 export interface AppConfig {
-  revenueCatApiKey: string;
-  googlePlacesApiKey: string;
   googleCloudProjectId?: string;
 }
 
@@ -35,7 +33,7 @@ export class ServiceContainer {
 
     // Initialize feature containers
     this.users = new UserContainer(db);
-    
+
     // 将来的な拡張例:
     // this.posts = new PostContainer(db);
     // this.notifications = new NotificationContainer(db);
