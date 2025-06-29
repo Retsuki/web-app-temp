@@ -12,6 +12,12 @@ command -v node >/dev/null 2>&1 || { echo "❌ Node.js がインストールさ�
 command -v npm >/dev/null 2>&1 || { echo "❌ npm がインストールされていません。" >&2; exit 1; }
 command -v supabase >/dev/null 2>&1 || { echo "❌ Supabase CLI がインストールされていません。" >&2; exit 1; }
 
+# Supabaseプロジェクト名の入力
+echo ""
+read -p "Supabaseプロジェクト名を入力してください (デフォルト: web_app_temp): " project_id
+project_id=${project_id:-web_app_temp}
+echo "プロジェクト名: $project_id"
+
 # .env ファイルの作成
 if [ ! -f .env ]; then
     echo "📝 .env ファイルを作成しています..."
@@ -32,6 +38,18 @@ cd web && npm install && cd ..
 # api ディレクトリの依存関係
 echo "📦 APIサーバーの依存関係をインストールしています..."
 cd api && npm install && cd ..
+
+# Supabase設定ファイルの更新
+echo "📝 Supabase設定ファイルを更新しています..."
+if [ -f supabase/config.toml ]; then
+    # macOSとLinuxの両方に対応
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' "s/project_id = \".*\"/project_id = \"$project_id\"/" supabase/config.toml
+    else
+        sed -i "s/project_id = \".*\"/project_id = \"$project_id\"/" supabase/config.toml
+    fi
+    echo "✅ プロジェクトID を '$project_id' に設定しました。"
+fi
 
 # Supabase のセットアップ
 echo "🗄️  Supabase をセットアップしています..."
