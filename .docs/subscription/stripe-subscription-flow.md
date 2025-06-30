@@ -105,7 +105,7 @@ sequenceDiagram
    profiles:
      - stripeCustomerId: 'cus_xxx'を保存
      - plan: 'indie'に更新
-     - scansResetAt: 次回リセット日を設定
+     - usageResetAt: 次回リセット日を設定
    
    subscriptions:
      - stripeSubscriptionId: 'sub_xxx'
@@ -138,8 +138,8 @@ sequenceDiagram
    a) invoice.payment_succeeded（成功時）:
       - paymentHistoryに支払い記録追加
       - subscriptions.currentPeriod更新
-      - profiles.monthlyScansUsed = 0にリセット
-      - profiles.scansResetAt更新
+      - profiles.monthlyUsageCount = 0にリセット
+      - profiles.usageResetAt更新
    
    b) invoice.payment_failed（失敗時）:
       - subscriptions.status = 'past_due'

@@ -1,6 +1,5 @@
 import { relations, sql } from "drizzle-orm";
 import {
-	boolean,
 	index,
 	integer,
 	jsonb,
@@ -37,6 +36,8 @@ export const profiles = pgTable("profiles", {
 	// Stripe関連
 	stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).unique(),
 	plan: varchar("plan", { length: 50 }).notNull().default("free"), // free, indie, pro
+	monthlyUsageLimit: integer("monthly_usage_limit").notNull(), // 月間使用回数上限
+	monthlyUsage: integer("monthly_usage").notNull().default(0), // 月間使用回数
 });
 
 // サブスクリプションテーブル
@@ -168,7 +169,7 @@ export const planLimits = pgTable("plan_limits", {
 	plan: varchar("plan", { length: 50 }).notNull().unique(), // free, indie, pro
 
 	// 制限値
-	monthlyScansLimit: integer("monthly_scans_limit").notNull(), // 月間スキャン回数上限
+	monthlyUsageLimit: integer("monthly_usage_limit").notNull(), // 月間使用回数上限
 	projectsLimit: integer("projects_limit").notNull(), // プロジェクト数上限
 	membersPerProjectLimit: integer("members_per_project_limit").notNull(), // プロジェクトあたりのメンバー数上限
 
