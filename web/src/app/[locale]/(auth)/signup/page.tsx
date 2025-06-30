@@ -1,9 +1,12 @@
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { SignUpForm } from './signup-form'
 import { GoogleAuthForm } from '@/components/app/auth/google-auth-form'
 import { signInWithGoogle } from '@/lib/auth/actions'
 
 export default function SignUpPage() {
+  const t = useTranslations()
+  
   async function handleGoogleSignIn() {
     'use server'
     await signInWithGoogle()
@@ -14,12 +17,12 @@ export default function SignUpPage() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            アカウントを作成
+            {t('auth.signUpTitle')}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            または{' '}
+            {t('auth.alreadyHaveAccount')}{' '}
             <Link href="/signin" className="font-medium text-indigo-600 hover:text-indigo-500">
-              既存のアカウントでログイン
+              {t('common.signIn')}
             </Link>
           </p>
         </div>
@@ -38,7 +41,7 @@ export default function SignUpPage() {
 
           <div className="mt-6">
             <GoogleAuthForm action={handleGoogleSignIn}>
-              Googleで登録
+              {t('auth.signUpWithGoogle')}
             </GoogleAuthForm>
           </div>
         </div>

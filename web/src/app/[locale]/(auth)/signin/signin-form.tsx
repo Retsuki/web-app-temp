@@ -4,26 +4,29 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useTranslations } from 'next-intl'
 import { signIn } from '@/lib/auth/actions'
 import { Form } from '@/components/ui/form'
 import { FormInput } from '@/components/app/input/form-input'
 import { PrimaryButton } from '@/components/app/button/primary-button'
 
-const formSchema = z.object({
+const getFormSchema = (t: any) => z.object({
   email: z
     .string()
-    .email('有効なメールアドレスを入力してください'),
+    .email(t('validation.email')),
   password: z
     .string()
-    .min(1, 'パスワードを入力してください'),
+    .min(1, t('validation.required', { field: t('common.password') })),
 })
 
 type FormValues = z.infer<typeof formSchema>
 
 export function SignInForm() {
+  const t = useTranslations()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
+  const formSchema = getFormSchema(t)
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -51,18 +54,18 @@ export function SignInForm() {
           <FormInput
             control={form.control}
             name="email"
-            label="メールアドレス"
+            label={t('auth.emailLabel')}
             type="email"
-            placeholder="メールアドレス"
+            placeholder={t('auth.emailLabel')}
             autoComplete="email"
           />
           
           <FormInput
             control={form.control}
             name="password"
-            label="パスワード"
+            label={t('auth.passwordLabel')}
             type="password"
-            placeholder="パスワード"
+            placeholder={t('auth.passwordLabel')}
             autoComplete="current-password"
           />
         </div>
@@ -83,7 +86,7 @@ export function SignInForm() {
             disabled={loading}
             className="w-full"
           >
-            {loading ? 'ログイン中...' : 'ログイン'}
+            {loading ? t('common.loading') : t('auth.signInButton')}
           </PrimaryButton>
         </div>
       </form>

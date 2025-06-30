@@ -48,7 +48,7 @@ export const GoogleButton = React.forwardRef<
     >
       <div className="flex items-center gap-3">
         <GoogleIcon />
-        <span>{children || 'Googleでログイン'}</span>
+        <span>{children}</span>
       </div>
     </Button>
   );

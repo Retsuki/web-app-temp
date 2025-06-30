@@ -3,16 +3,19 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useTranslations } from 'next-intl'
 import { signUp } from '@/lib/auth/actions'
 import { Form } from '@/components/ui/form'
 import { FormInput } from '@/components/app/input/form-input'
 import { PrimaryButton } from '@/components/app/button/primary-button'
-import { formSchema, FormValues } from './_schema'
+import { getFormSchema, FormValues } from './_schema'
 
 export function SignUpForm() {
+  const t = useTranslations()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
+  const formSchema = getFormSchema(t)
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -41,27 +44,27 @@ export function SignUpForm() {
           <FormInput
             control={form.control}
             name="nickname"
-            label="ニックネーム"
+            label={t('auth.nicknameLabel')}
             type="text"
-            placeholder="田中太郎"
+            placeholder={t('auth.nicknameLabel')}
             autoComplete="nickname"
           />
 
           <FormInput
             control={form.control}
             name="email"
-            label="メールアドレス"
+            label={t('auth.emailLabel')}
             type="email"
-            placeholder="メールアドレス"
+            placeholder={t('auth.emailLabel')}
             autoComplete="email"
           />
           
           <FormInput
             control={form.control}
             name="password"
-            label="パスワード"
+            label={t('auth.passwordLabel')}
             type="password"
-            placeholder="8文字以上のパスワード"
+            placeholder={t('validation.minLength', { field: t('common.password'), min: 8 })}
             autoComplete="new-password"
           />
         </div>
@@ -82,7 +85,7 @@ export function SignUpForm() {
             disabled={loading}
             className="w-full"
           >
-            {loading ? '作成中...' : 'アカウントを作成'}
+            {loading ? t('common.loading') : t('auth.signUpButton')}
           </PrimaryButton>
         </div>
       </form>
