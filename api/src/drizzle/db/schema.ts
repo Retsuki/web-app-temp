@@ -36,8 +36,8 @@ export const profiles = pgTable("profiles", {
 	// Stripe関連
 	stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).unique(),
 	plan: varchar("plan", { length: 50 }).notNull().default("free"), // free, indie, pro
-	monthlyUsageLimit: integer("monthly_usage_limit").notNull(), // 月間使用回数上限
-	monthlyUsage: integer("monthly_usage").notNull().default(0), // 月間使用回数
+	monthlyUsageCount: integer("monthly_usage_count").notNull().default(0), // 月間使用回数
+	usageResetAt: timestamp("usage_reset_at"), // 使用回数リセット日時
 });
 
 // サブスクリプションテーブル
@@ -77,6 +77,12 @@ export const subscriptions = pgTable("subscriptions", {
 	// タイムスタンプ
 	createdAt: timestamp("created_at").default(sql`now()`).notNull(),
 	updatedAt: timestamp("updated_at").default(sql`now()`).notNull(),
+}, (table) => {
+	return {
+		userIdIdx: index("subscriptions_user_id_idx").on(table.userId),
+		statusIdx: index("subscriptions_status_idx").on(table.status),
+		planIdx: index("subscriptions_plan_idx").on(table.plan),
+	};
 });
 
 // 支払い履歴テーブル
@@ -122,6 +128,13 @@ export const paymentHistory = pgTable("payment_history", {
 	paidAt: timestamp("paid_at"),
 	failedAt: timestamp("failed_at"),
 	createdAt: timestamp("created_at").default(sql`now()`).notNull(),
+}, (table) => {
+	return {
+		userIdIdx: index("payment_history_user_id_idx").on(table.userId),
+		subscriptionIdIdx: index("payment_history_subscription_id_idx").on(table.subscriptionId),
+		statusIdx: index("payment_history_status_idx").on(table.status),
+		createdAtIdx: index("payment_history_created_at_idx").on(table.createdAt),
+	};
 });
 
 // Webhookイベント履歴テーブル
@@ -174,7 +187,7 @@ export const planLimits = pgTable("plan_limits", {
 	membersPerProjectLimit: integer("members_per_project_limit").notNull(), // プロジェクトあたりのメンバー数上限
 
 	// 機能フラグ
-	features: jsonb("features").notNull().default("{}"), // { "api_access": true, "export": true, ... }
+	features: jsonb("features").notNull().default(sql`'{}'::jsonb`), // { "api_access": true, "export": true, ... }
 
 	// 料金情報（表示用）
 	monthlyPrice: integer("monthly_price").notNull(), // 月額料金（円）
@@ -185,22 +198,6 @@ export const planLimits = pgTable("plan_limits", {
 	createdAt: timestamp("created_at").default(sql`now()`).notNull(),
 	updatedAt: timestamp("updated_at").default(sql`now()`).notNull(),
 });
-
-// インデックス
-export const subscriptionIndexes = [
-	index("subscriptions_user_id_idx").on(subscriptions.userId),
-	index("subscriptions_status_idx").on(subscriptions.status),
-	index("subscriptions_plan_idx").on(subscriptions.plan),
-];
-
-export const paymentHistoryIndexes = [
-	index("payment_history_user_id_idx").on(paymentHistory.userId),
-	index("payment_history_subscription_id_idx").on(
-		paymentHistory.subscriptionId,
-	),
-	index("payment_history_status_idx").on(paymentHistory.status),
-	index("payment_history_created_at_idx").on(paymentHistory.createdAt),
-];
 
 // リレーション定義
 export const profilesRelations = relations(profiles, ({ many }) => ({
