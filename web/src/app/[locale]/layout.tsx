@@ -3,9 +3,9 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { notFound } from 'next/navigation'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
-import { isValidLocale } from '../../i18n'
 import { Providers } from '../providers'
 import './globals.css'
+import { isValidLocale } from '../../../i18n'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
