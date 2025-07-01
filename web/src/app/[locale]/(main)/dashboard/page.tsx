@@ -1,9 +1,11 @@
 import { signOut } from "@/lib/auth/actions";
 import { requireAuth } from "@/lib/auth/server-helpers";
 import { ProfileEdit } from "./profile-edit";
+import { getTranslations } from 'next-intl/server';
 
 export default async function DashboardPage() {
   const { profile, error } = await requireAuth();
+  const t = await getTranslations();
 
   if (error || !profile) {
     return (
@@ -12,15 +14,15 @@ export default async function DashboardPage() {
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
               <h1 className="text-2xl font-bold text-gray-900 mb-4">
-                ダッシュボード
+                {t('dashboard.title')}
               </h1>
 
               <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
                 <p className="text-sm font-medium">
-                  プロフィールの読み込みに失敗しました
+                  {t('errors.serverError')}
                 </p>
                 <p className="text-xs mt-1">
-                  APIサーバーが起動していることを確認してください。
+                  {t('errors.somethingWentWrong')}
                 </p>
               </div>
 
@@ -29,7 +31,7 @@ export default async function DashboardPage() {
                   type="submit"
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 >
-                  ログアウト
+                  {t('common.signOut')}
                 </button>
               </form>
             </div>
@@ -49,17 +51,17 @@ export default async function DashboardPage() {
             </h1>
 
             <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-              <p className="text-sm">✅ APIからデータを正常に取得しました</p>
+              <p className="text-sm">✅ {t('common.success')}</p>
             </div>
 
             <div className="mb-6">
               <h2 className="text-lg font-medium text-gray-900 mb-2">
-                プロフィール情報
+                {t('profile.basicInfo')}
               </h2>
               <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
                 <div>
                   <dt className="text-sm font-medium text-gray-500">
-                    ユーザーID
+                    ID
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 font-mono">
                     {profile.userId}
@@ -67,7 +69,7 @@ export default async function DashboardPage() {
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-gray-500">
-                    ニックネーム
+                    {t('common.nickname')}
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900">
                     {profile.nickname}
@@ -75,7 +77,7 @@ export default async function DashboardPage() {
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-gray-500">
-                    メールアドレス
+                    {t('common.email')}
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900">
                     {profile.email}
@@ -83,10 +85,10 @@ export default async function DashboardPage() {
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-gray-500">
-                    作成日時
+                    Created
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900">
-                    {new Date(profile.createdAt).toLocaleString("ja-JP")}
+                    {new Date(profile.createdAt).toLocaleString()}
                   </dd>
                 </div>
               </dl>
@@ -100,7 +102,7 @@ export default async function DashboardPage() {
                 type="submit"
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
-                ログアウト
+                {t('common.signOut')}
               </button>
             </form>
           </div>
