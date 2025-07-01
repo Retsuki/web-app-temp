@@ -1,5 +1,6 @@
 'use client'
 
+import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
@@ -8,7 +9,7 @@ import { createClient } from '@/lib/supabase/client'
 
 export default function Home() {
   const t = useTranslations()
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -44,7 +45,7 @@ export default function Home() {
             ) : user ? (
               <>
                 <p className="text-center text-gray-600">
-                  {t('dashboard.welcome', { name: user.email })}
+                  {t('dashboard.welcome', { name: user.email || '' })}
                 </p>
                 <Link
                   href="/dashboard"
