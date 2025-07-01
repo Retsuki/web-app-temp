@@ -1,6 +1,6 @@
-import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { GoogleAuthForm } from '@/components/app/auth/google-auth-form'
+import { Link } from '@/i18n/routing'
 import { signInWithGoogle } from '@/lib/auth/actions'
 import { SignInForm } from './signin-form'
 

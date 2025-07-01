@@ -1,12 +1,12 @@
-import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { SignUpForm } from './signup-form'
 import { GoogleAuthForm } from '@/components/app/auth/google-auth-form'
+import { Link } from '@/i18n/routing'
 import { signInWithGoogle } from '@/lib/auth/actions'
+import { SignUpForm } from './signup-form'
 
 export default function SignUpPage() {
   const t = useTranslations()
-  
+
   async function handleGoogleSignIn() {
     'use server'
     await signInWithGoogle()
@@ -26,7 +26,7 @@ export default function SignUpPage() {
             </Link>
           </p>
         </div>
-        
+
         <SignUpForm />
 
         <div className="mt-6">

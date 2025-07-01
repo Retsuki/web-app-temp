@@ -1,10 +1,10 @@
 'use client'
 
 import type { User } from '@supabase/supabase-js'
-import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 import { LanguageSwitcher } from '@/components/app/language-switcher'
+import { Link } from '@/i18n/routing'
 import { createClient } from '@/lib/supabase/client'
 
 export default function Home() {
