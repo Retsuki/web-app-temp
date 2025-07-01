@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { LanguageSwitcher } from '@/components/app/language-switcher'
 import { useEffect, useState } from 'react'
+import { LanguageSwitcher } from '@/components/app/language-switcher'
 import { createClient } from '@/lib/supabase/client'
 
 export default function Home() {
@@ -14,7 +14,9 @@ export default function Home() {
   useEffect(() => {
     const getUser = async () => {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       setUser(user)
       setLoading(false)
     }
@@ -26,18 +28,16 @@ export default function Home() {
       <div className="absolute top-4 right-4">
         <LanguageSwitcher />
       </div>
-      
+
       <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div>
             <h1 className="mt-6 text-center text-4xl font-extrabold text-gray-900">
               {t('home.hero.title')}
             </h1>
-            <p className="mt-2 text-center text-lg text-gray-600">
-              {t('home.hero.subtitle')}
-            </p>
+            <p className="mt-2 text-center text-lg text-gray-600">{t('home.hero.subtitle')}</p>
           </div>
-          
+
           <div className="mt-8 space-y-4">
             {loading ? (
               <p className="text-center text-gray-600">{t('common.loading')}</p>
@@ -74,10 +74,18 @@ export default function Home() {
           <div className="mt-12">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('home.features.title')}</h2>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li>✓ {t('home.features.auth.title')} - {t('home.features.auth.description')}</li>
-              <li>✓ {t('home.features.database.title')} - {t('home.features.database.description')}</li>
-              <li>✓ {t('home.features.ui.title')} - {t('home.features.ui.description')}</li>
-              <li>✓ {t('home.features.api.title')} - {t('home.features.api.description')}</li>
+              <li>
+                ✓ {t('home.features.auth.title')} - {t('home.features.auth.description')}
+              </li>
+              <li>
+                ✓ {t('home.features.database.title')} - {t('home.features.database.description')}
+              </li>
+              <li>
+                ✓ {t('home.features.ui.title')} - {t('home.features.ui.description')}
+              </li>
+              <li>
+                ✓ {t('home.features.api.title')} - {t('home.features.api.description')}
+              </li>
             </ul>
           </div>
         </div>
