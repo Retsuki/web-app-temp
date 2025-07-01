@@ -1,15 +1,15 @@
-import Link from "next/link";
-import { useTranslations } from "next-intl";
-import { GoogleAuthForm } from "@/components/app/auth/google-auth-form";
-import { signInWithGoogle } from "@/lib/auth/actions";
-import { SignInForm } from "./signin-form";
+import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { GoogleAuthForm } from '@/components/app/auth/google-auth-form'
+import { signInWithGoogle } from '@/lib/auth/actions'
+import { SignInForm } from './signin-form'
 
 export default function SignInPage() {
-  const t = useTranslations();
-  
+  const t = useTranslations()
+
   async function handleGoogleSignIn() {
-    "use server";
-    await signInWithGoogle();
+    'use server'
+    await signInWithGoogle()
   }
 
   return (
@@ -17,12 +17,12 @@ export default function SignInPage() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            {t("auth.signInTitle")}
+            {t('auth.signInTitle')}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            {t("auth.dontHaveAccount")}{" "}
+            {t('auth.dontHaveAccount')}{' '}
             <Link href="/signup" className="font-medium ">
-              {t("common.signUp")}
+              {t('common.signUp')}
             </Link>
           </p>
         </div>
@@ -41,11 +41,11 @@ export default function SignInPage() {
 
           <div className="mt-6">
             <GoogleAuthForm action={handleGoogleSignIn}>
-              {t("auth.signInWithGoogle")}
+              {t('auth.signInWithGoogle')}
             </GoogleAuthForm>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
