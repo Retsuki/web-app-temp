@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import createClient from 'openapi-fetch'
 import type { paths } from '@/lib/api/schema'
 import { createClient as createSupabase } from '@/lib/supabase/server'
@@ -9,13 +10,14 @@ import { createClient as createSupabase } from '@/lib/supabase/server'
  */
 export async function getAuthenticatedUser() {
   const supabase = await createSupabase()
+  const locale = await getLocale()
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/signin')
+    redirect(`/${locale}/signin`)
   }
 
   return user
