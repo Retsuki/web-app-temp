@@ -1,16 +1,13 @@
-import type { Metadata } from "next";
-import { locales } from "@/i18n";
+import { locales } from '../i18n'
 
 export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
+  return locales.map((locale) => ({ locale }))
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-  params: { locale },
 }: Readonly<{
-  children: React.ReactNode;
-  params: { locale: string };
+  children: React.ReactNode
 }>) {
-  return children;
+  return children
 }
