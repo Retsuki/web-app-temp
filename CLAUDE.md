@@ -327,6 +327,11 @@ npm run dev  # Supabase, API, Webを一括起動
 2. **Type Check**: フロントエンド/APIそれぞれで `npm run build`
 3. **API Integration**: `npm run api:schema` で最新の型定義を取得
 
+### Code Quality Rules
+- **IMPORTANT**: コードの変更や追加を行った後は必ず `npm run lint` または `npm run check:apply` を実行してコード品質を保つこと
+- Biomeによる自動フォーマットとリントチェックを活用する
+- コミット前にも必ずlintを実行する
+
 ## Future Enhancements
 - 決済システム（Stripe連携）
 - メール通知システム
