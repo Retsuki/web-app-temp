@@ -15,7 +15,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ Supabase連携（認証・データベース）
 - ✅ APIサーバー基盤（Hono）
 - ✅ 共通UIコンポーネント（shadcn/ui）
-- ✅ 多言語対応（next-intl: 日本語・英語）
 - ✅ 型安全なAPI連携（OpenAPI + openapi-fetch）
 - 🚧 決済機能（準備中）
 - 🚧 通知システム（準備中）
@@ -34,7 +33,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Styling**: Tailwind CSS v4 + shadcn/ui
 - **Form**: React Hook Form + Zod
 - **Auth**: Supabase Auth (Email + Google OAuth)
-- **i18n**: next-intl (日本語・英語対応)
 - **API Client**: openapi-fetch + TanStack Query
 - **Dev Server**: Turbopack
 - **Code Quality**: ESLint + Biome
@@ -199,14 +197,6 @@ web_app_temp/
 - **Primary Color**: Mindaro系の緑黄色 (#90d80a)
 - **Secondary Color**: 深緑色 (#44670d)
 - **ダークモード対応**: 自動切り替え対応
-
-#### 国際化 (i18n)
-- **フレームワーク**: next-intl (App Router対応)
-- **対応言語**: 日本語 (`ja`)、英語 (`en`)
-- **デフォルト言語**: 日本語
-- **URLルーティング**: ロケールプレフィックス常時表示 (`/ja/`, `/en/`)
-- **翻訳ファイル**: `/web/src/messages/{locale}.json`
-- **ナビゲーション**: カスタムヘルパー (`Link`, `redirect`, `usePathname`, `useRouter`)
 
 ### Environment Variables
 ```bash

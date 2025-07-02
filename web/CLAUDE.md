@@ -166,34 +166,6 @@ const user = await getUser(); // Helper function
 4. Token exchange and redirect
 5. User context updated
 
-## Internationalization (i18n)
-
-### Setup
-- **next-intl** with App Router support
-- Locales: `ja` (default), `en`
-- URL structure: `/[locale]/...`
-- Middleware handles locale detection
-
-### Usage Patterns
-```typescript
-// In Server Components
-import { getTranslations } from 'next-intl/server';
-const t = await getTranslations('PageName');
-
-// In Client Components  
-import { useTranslations } from 'next-intl';
-const t = useTranslations('PageName');
-
-// Navigation with locale
-import { Link } from '@/i18n/routing';
-<Link href="/dashboard">...</Link>
-```
-
-### Translation Files
-- Located in `/messages/{locale}.json`
-- Nested structure for organization
-- TypeScript types auto-generated
-
 ## Styling System
 
 ### Tailwind CSS v4
