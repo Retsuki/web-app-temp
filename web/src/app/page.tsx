@@ -1,14 +1,12 @@
 'use client'
 
 import type { User } from '@supabase/supabase-js'
-import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 import { LanguageSwitcher } from '@/components/app/language-switcher'
-import { Link } from '@/i18n/routing'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 export default function Home() {
-  const t = useTranslations()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -34,24 +32,24 @@ export default function Home() {
         <div className="max-w-md w-full space-y-8">
           <div>
             <h1 className="mt-6 text-center text-4xl font-extrabold text-gray-900">
-              {t('home.hero.title')}
+              高速アプリ開発テンプレート
             </h1>
-            <p className="mt-2 text-center text-lg text-gray-600">{t('home.hero.subtitle')}</p>
+            <p className="mt-2 text-center text-lg text-gray-600">新規アプリ開発を爆速化するための基本機能を事前実装</p>
           </div>
 
           <div className="mt-8 space-y-4">
             {loading ? (
-              <p className="text-center text-gray-600">{t('common.loading')}</p>
+              <p className="text-center text-gray-600">読み込み中...</p>
             ) : user ? (
               <>
                 <p className="text-center text-gray-600">
-                  {t('dashboard.welcome', { name: user.email || '' })}
+                  ようこそ、{user.email || ''}さん
                 </p>
                 <Link
                   href="/dashboard"
                   className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  {t('navigation.dashboard')}
+                  ダッシュボード
                 </Link>
               </>
             ) : (
@@ -60,32 +58,32 @@ export default function Home() {
                   href="/signin"
                   className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  {t('common.signIn')}
+                  サインイン
                 </Link>
                 <Link
                   href="/signup"
                   className="group relative w-full flex justify-center py-3 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  {t('common.signUp')}
+                  新規登録
                 </Link>
               </>
             )}
           </div>
 
           <div className="mt-12">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('home.features.title')}</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">実装済みの機能</h2>
             <ul className="space-y-2 text-sm text-gray-600">
               <li>
-                ✓ {t('home.features.auth.title')} - {t('home.features.auth.description')}
+                ✓ 認証システム - メールアドレス認証とGoogle OAuth認証
               </li>
               <li>
-                ✓ {t('home.features.database.title')} - {t('home.features.database.description')}
+                ✓ データベース - Supabase連携とDrizzle ORM
               </li>
               <li>
-                ✓ {t('home.features.ui.title')} - {t('home.features.ui.description')}
+                ✓ UIコンポーネント - shadcn/ui基盤の再利用可能なコンポーネント
               </li>
               <li>
-                ✓ {t('home.features.api.title')} - {t('home.features.api.description')}
+                ✓ APIサーバー - Honoベースの型安全なAPI
               </li>
             </ul>
           </div>

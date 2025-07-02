@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server'
 import { apiClient } from '@/lib/api/client'
 import { createClient } from '@/lib/supabase/server'
 
-export async function GET(request: Request, { params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params
+export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
   const origin = requestUrl.origin
@@ -44,10 +43,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ loca
         }
       }
 
-      return NextResponse.redirect(`${origin}/${locale}/dashboard`)
+      return NextResponse.redirect(`${origin}/dashboard`)
     }
   }
 
   // エラーの場合はサインインページへリダイレクト
-  return NextResponse.redirect(`${origin}/${locale}/signin?error=auth_failed`)
+  return NextResponse.redirect(`${origin}/signin?error=auth_failed`)
 }

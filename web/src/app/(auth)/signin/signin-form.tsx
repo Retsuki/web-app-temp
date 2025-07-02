@@ -4,29 +4,26 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useTranslations } from 'next-intl'
 import { signIn } from '@/lib/auth/actions'
 import { Form } from '@/components/ui/form'
 import { FormInput } from '@/components/app/input/form-input'
 import { PrimaryButton } from '@/components/app/button/primary-button'
 
-const getFormSchema = (t: any) => z.object({
+const formSchema = z.object({
   email: z
     .string()
-    .email(t('validation.email')),
+    .email('正しいメールアドレスを入力してください'),
   password: z
     .string()
-    .min(1, t('validation.required', { field: t('common.password') })),
+    .min(1, 'パスワードを入力してください'),
 })
 
 type FormValues = z.infer<typeof formSchema>
 
 export function SignInForm() {
-  const t = useTranslations()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const formSchema = getFormSchema(t)
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,18 +51,18 @@ export function SignInForm() {
           <FormInput
             control={form.control}
             name="email"
-            label={t('auth.emailLabel')}
+            label="メールアドレス"
             type="email"
-            placeholder={t('auth.emailLabel')}
+            placeholder="メールアドレス"
             autoComplete="email"
           />
           
           <FormInput
             control={form.control}
             name="password"
-            label={t('auth.passwordLabel')}
+            label="パスワード"
             type="password"
-            placeholder={t('auth.passwordLabel')}
+            placeholder="パスワード"
             autoComplete="current-password"
           />
         </div>
@@ -86,7 +83,7 @@ export function SignInForm() {
             disabled={loading}
             className="w-full"
           >
-            {loading ? t('common.loading') : t('auth.signInButton')}
+            {loading ? '読み込み中...' : 'サインイン'}
           </PrimaryButton>
         </div>
       </form>
