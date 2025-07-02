@@ -1,12 +1,44 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
+import { match } from '@formatjs/intl-localematcher'
+import Negotiator from 'negotiator'
+
+const locales = ['ja', 'en']
+const defaultLocale = 'ja'
+
+function getLocale(request: NextRequest): string {
+  // Get Accept-Language header
+  const negotiatorHeaders: Record<string, string> = {}
+  request.headers.forEach((value, key) => (negotiatorHeaders[key] = value))
+
+  // Create language array from headers
+  const languages = new Negotiator({ headers: negotiatorHeaders }).languages()
+
+  // Match with supported locales
+  const locale = match(languages, locales, defaultLocale)
+  return locale
+}
 
 export async function middleware(request: NextRequest) {
-  // Create a response to pass to updateSession
-  const response = NextResponse.next()
+  const pathname = request.nextUrl.pathname
 
-  // Handle session update
+  // Check if there is any supported locale in the pathname
+  const pathnameHasLocale = locales.some(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  )
+
+  // If pathname already has locale, proceed with session update
+  if (pathnameHasLocale) {
+    return await updateSession(request, NextResponse.next())
+  }
+
+  // Redirect if there is no locale
+  const locale = getLocale(request)
+  request.nextUrl.pathname = `/${locale}${pathname}`
+  
+  // Create redirect response and update session
+  const response = NextResponse.redirect(request.nextUrl)
   return await updateSession(request, response)
 }
 

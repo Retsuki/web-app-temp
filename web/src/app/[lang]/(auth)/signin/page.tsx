@@ -2,8 +2,16 @@ import { GoogleAuthForm } from '@/components/app/auth/google-auth-form'
 import Link from 'next/link'
 import { signInWithGoogle } from '@/lib/auth/actions'
 import { SignInForm } from './signin-form'
+import { getDictionary, type Locale } from '../../dictionaries'
+import { LanguageSwitcher } from '@/components/app/language-switcher'
 
-export default function SignInPage() {
+export default async function SignInPage({
+  params,
+}: {
+  params: Promise<{ lang: Locale }>
+}) {
+  const { lang } = await params
+  const dict = await getDictionary(lang)
 
   async function handleGoogleSignIn() {
     'use server'
@@ -12,20 +20,23 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            アカウントにサインイン
+            {dict.common.signIn}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            アカウントをお持ちでない方は{' '}
-            <Link href="/signup" className="font-medium ">
-              新規登録
+            {dict.auth.dontHaveAccount}{' '}
+            <Link href={`/${lang}/signup`} className="font-medium text-indigo-600 hover:text-indigo-500">
+              {dict.common.signUp}
             </Link>
           </p>
         </div>
 
-        <SignInForm />
+        <SignInForm dict={dict} />
 
         <div className="mt-6">
           <div className="relative">
@@ -33,13 +44,13 @@ export default function SignInPage() {
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-gray-50 px-2 text-gray-500">または</span>
+              <span className="bg-gray-50 px-2 text-gray-500">{dict.auth.orContinueWith}</span>
             </div>
           </div>
 
           <div className="mt-6">
             <GoogleAuthForm action={handleGoogleSignIn}>
-              Googleでサインイン
+              {dict.auth.loginWithGoogle}
             </GoogleAuthForm>
           </div>
         </div>

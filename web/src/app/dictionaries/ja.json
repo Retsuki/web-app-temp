@@ -1,0 +1,62 @@
+{
+  "common": {
+    "signIn": "サインイン",
+    "signUp": "サインアップ",
+    "signOut": "サインアウト",
+    "dashboard": "ダッシュボード",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "loading": "読み込み中...",
+    "submit": "送信",
+    "cancel": "キャンセル",
+    "error": "エラー",
+    "success": "成功"
+  },
+  "auth": {
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "confirmPassword": "パスワード（確認）",
+    "rememberMe": "ログイン状態を保持する",
+    "forgotPassword": "パスワードを忘れた方",
+    "loginWithGoogle": "Googleでログイン",
+    "alreadyHaveAccount": "すでにアカウントをお持ちの方",
+    "dontHaveAccount": "アカウントをお持ちでない方",
+    "createAccount": "アカウントを作成",
+    "orContinueWith": "または",
+    "passwordRequirements": "パスワードは8文字以上で入力してください",
+    "invalidEmail": "有効なメールアドレスを入力してください",
+    "passwordMismatch": "パスワードが一致しません",
+    "signInError": "サインインに失敗しました。メールアドレスとパスワードを確認してください。",
+    "signUpError": "アカウントの作成に失敗しました。再度お試しください。",
+    "checkEmail": "メールを確認してください",
+    "confirmationEmailSent": "確認メールを送信しました。メールを確認してアカウントを有効にしてください。"
+  },
+  "dashboard": {
+    "welcome": "ようこそ",
+    "overview": "概要",
+    "profile": "プロフィール",
+    "settings": "設定"
+  },
+  "home": {
+    "title": "Web App Template",
+    "description": "高速な開発を実現するNext.jsテンプレート",
+    "getStarted": "始める",
+    "features": {
+      "title": "主な機能",
+      "auth": "認証システム",
+      "authDescription": "メールアドレスとGoogleによる認証",
+      "database": "データベース連携",
+      "databaseDescription": "Supabaseによるデータ管理",
+      "api": "型安全なAPI",
+      "apiDescription": "OpenAPIとTypeScriptによる型安全性",
+      "ui": "モダンなUI",
+      "uiDescription": "shadcn/uiとTailwind CSS"
+    }
+  },
+  "errors": {
+    "notFound": "ページが見つかりません",
+    "unauthorized": "認証が必要です",
+    "forbidden": "アクセスが拒否されました",
+    "internalError": "サーバーエラーが発生しました"
+  }
+}

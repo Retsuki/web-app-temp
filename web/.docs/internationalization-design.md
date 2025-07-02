@@ -1,300 +1,168 @@
-# 多言語対応（国際化）設計書
+# 多言語対応実装設計書
 
 ## 概要
+Next.js公式のInternationalization機能を使用して、日本語と英語の多言語対応を実装します。外部ライブラリに依存せず、Next.jsの標準機能のみで実現します。
 
-本設計書は、web_app_tempプロジェクトのフロントエンドアプリケーションに多言語対応機能を実装するための技術設計をまとめたものです。
+## 対応言語
+- 日本語 (ja) - デフォルト
+- 英語 (en)
 
-## 現状分析
+## アーキテクチャ
 
-### 背景
-- プロジェクトでは以前next-intlを使用した多言語対応が実装されていた
-- コミット`aa3ef33`にて一時的に多言語機能が削除された
-- 現在は単一言語（日本語）での動作となっている
-- package.jsonにはnext-intlの依存関係が残存
+### 1. ディレクトリ構造
 
-### 削除された機能
-1. 日本語・英語の2言語対応
-2. URLベースのロケール切り替え（`/ja/`, `/en/`）
-3. 翻訳ファイル管理システム
-4. 言語切り替えUI
-
-## 設計方針
-
-### 1. フレームワーク選定
-**next-intl**を引き続き採用
-- Next.js App Routerとの高い親和性
-- 型安全な翻訳システム
-- Server/Client Componentsの両方をサポート
-- 実績のあるライブラリ
-
-### 2. 対応言語
-初期実装では以下の2言語をサポート：
-- **日本語** (`ja`) - デフォルト言語
-- **英語** (`en`)
-
-将来的な拡張を考慮した設計とする。
-
-### 3. ルーティング戦略
-**サブパスルーティング**を採用
-- URL構造: `/{locale}/{path}`
-- 例: `/ja/dashboard`, `/en/signin`
-- `localePrefix: 'always'`設定でロケールを常に表示
-
-理由：
-- SEOに有利
-- URLから言語が明確
-- ブックマーク・共有時に言語情報を保持
-
-## 実装計画
-
-### Phase 1: 基盤構築
-
-#### 1.1 ディレクトリ構造の変更
 ```
-/src/app/
-├── [locale]/                # ロケール動的セグメント
-│   ├── (auth)/             # 認証グループ
+app/
+├── [lang]/                        # 動的ロケールセグメント
+│   ├── (auth)/                    # 認証グループ
 │   │   ├── signin/
+│   │   │   └── page.tsx
 │   │   └── signup/
-│   ├── (main)/             # メインアプリグループ
+│   │       └── page.tsx
+│   ├── (main)/                    # メインアプリグループ
 │   │   └── dashboard/
-│   ├── layout.tsx          # ロケール別レイアウト
-│   └── page.tsx            # ホームページ
-├── auth/callback/          # OAuth認証コールバック（ロケール外）
-└── globals.css
+│   │       └── page.tsx
+│   ├── layout.tsx                 # ルートレイアウト
+│   ├── page.tsx                   # ホームページ
+│   └── dictionaries.ts            # 辞書ローダー
+├── auth/                          # [lang]外のルート
+│   └── callback/
+│       └── route.ts               # OAuth callback
+├── dictionaries/                  # 翻訳ファイル
+│   ├── ja.json
+│   └── en.json
+└── api/                          # APIルート（言語不要）
 ```
 
-#### 1.2 設定ファイル
+### 2. ルーティング戦略
+
+#### URLパターン
+- `/ja` - 日本語ホームページ
+- `/en` - 英語ホームページ
+- `/ja/signin` - 日本語サインイン
+- `/en/dashboard` - 英語ダッシュボード
+- `/auth/callback` - 言語共通のOAuthコールバック
+
+#### ミドルウェアによる処理
+1. ルートアクセス時 (`/`) にブラウザ言語を検出
+2. 適切なロケールへリダイレクト (`/ja` or `/en`)
+3. 認証チェックと組み合わせて動作
+
+### 3. 実装コンポーネント
+
+#### 3.1 ミドルウェア (`middleware.ts`)
 ```typescript
-// /web/src/i18n/config.ts
-export const locales = ['ja', 'en'] as const;
-export const defaultLocale = 'ja' as const;
-export type Locale = (typeof locales)[number];
-
-// /web/src/i18n/routing.ts
-import { defineRouting } from 'next-intl/routing';
-import { createNavigation } from 'next-intl/navigation';
-
-export const routing = defineRouting({
-  locales: ['ja', 'en'],
-  defaultLocale: 'ja',
-  localePrefix: 'always'
-});
-
-export const { Link, redirect, usePathname, useRouter } = 
-  createNavigation(routing);
+// 主な責務：
+- ロケール検出（Accept-Languageヘッダー）
+- ロケールなしURLへのリダイレクト
+- 認証チェック（既存機能との統合）
 ```
 
-#### 1.3 ミドルウェアの実装
+#### 3.2 辞書システム
 ```typescript
-// /web/src/middleware.ts
-import createMiddleware from 'next-intl/middleware';
-import { routing } from '@/i18n/routing';
-
-export default createMiddleware(routing);
-
-export const config = {
-  matcher: ['/', '/(ja|en)/:path*']
-};
-```
-
-### Phase 2: 翻訳システム
-
-#### 2.1 翻訳ファイル構造
-```
-/src/messages/
-├── ja.json
-└── en.json
-```
-
-翻訳ファイルの構造：
-```json
+// dictionaries/ja.json
 {
   "common": {
-    "appName": "Web App Template",
-    "loading": "読み込み中...",
-    "error": "エラーが発生しました"
+    "signIn": "サインイン",
+    "signUp": "サインアップ",
+    "dashboard": "ダッシュボード"
   },
   "auth": {
-    "signIn": "ログイン",
-    "signUp": "新規登録",
-    "signOut": "ログアウト"
-  },
-  "navigation": {
-    "home": "ホーム",
-    "dashboard": "ダッシュボード",
-    "profile": "プロフィール"
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "loginWithGoogle": "Googleでログイン"
   }
 }
+
+// app/[lang]/dictionaries.ts
+- 動的インポートで必要な言語のみロード
+- 型安全な辞書アクセス
 ```
 
-#### 2.2 翻訳ヘルパー関数
+#### 3.3 翻訳フック
 ```typescript
-// /web/src/i18n/request.ts
-import { getRequestConfig } from 'next-intl/server';
-import { Locale } from './config';
+// Server Component用
+const dict = await getDictionary(lang);
 
-export default getRequestConfig(async ({ locale }) => ({
-  messages: (await import(`../messages/${locale}.json`)).default
-}));
+// Client Component用（必要に応じて）
+const dict = useDictionary(lang);
 ```
 
-### Phase 3: コンポーネント実装
+### 4. 移行手順
 
-#### 3.1 Server Components での使用
-```typescript
-import { getTranslations } from 'next-intl/server';
+#### Phase 1: 基盤整備
+1. 必要なパッケージのインストール
+   - `negotiator`: ブラウザ言語検出
+   - `@formatjs/intl-localematcher`: ロケールマッチング
 
-export default async function Page() {
-  const t = await getTranslations('auth');
-  
-  return <h1>{t('signIn')}</h1>;
-}
-```
+2. ミドルウェアの実装
+   - ロケール検出ロジック
+   - リダイレクト処理
+   - 既存の認証処理との統合
 
-#### 3.2 Client Components での使用
-```typescript
-'use client';
-import { useTranslations } from 'next-intl';
+#### Phase 2: ディレクトリ構造の変更
+1. `app/[lang]/`ディレクトリの作成
+2. 既存ページの移動
+   - `(auth)/*` → `[lang]/(auth)/*`
+   - `(main)/*` → `[lang]/(main)/*`
+3. レイアウトファイルの調整
 
-export function LoginForm() {
-  const t = useTranslations('auth');
-  
-  return <button>{t('signIn')}</button>;
-}
-```
+#### Phase 3: 翻訳システムの実装
+1. 辞書ファイルの作成
+2. 辞書ローダーの実装
+3. 各ページでの翻訳適用
 
-#### 3.3 言語切り替えコンポーネント
-```typescript
-// /web/src/components/app/language-switcher.tsx
-'use client';
-import { useLocale } from 'next-intl';
-import { useRouter, usePathname } from '@/i18n/routing';
+#### Phase 4: UI要素の実装
+1. 言語切り替えコンポーネント
+2. ナビゲーションリンクの更新
+3. フォームバリデーションメッセージの翻訳
 
-export function LanguageSwitcher() {
-  const locale = useLocale();
-  const router = useRouter();
-  const pathname = usePathname();
-  
-  const handleChange = (newLocale: string) => {
-    router.replace(pathname, { locale: newLocale });
-  };
-  
-  return (
-    <select value={locale} onChange={(e) => handleChange(e.target.value)}>
-      <option value="ja">日本語</option>
-      <option value="en">English</option>
-    </select>
-  );
-}
-```
+### 5. 技術的な考慮事項
 
-### Phase 4: 既存コンポーネントの移行
+#### パフォーマンス
+- Server Componentsで翻訳ファイルをロード（クライアントバンドルに含まれない）
+- 動的インポートで必要な言語のみロード
+- 静的生成可能（`generateStaticParams`使用）
 
-#### 4.1 優先度の高いコンポーネント
-1. 認証関連（SignIn, SignUp）
-2. ナビゲーション（Header, Footer）
-3. エラーメッセージ
-4. バリデーションメッセージ
+#### SEO対策
+- `lang`属性の適切な設定
+- `hreflang`タグの実装（将来的に）
+- URLパスにロケールを含める
 
-#### 4.2 移行手順
-1. 翻訳キーの定義
-2. ハードコードされたテキストの抽出
-3. 翻訳関数の適用
-4. 両言語でのテスト
+#### 型安全性
+- 辞書の型定義を生成
+- パスパラメータの型定義
+- 翻訳キーの自動補完
 
-## 技術的考慮事項
+### 6. 実装上の注意点
 
-### 1. パフォーマンス
-- Server Componentsでの翻訳はビルド時に解決
-- Client Components用の翻訳は必要最小限に
-- 翻訳ファイルの分割によるバンドルサイズ最適化
+#### 既存機能との統合
+- Supabase認証は言語に依存しない
+- APIルートは`[lang]`セグメントの外に配置
+- OAuthコールバックは言語共通
 
-### 2. 型安全性
-- TypeScriptの型定義を自動生成
-- 翻訳キーの存在を型レベルで保証
-- IDEでの自動補完サポート
+#### エラーハンドリング
+- 不正なロケールへのアクセス → デフォルト言語へリダイレクト
+- 翻訳キーが見つからない → フォールバック表示
 
-### 3. SEO対策
-- `hreflang`タグの自動生成
-- 言語別のメタデータ管理
-- サイトマップの多言語対応
+#### 開発体験
+- 翻訳キーの管理方法を統一
+- コンポーネントごとに翻訳を整理
+- TypeScriptの型サポートを最大限活用
 
-### 4. ユーザビリティ
-- ブラウザの言語設定を自動検出
-- 選択した言語をCookieに保存
-- 言語切り替え時のページ位置保持
+### 7. 将来の拡張性
 
-## 実装スケジュール
+#### 追加可能な機能
+- 言語の追加（中国語、韓国語など）
+- 地域別の設定（en-US, en-GB）
+- 翻訳管理システムの導入
+- A/Bテスト用の翻訳バリエーション
 
-### Week 1
-- [ ] 基盤構築（ディレクトリ構造、設定ファイル）
-- [ ] ミドルウェアの実装
-- [ ] 翻訳ファイルの基本構造作成
-
-### Week 2
-- [ ] 認証関連コンポーネントの多言語化
-- [ ] ナビゲーションコンポーネントの多言語化
-- [ ] 言語切り替えUIの実装
-
-### Week 3
-- [ ] その他のコンポーネントの多言語化
-- [ ] エラーメッセージ・バリデーションの多言語化
-- [ ] テストとデバッグ
-
-### Week 4
-- [ ] SEO対策の実装
-- [ ] パフォーマンス最適化
-- [ ] ドキュメント整備
-
-## テスト計画
-
-### 1. 単体テスト
-- 翻訳関数の動作確認
-- ロケール切り替えロジック
-- ミドルウェアの動作
-
-### 2. 統合テスト
-- 言語切り替え時の画面遷移
-- フォームバリデーションの多言語表示
-- APIエラーメッセージの表示
-
-### 3. E2Eテスト
-- ユーザーフローの多言語動作確認
-- SEOタグの生成確認
-- パフォーマンス測定
-
-## リスクと対策
-
-### 1. 翻訳品質
-- **リスク**: 機械翻訳による品質低下
-- **対策**: ネイティブスピーカーによるレビュー
-
-### 2. メンテナンス性
-- **リスク**: 翻訳ファイルの肥大化
-- **対策**: 機能別にファイル分割、翻訳管理ツールの導入検討
-
-### 3. パフォーマンス
-- **リスク**: 翻訳処理によるレンダリング遅延
-- **対策**: Server Componentsの活用、キャッシュ戦略
-
-## 将来の拡張
-
-### 1. 追加言語サポート
-- 中国語（簡体字・繁体字）
-- 韓国語
-- スペイン語
-
-### 2. 高度な機能
-- 地域別の表示カスタマイズ
-- 右から左（RTL）言語のサポート
-- 翻訳管理システムの統合
-
-### 3. コンテンツ管理
-- CMSとの連携
-- 動的コンテンツの多言語対応
-- ユーザー生成コンテンツの翻訳
+#### 段階的な改善
+1. 基本的な翻訳機能
+2. 日付・数値のフォーマット
+3. 複数形対応
+4. コンテキストベースの翻訳
 
 ## まとめ
-
-本設計書に基づいて多言語対応を実装することで、グローバルなユーザーベースに対応可能なアプリケーションを構築できます。段階的な実装により、リスクを最小限に抑えながら、確実に機能を追加していきます。
+この設計により、Next.jsの標準機能を活用した、シンプルで拡張性の高い多言語対応を実現します。外部ライブラリへの依存を最小限に抑えながら、型安全性とパフォーマンスを両立させます。

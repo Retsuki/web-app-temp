@@ -1,89 +1,80 @@
-'use client'
-
-import type { User } from '@supabase/supabase-js'
-import { useEffect, useState } from 'react'
-import { LanguageSwitcher } from '@/components/app/language-switcher'
+import { getDictionary, type Locale } from './dictionaries'
+import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
+import { LanguageSwitcher } from '@/components/app/language-switcher'
 
-export default function Home() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const getUser = async () => {
-      const supabase = createClient()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      setUser(user)
-      setLoading(false)
-    }
-    getUser()
-  }, [])
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ lang: Locale }>
+}) {
+  const { lang } = await params
+  const dict = await getDictionary(lang)
+  const supabase = await createClient()
+  
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <div className="absolute top-4 right-4">
         <LanguageSwitcher />
       </div>
-
       <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div>
             <h1 className="mt-6 text-center text-4xl font-extrabold text-gray-900">
-              高速アプリ開発テンプレート
+              {dict.home.title}
             </h1>
-            <p className="mt-2 text-center text-lg text-gray-600">新規アプリ開発を爆速化するための基本機能を事前実装</p>
+            <p className="mt-2 text-center text-lg text-gray-600">{dict.home.description}</p>
           </div>
 
           <div className="mt-8 space-y-4">
-            {loading ? (
-              <p className="text-center text-gray-600">読み込み中...</p>
-            ) : user ? (
+            {user ? (
               <>
                 <p className="text-center text-gray-600">
-                  ようこそ、{user.email || ''}さん
+                  {dict.dashboard.welcome}、{user.email || ''}
                 </p>
                 <Link
-                  href="/dashboard"
+                  href={`/${lang}/dashboard`}
                   className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  ダッシュボード
+                  {dict.common.dashboard}
                 </Link>
               </>
             ) : (
               <>
                 <Link
-                  href="/signin"
+                  href={`/${lang}/signin`}
                   className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  サインイン
+                  {dict.common.signIn}
                 </Link>
                 <Link
-                  href="/signup"
+                  href={`/${lang}/signup`}
                   className="group relative w-full flex justify-center py-3 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
-                  新規登録
+                  {dict.common.signUp}
                 </Link>
               </>
             )}
           </div>
 
           <div className="mt-12">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">実装済みの機能</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{dict.home.features.title}</h2>
             <ul className="space-y-2 text-sm text-gray-600">
               <li>
-                ✓ 認証システム - メールアドレス認証とGoogle OAuth認証
+                ✓ {dict.home.features.auth} - {dict.home.features.authDescription}
               </li>
               <li>
-                ✓ データベース - Supabase連携とDrizzle ORM
+                ✓ {dict.home.features.database} - {dict.home.features.databaseDescription}
               </li>
               <li>
-                ✓ UIコンポーネント - shadcn/ui基盤の再利用可能なコンポーネント
+                ✓ {dict.home.features.ui} - {dict.home.features.uiDescription}
               </li>
               <li>
-                ✓ APIサーバー - Honoベースの型安全なAPI
+                ✓ {dict.home.features.api} - {dict.home.features.apiDescription}
               </li>
             </ul>
           </div>

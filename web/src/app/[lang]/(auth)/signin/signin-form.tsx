@@ -8,19 +8,23 @@ import { signIn } from '@/lib/auth/actions'
 import { Form } from '@/components/ui/form'
 import { FormInput } from '@/components/app/input/form-input'
 import { PrimaryButton } from '@/components/app/button/primary-button'
+import type { Dictionary } from '../../dictionaries'
 
-const formSchema = z.object({
-  email: z
-    .string()
-    .email('正しいメールアドレスを入力してください'),
-  password: z
-    .string()
-    .min(1, 'パスワードを入力してください'),
-})
+interface SignInFormProps {
+  dict: Dictionary
+}
 
-type FormValues = z.infer<typeof formSchema>
+export function SignInForm({ dict }: SignInFormProps) {
+  const formSchema = z.object({
+    email: z
+      .string()
+      .email(dict.auth.invalidEmail),
+    password: z
+      .string()
+      .min(1, dict.auth.password),
+  })
 
-export function SignInForm() {
+  type FormValues = z.infer<typeof formSchema>
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -51,18 +55,18 @@ export function SignInForm() {
           <FormInput
             control={form.control}
             name="email"
-            label="メールアドレス"
+            label={dict.auth.email}
             type="email"
-            placeholder="メールアドレス"
+            placeholder={dict.auth.email}
             autoComplete="email"
           />
           
           <FormInput
             control={form.control}
             name="password"
-            label="パスワード"
+            label={dict.auth.password}
             type="password"
-            placeholder="パスワード"
+            placeholder={dict.auth.password}
             autoComplete="current-password"
           />
         </div>
@@ -83,7 +87,7 @@ export function SignInForm() {
             disabled={loading}
             className="w-full"
           >
-            {loading ? '読み込み中...' : 'サインイン'}
+            {loading ? dict.common.loading : dict.common.signIn}
           </PrimaryButton>
         </div>
       </form>
