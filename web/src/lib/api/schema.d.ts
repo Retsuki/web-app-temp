@@ -75,13 +75,13 @@ export interface paths {
                         "application/json": components["schemas"]["ErrNotFound"];
                     };
                 };
-                /** @description 年齢確認に失敗しました。 */
-                422: {
+                /** @description リソースの競合が発生しました。 */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ErrAgeVerification"];
+                        "application/json": components["schemas"]["ErrConflict"];
                     };
                 };
                 /** @description サーバー内部でエラーが発生しました。 */
@@ -174,13 +174,13 @@ export interface paths {
                         "application/json": components["schemas"]["ErrNotFound"];
                     };
                 };
-                /** @description 年齢確認に失敗しました。 */
-                422: {
+                /** @description リソースの競合が発生しました。 */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ErrAgeVerification"];
+                        "application/json": components["schemas"]["ErrConflict"];
                     };
                 };
                 /** @description サーバー内部でエラーが発生しました。 */
@@ -264,13 +264,13 @@ export interface paths {
                         "application/json": components["schemas"]["ErrNotFound"];
                     };
                 };
-                /** @description 年齢確認に失敗しました。 */
-                422: {
+                /** @description リソースの競合が発生しました。 */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ErrAgeVerification"];
+                        "application/json": components["schemas"]["ErrConflict"];
                     };
                 };
                 /** @description サーバー内部でエラーが発生しました。 */
@@ -345,13 +345,13 @@ export interface paths {
                         "application/json": components["schemas"]["ErrNotFound"];
                     };
                 };
-                /** @description 年齢確認に失敗しました。 */
-                422: {
+                /** @description リソースの競合が発生しました。 */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ErrAgeVerification"];
+                        "application/json": components["schemas"]["ErrConflict"];
                     };
                 };
                 /** @description サーバー内部でエラーが発生しました。 */
@@ -416,6 +416,469 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/api/v1/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get available plans
+         * @description Get list of available subscription plans
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description List of available plans */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            plans: {
+                                /** @enum {string} */
+                                id: "free" | "indie" | "pro";
+                                name: string;
+                                description: string;
+                                monthlyPrice: number;
+                                yearlyPrice: number;
+                                features: {
+                                    projectLimit: number;
+                                    apiCallsPerMonth: number;
+                                    teamMembers: number;
+                                    storage: number;
+                                    /** @enum {string} */
+                                    support: "community" | "email" | "priority";
+                                };
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/v1/billing/subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get current subscription
+         * @description Get current user subscription details
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Current subscription or null */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            subscriptionId: string;
+                            /** @enum {string} */
+                            plan: "free" | "indie" | "pro";
+                            /** @enum {string} */
+                            status: "active" | "canceled" | "past_due" | "unpaid" | "incomplete";
+                            /** @enum {string} */
+                            billingCycle: "monthly" | "yearly";
+                            /** Format: date-time */
+                            currentPeriodStart: string;
+                            /** Format: date-time */
+                            currentPeriodEnd: string;
+                            /** Format: date-time */
+                            cancelAt: string | null;
+                            /** Format: date-time */
+                            canceledAt: string | null;
+                        } | null;
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Cancel subscription
+         * @description Cancel subscription immediately or at period end
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @default false */
+                        immediately?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Subscription canceled successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            subscriptionId: string;
+                            cancelAt: string | null;
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Subscription not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * Update subscription
+         * @description Update subscription plan or billing cycle
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        planId: "indie" | "pro";
+                        /** @enum {string} */
+                        billingCycle: "monthly" | "yearly";
+                    };
+                };
+            };
+            responses: {
+                /** @description Subscription updated successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            subscriptionId: string;
+                            plan: string;
+                            billingCycle: string;
+                            status: string;
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Bad request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Subscription not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/v1/api/v1/billing/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get payment history
+         * @description Get user payment history
+         */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Payment history */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            payments: {
+                                paymentId: string;
+                                amount: number;
+                                currency: string;
+                                /** @enum {string} */
+                                status: "pending" | "succeeded" | "failed";
+                                description: string | null;
+                                /** Format: date-time */
+                                paidAt: string | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                            }[];
+                            hasMore: boolean;
+                        };
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/v1/billing/checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create checkout session
+         * @description Create a Stripe checkout session for subscription
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        planId: "indie" | "pro";
+                        /** @enum {string} */
+                        billingCycle: "monthly" | "yearly";
+                        /**
+                         * @default ja
+                         * @enum {string}
+                         */
+                        locale?: "ja" | "en";
+                    };
+                };
+            };
+            responses: {
+                /** @description Checkout session created successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uri */
+                            checkoutUrl: string;
+                            sessionId: string;
+                        };
+                    };
+                };
+                /** @description Bad request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: string;
+                        };
+                    };
+                };
+                /** @description User not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api/v1/stripe/webhook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Stripe webhook endpoint
+         * @description Endpoint to receive Stripe webhook events
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    "stripe-signature": string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "text/plain": string;
+                };
+            };
+            responses: {
+                /** @description Webhook processed successfully */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            received: boolean;
+                        };
+                    };
+                };
+                /** @description Invalid webhook signature */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -456,7 +919,7 @@ export interface components {
                  * @example INVALID_TOKEN
                  * @enum {string}
                  */
-                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "CONFLICT" | "PROFILE_NOT_FOUND";
+                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "UNKNOWN_ERROR" | "CONFLICT" | "PROFILE_NOT_FOUND";
                 /** @description エラーの説明メッセージ */
                 message: string;
                 /**
@@ -478,7 +941,7 @@ export interface components {
                  * @example UNAUTHORIZED
                  * @enum {string}
                  */
-                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "CONFLICT" | "PROFILE_NOT_FOUND";
+                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "UNKNOWN_ERROR" | "CONFLICT" | "PROFILE_NOT_FOUND";
                 /** @description エラーの説明メッセージ */
                 message: string;
                 /**
@@ -500,7 +963,7 @@ export interface components {
                  * @example FORBIDDEN_OPERATION
                  * @enum {string}
                  */
-                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "CONFLICT" | "PROFILE_NOT_FOUND";
+                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "UNKNOWN_ERROR" | "CONFLICT" | "PROFILE_NOT_FOUND";
                 /** @description エラーの説明メッセージ */
                 message: string;
                 /**
@@ -522,7 +985,7 @@ export interface components {
                  * @example NOT_FOUND
                  * @enum {string}
                  */
-                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "CONFLICT" | "PROFILE_NOT_FOUND";
+                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "UNKNOWN_ERROR" | "CONFLICT" | "PROFILE_NOT_FOUND";
                 /** @description エラーの説明メッセージ */
                 message: string;
                 /**
@@ -537,13 +1000,14 @@ export interface components {
                 statusCode: number;
             };
         };
-        ErrAgeVerification: {
+        ErrConflict: {
             error: {
                 /**
                  * @description エラーコード
+                 * @example CONFLICT
                  * @enum {string}
                  */
-                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "CONFLICT" | "PROFILE_NOT_FOUND";
+                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "UNKNOWN_ERROR" | "CONFLICT" | "PROFILE_NOT_FOUND";
                 /** @description エラーの説明メッセージ */
                 message: string;
                 /**
@@ -553,7 +1017,7 @@ export interface components {
                 requestId: string;
                 /**
                  * @description HTTPステータスコード
-                 * @example 422
+                 * @example 409
                  */
                 statusCode: number;
             };
@@ -562,9 +1026,10 @@ export interface components {
             error: {
                 /**
                  * @description エラーコード
+                 * @example UNKNOWN_ERROR
                  * @enum {string}
                  */
-                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "CONFLICT" | "PROFILE_NOT_FOUND";
+                code: "UNAUTHORIZED" | "FORBIDDEN_OPERATION" | "NOT_FOUND" | "INVALID_TOKEN" | "INVALID_TYPE" | "INVALID_REQUEST" | "UNKNOWN_ERROR" | "CONFLICT" | "PROFILE_NOT_FOUND";
                 /** @description エラーの説明メッセージ */
                 message: string;
                 /**
@@ -618,22 +1083,6 @@ export interface components {
              */
             nickname: string;
             /**
-             * Format: uri
-             * @description アバター画像URL
-             * @example https://example.com/avatar.jpg
-             */
-            avatarUrl: string | null;
-            /**
-             * @description 自己紹介
-             * @example よろしくお願いします
-             */
-            bio: string | null;
-            /**
-             * @description プロフィール公開設定
-             * @example true
-             */
-            isPublic: boolean;
-            /**
              * Format: date-time
              * @description 作成日時
              * @example 2024-01-01T00:00:00Z
@@ -652,22 +1101,6 @@ export interface components {
              * @example たろう
              */
             nickname?: string;
-            /**
-             * Format: uri
-             * @description アバター画像URL
-             * @example https://example.com/avatar.jpg
-             */
-            avatarUrl?: string | null;
-            /**
-             * @description 自己紹介
-             * @example よろしくお願いします
-             */
-            bio?: string | null;
-            /**
-             * @description プロフィール公開設定
-             * @example true
-             */
-            isPublic?: boolean;
         };
         DeleteAccountRequest: {
             /**

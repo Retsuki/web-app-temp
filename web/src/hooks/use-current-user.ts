@@ -6,13 +6,15 @@ import { createAuthenticatedClient } from '@/lib/api/client-with-auth'
 
 export function useCurrentUser() {
   const { user, loading: authLoading } = useAuth()
-  
+
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['currentUser', user?.id],
     queryFn: async () => {
       const client = createAuthenticatedClient()
       const { data, error } = await client.GET('/api/v1/users/me')
-      if (error) throw error
+      if (error) {
+        throw error
+      }
       return data
     },
     enabled: !!user && !authLoading,
@@ -33,7 +35,7 @@ export function useCurrentUser() {
 export function useRequireAuth() {
   const { user, loading } = useAuth()
   const { user: profile, isLoading } = useCurrentUser()
-  
+
   return {
     isAuthenticated: !!user,
     isLoading: loading || isLoading,

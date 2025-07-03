@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 export function useAuthToken() {
@@ -11,7 +11,9 @@ export function useAuthToken() {
   useEffect(() => {
     const getToken = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
         setToken(session?.access_token ?? null)
       } catch (error) {
         console.error('トークン取得エラー:', error)
@@ -23,11 +25,11 @@ export function useAuthToken() {
     getToken()
 
     // トークンの更新を監視
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setToken(session?.access_token ?? null)
-      }
-    )
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setToken(session?.access_token ?? null)
+    })
 
     return () => {
       subscription.unsubscribe()
