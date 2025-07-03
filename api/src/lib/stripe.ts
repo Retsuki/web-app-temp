@@ -5,7 +5,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-02-24.acacia',
   typescript: true,
 })
 
@@ -13,7 +13,7 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 export const STRIPE_CONFIG = {
   // Webhook署名シークレット
   webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
-  
+
   // Price IDs
   priceIds: {
     indie: {
@@ -25,7 +25,7 @@ export const STRIPE_CONFIG = {
       yearly: process.env.STRIPE_PRICE_ID_PRO_YEARLY!,
     },
   },
-  
+
   // URLs
   urls: {
     success: `${process.env.NEXT_PUBLIC_SITE_URL}/{locale}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
