@@ -1,7 +1,6 @@
 import { eq } from 'drizzle-orm'
-import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
-import type * as schema from '../../../drizzle/db/schema.js'
 import { profiles } from '../../../drizzle/db/schema.js'
+import type { Database } from '../../../drizzle/index.js'
 
 export type UserProfile = typeof profiles.$inferSelect
 export type CreateUserProfile = typeof profiles.$inferInsert
@@ -10,7 +9,7 @@ export type UpdateUserProfile = Partial<
 >
 
 export class UserRepository {
-  constructor(private db: PostgresJsDatabase<typeof schema>) {}
+  constructor(private db: Database) {}
 
   /**
    * ユーザーIDでプロフィールを取得（stripeCustomerIdを含む）
