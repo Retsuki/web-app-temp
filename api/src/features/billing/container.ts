@@ -1,0 +1,40 @@
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
+import type * as schema from '../../drizzle/db/schema.js'
+import { UserRepository } from '../users/repositories/user.repository.js'
+import { PaymentRepository } from './repositories/payment.repository.js'
+import { SubscriptionRepository } from './repositories/subscription.repository.js'
+import { CancelSubscriptionUseCase } from './use-cases/cancel-subscription/use-case.js'
+import { CreateCheckoutUseCase } from './use-cases/create-checkout/use-case.js'
+import { GetSubscriptionUseCase } from './use-cases/get-subscription/use-case.js'
+import { UpdateSubscriptionUseCase } from './use-cases/update-subscription/use-case.js'
+
+export class BillingContainer {
+  // Repositories
+  public readonly subscriptionRepository: SubscriptionRepository
+  public readonly paymentRepository: PaymentRepository
+
+  // Use Cases
+  public readonly createCheckoutUseCase: CreateCheckoutUseCase
+  public readonly getSubscriptionUseCase: GetSubscriptionUseCase
+  public readonly updateSubscriptionUseCase: UpdateSubscriptionUseCase
+  public readonly cancelSubscriptionUseCase: CancelSubscriptionUseCase
+
+  constructor(db: PostgresJsDatabase<typeof schema>) {
+    // Initialize repositories
+    this.subscriptionRepository = new SubscriptionRepository(db)
+    this.paymentRepository = new PaymentRepository(db)
+    const userRepository = new UserRepository(db)
+
+    // Initialize use cases
+    this.createCheckoutUseCase = new CreateCheckoutUseCase(
+      userRepository,
+      this.subscriptionRepository
+    )
+
+    this.getSubscriptionUseCase = new GetSubscriptionUseCase(this.subscriptionRepository)
+
+    this.updateSubscriptionUseCase = new UpdateSubscriptionUseCase(this.subscriptionRepository)
+
+    this.cancelSubscriptionUseCase = new CancelSubscriptionUseCase(this.subscriptionRepository)
+  }
+}

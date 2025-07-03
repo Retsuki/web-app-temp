@@ -1,4 +1,6 @@
-# CLAUDE.md - API開発ガイドライン
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 このドキュメントは、APIプロジェクトの開発方針、アーキテクチャ、コーディング規約を定義し、開発者とAIアシスタントが一貫した品質でコードを書けるようにするためのガイドラインです。
 
@@ -60,7 +62,14 @@
 ├── /drizzle/                   # データベース関連
 │   └── /db/
 │       ├── schema.ts          # テーブル定義
-│       └── database.ts        # DB接続
+│       ├── database.ts        # DB接続
+│       └── /seed/             # シードデータ
+│
+├── /constants/                 # アプリケーション定数
+│   └── plans.ts               # プラン定義 (FREE, PRO, ENTERPRISE)
+│
+├── /lib/                       # 外部サービス統合
+│   └── stripe.ts              # Stripe API クライアント
 │
 └── index.ts                    # エントリーポイント
 ```
@@ -137,6 +146,29 @@ app.openapi(getUserRoute, async (c) => {
 });
 ```
 
+## 開発コマンド
+
+```bash
+# 開発
+npm run dev          # 開発サーバー起動 (ポート 8080)
+npm run dev:build    # TypeScript型チェック（watchモード）
+npm run build        # プロダクションビルド
+npm run start        # プロダクションサーバー起動
+
+# データベース
+npm run db:generate  # Drizzleマイグレーション生成
+npm run db:push      # データベースへマイグレーション適用
+npm run db:seed      # シードデータ投入
+npm run db:check     # マイグレーションの検証
+
+# コード品質
+npm run lint         # Biomeリントチェック
+npm run lint:fix     # Biome自動修正
+
+# API生成
+npm run api:generate # Hygenを使用した新規API生成（対話形式）
+```
+
 ## 開発フロー
 
 ### 新機能追加の手順
@@ -159,11 +191,19 @@ app.openapi(getUserRoute, async (c) => {
    }
    ```
 
-3. **ServiceContainerに追加**
+3. **ServiceContainerに追加** (`src/_shared/middleware/service-container/container.ts`)
    ```typescript
    export class ServiceContainer {
      public readonly users: UserContainer;
+     public readonly billing: BillingContainer;
      public readonly posts: PostContainer; // 追加
+     
+     constructor(env: Env) {
+       const db = createDatabaseConnection(env.DATABASE_URL);
+       this.users = new UserContainer(db);
+       this.billing = new BillingContainer(db, env);
+       this.posts = new PostContainer(db); // 追加
+     }
    }
    ```
 
@@ -219,6 +259,26 @@ if (!process.env.DATABASE_URL) {
     message: "DATABASE_URL is not set",
   });
 }
+```
+
+### 4. 認証の実装
+```typescript
+// ルートハンドラーでユーザーID取得
+import { validateUserId } from '../../_shared/utils/auth/index.js'
+
+app.openapi(protectedRoute, async (c) => {
+  const userId = validateUserId(c) // 認証失敗時は自動的に例外
+  // ビジネスロジック実行
+})
+```
+
+### 5. インポートパスの規則
+```typescript
+// ❌ Bad - .js拡張子なし
+import { UserRepository } from './repositories/user.repository'
+
+// ✅ Good - .js拡張子付き（ES Modules）
+import { UserRepository } from './repositories/user.repository.js'
 ```
 
 ## データベース
@@ -284,8 +344,16 @@ DATABASE_URL=postgresql://...
 
 # Supabase
 SUPABASE_SERVICE_ROLE_KEY=...
+SUPABASE_JWT_SECRET=...
 
-# External Services
+# Stripe
+STRIPE_SECRET_KEY=...
+STRIPE_WEBHOOK_SECRET=...
+STRIPE_FREE_PRICE_ID=...
+STRIPE_PRO_PRICE_ID=...
+STRIPE_ENTERPRISE_PRICE_ID=...
+
+# External Services (Optional)
 REVENUECAT_SECRET_API_KEY=...
 GOOGLE_PLACES_API_KEY=...
 GOOGLE_CLOUD_PROJECT_ID=...
@@ -301,12 +369,33 @@ npm run start  # プロダクション起動
 
 ### よくある問題
 
-1. **型エラー**: `npm run type-check`で確認
+1. **型エラー**: `npm run build`で確認
 2. **DB接続エラー**: 環境変数とSupabaseの状態確認
 3. **認証エラー**: トークンの有効期限確認
 
+## 実装済み機能
+
+### Users API (`/api/v1/users`)
+- `GET /me` - ユーザープロフィール取得
+- `PUT /me` - プロフィール更新
+- `DELETE /me` - アカウント削除
+- `POST /` - ユーザー作成（内部用）
+
+### Billing API (`/api/v1/billing`)
+- `POST /checkout` - Stripeチェックアウトセッション作成
+- その他のエンドポイントは開発中
+
+### Health Check
+- `GET /api/v1/health` - サービスヘルスチェック
+
+### OpenAPI Documentation
+- `/api/v1/doc` - OpenAPIスキーマ（JSON）
+- `/api/v1/ui` - Swagger UI
+
 ## 今後の拡張予定
 
+- [ ] Stripe Webhookハンドラー
+- [ ] サブスクリプション管理API
 - [ ] WebSocket対応（リアルタイム機能）
 - [ ] ファイルアップロード機能
 - [ ] バックグラウンドジョブ（BullMQ）
