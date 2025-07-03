@@ -54,6 +54,9 @@
       "uiDescription": "shadcn/ui and Tailwind CSS"
     }
   },
+  "profile": {
+    "nickname": "Nickname"
+  },
   "pricing": {
     "title": "Pricing Plans",
     "subtitle": "Choose the perfect plan for your needs",
@@ -110,6 +113,7 @@
     "notFound": "Page not found",
     "unauthorized": "Authentication required",
     "forbidden": "Access denied",
-    "internalError": "Internal server error"
+    "internalError": "Internal server error",
+    "tryAgainLater": "Please try again later"
   }
 }

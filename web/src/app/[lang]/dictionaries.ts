@@ -13,3 +13,8 @@ export const getDictionary = async (locale: Locale) => {
 
 // Type for dictionary
 export type Dictionary = Awaited<ReturnType<typeof getDictionary>>
+export type PageLang = {
+  params: Promise<{
+    lang: Locale
+  }>
+}

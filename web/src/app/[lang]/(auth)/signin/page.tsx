@@ -2,8 +2,7 @@ import Link from 'next/link'
 import { GoogleAuthForm } from '@/components/app/auth/google-auth-form'
 import { LanguageSwitcher } from '@/components/app/language-switcher'
 import { signInWithGoogle } from '@/lib/auth/actions'
-import type { PageLang } from '../../../../types'
-import { getDictionary } from '../../dictionaries'
+import { getDictionary, type PageLang } from '../../dictionaries'
 import { SignInForm } from './signin-form'
 
 export default async function SignInPage({ params }: PageLang) {

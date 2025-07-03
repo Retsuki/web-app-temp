@@ -54,6 +54,9 @@
       "uiDescription": "shadcn/uiとTailwind CSS"
     }
   },
+  "profile": {
+    "nickname": "ニックネーム"
+  },
   "pricing": {
     "title": "料金プラン",
     "subtitle": "あなたのニーズに合わせた最適なプランをお選びください",
@@ -110,6 +113,7 @@
     "notFound": "ページが見つかりません",
     "unauthorized": "認証が必要です",
     "forbidden": "アクセスが拒否されました",
-    "internalError": "サーバーエラーが発生しました"
+    "internalError": "サーバーエラーが発生しました",
+    "tryAgainLater": "しばらくしてから再度お試しください"
   }
 }
