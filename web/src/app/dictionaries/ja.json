@@ -1,5 +1,6 @@
 {
   "common": {
+    "locale": "ja",
     "signIn": "サインイン",
     "signUp": "サインアップ",
     "signOut": "サインアウト",
@@ -52,6 +53,58 @@
       "ui": "モダンなUI",
       "uiDescription": "shadcn/uiとTailwind CSS"
     }
+  },
+  "pricing": {
+    "title": "料金プラン",
+    "subtitle": "あなたのニーズに合わせた最適なプランをお選びください",
+    "monthly": "月額",
+    "yearly": "年額",
+    "yearlyDiscount": "20%お得",
+    "free": "無料",
+    "selectPlan": "プランを選択",
+    "currentPlan": "現在のプラン",
+    "popular": "人気",
+    "period": {
+      "monthly": "月",
+      "yearly": "年"
+    }
+  },
+  "billing": {
+    "title": "請求情報",
+    "subscription": "サブスクリプション",
+    "currentPlan": "現在のプラン",
+    "billingCycle": "請求サイクル",
+    "nextBillingDate": "次回請求日",
+    "monthlyUsage": "今月の使用量",
+    "changePlan": "プラン変更",
+    "cancelSubscription": "サブスクリプションを解約",
+    "cancelConfirmTitle": "解約の確認",
+    "cancelConfirmMessage": "本当にサブスクリプションを解約しますか？現在の請求期間の終了まで、引き続きサービスをご利用いただけます。",
+    "paymentHistory": "支払い履歴",
+    "date": "日付",
+    "amount": "金額",
+    "status": "ステータス",
+    "invoice": "請求書",
+    "paymentStatus": {
+      "succeeded": "支払い完了",
+      "failed": "支払い失敗",
+      "pending": "処理中"
+    },
+    "subscriptionStatus": {
+      "active": "有効",
+      "canceled": "解約済み",
+      "past_due": "支払い遅延",
+      "unpaid": "未払い",
+      "trialing": "トライアル中"
+    },
+    "cancelSuccess": "サブスクリプションを解約しました",
+    "cancelError": "サブスクリプションの解約に失敗しました"
+  },
+  "checkout": {
+    "successTitle": "お支払いが完了しました！",
+    "successMessage": "サブスクリプションが有効になりました。ご購入ありがとうございます！",
+    "cancelTitle": "お支払いがキャンセルされました",
+    "cancelMessage": "お支払いがキャンセルされました。料金は請求されていません。"
   },
   "errors": {
     "notFound": "ページが見つかりません",

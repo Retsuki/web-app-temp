@@ -1,5 +1,6 @@
 {
   "common": {
+    "locale": "en",
     "signIn": "Sign In",
     "signUp": "Sign Up",
     "signOut": "Sign Out",
@@ -52,6 +53,58 @@
       "ui": "Modern UI",
       "uiDescription": "shadcn/ui and Tailwind CSS"
     }
+  },
+  "pricing": {
+    "title": "Pricing Plans",
+    "subtitle": "Choose the perfect plan for your needs",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "yearlyDiscount": "Save 20%",
+    "free": "Free",
+    "selectPlan": "Select Plan",
+    "currentPlan": "Current Plan",
+    "popular": "Popular",
+    "period": {
+      "monthly": "month",
+      "yearly": "year"
+    }
+  },
+  "billing": {
+    "title": "Billing",
+    "subscription": "Subscription",
+    "currentPlan": "Current Plan",
+    "billingCycle": "Billing Cycle",
+    "nextBillingDate": "Next Billing Date",
+    "monthlyUsage": "Monthly Usage",
+    "changePlan": "Change Plan",
+    "cancelSubscription": "Cancel Subscription",
+    "cancelConfirmTitle": "Confirm Cancellation",
+    "cancelConfirmMessage": "Are you sure you want to cancel your subscription? You will continue to have access until the end of your current billing period.",
+    "paymentHistory": "Payment History",
+    "date": "Date",
+    "amount": "Amount",
+    "status": "Status",
+    "invoice": "Invoice",
+    "paymentStatus": {
+      "succeeded": "Paid",
+      "failed": "Failed",
+      "pending": "Pending"
+    },
+    "subscriptionStatus": {
+      "active": "Active",
+      "canceled": "Canceled",
+      "past_due": "Past Due",
+      "unpaid": "Unpaid",
+      "trialing": "Trial"
+    },
+    "cancelSuccess": "Subscription canceled successfully",
+    "cancelError": "Failed to cancel subscription"
+  },
+  "checkout": {
+    "successTitle": "Payment Successful!",
+    "successMessage": "Your subscription has been activated. Thank you for your purchase!",
+    "cancelTitle": "Payment Cancelled",
+    "cancelMessage": "Your payment was cancelled. No charges were made to your account."
   },
   "errors": {
     "notFound": "Page not found",
