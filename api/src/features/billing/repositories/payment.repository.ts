@@ -1,26 +1,11 @@
-import type { Database } from '@/drizzle/db/database.js'
-import { paymentHistory } from '@/drizzle/db/schema.js'
-import { eq, desc } from 'drizzle-orm'
-
-export interface Payment {
-  paymentId: string
-  userId: string
-  stripePaymentIntentId: string | null
-  stripeInvoiceId: string | null
-  amount: number
-  currency: string
-  status: 'pending' | 'succeeded' | 'failed'
-  description: string | null
-  metadata: Record<string, any>
-  paidAt: Date | null
-  createdAt: Date
-  updatedAt: Date
-}
+import { desc, eq } from 'drizzle-orm'
+import { paymentHistory } from '../../../drizzle/db/schema.js'
+import type { Database } from '../../../drizzle/index.js'
 
 export class PaymentRepository {
   constructor(private db: Database) {}
 
-  async findByUserId(userId: string, limit = 10): Promise<Payment[]> {
+  async findByUserId(userId: string, limit = 10) {
     return await this.db
       .select()
       .from(paymentHistory)
@@ -29,18 +14,20 @@ export class PaymentRepository {
       .limit(limit)
   }
 
-  async findByStripeInvoiceId(stripeInvoiceId: string): Promise<Payment | null> {
-    const result = await this.db
+  async findByStripeInvoiceId(stripeInvoiceId: string) {
+    const [result] = await this.db
       .select()
       .from(paymentHistory)
       .where(eq(paymentHistory.stripeInvoiceId, stripeInvoiceId))
       .limit(1)
 
-    return result[0] || null
+    return result || null
   }
 
-  async create(data: Omit<Payment, 'paymentId' | 'createdAt' | 'updatedAt'>): Promise<Payment> {
-    const result = await this.db
+  async create(
+    data: Omit<typeof paymentHistory.$inferInsert, 'paymentId' | 'createdAt' | 'updatedAt'>
+  ) {
+    const [result] = await this.db
       .insert(paymentHistory)
       .values({
         ...data,
@@ -48,22 +35,21 @@ export class PaymentRepository {
       })
       .returning()
 
-    return result[0]
+    return result || null
   }
 
   async update(
     paymentId: string,
-    data: Partial<Omit<Payment, 'paymentId' | 'createdAt' | 'updatedAt'>>
-  ): Promise<Payment | null> {
-    const result = await this.db
+    data: Partial<Omit<typeof paymentHistory.$inferInsert, 'paymentId' | 'createdAt' | 'updatedAt'>>
+  ) {
+    const [result] = await this.db
       .update(paymentHistory)
       .set({
         ...data,
-        updatedAt: new Date(),
       })
-      .where(eq(paymentHistory.paymentId, paymentId))
+      .where(eq(paymentHistory.id, paymentId))
       .returning()
 
-    return result[0] || null
+    return result || null
   }
 }
