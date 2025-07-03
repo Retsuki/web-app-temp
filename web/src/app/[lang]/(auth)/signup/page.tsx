@@ -1,9 +1,13 @@
-import { GoogleAuthForm } from '@/components/app/auth/google-auth-form'
 import Link from 'next/link'
+import { GoogleAuthForm } from '@/components/app/auth/google-auth-form'
 import { signInWithGoogle } from '@/lib/auth/actions'
+import type { PageLang } from '../../../../types'
+import { getDictionary } from '../../dictionaries'
 import { SignUpForm } from './signup-form'
 
-export default function SignUpPage() {
+export default async function SignUpPage({ params }: PageLang) {
+  const { lang } = await params
+  const dict = await getDictionary(lang)
 
   async function handleGoogleSignIn() {
     'use server'
@@ -15,12 +19,12 @@ export default function SignUpPage() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            アカウントを作成
+            {dict.common.signUp}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            すでにアカウントをお持ちの方は{' '}
+            {dict.auth.dontHaveAccount}{' '}
             <Link href="/signin" className="font-medium text-indigo-600 hover:text-indigo-500">
-              サインイン
+              {dict.common.signIn}
             </Link>
           </p>
         </div>
@@ -33,14 +37,12 @@ export default function SignUpPage() {
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-gray-50 px-2 text-gray-500">または</span>
+              <span className="bg-gray-50 px-2 text-gray-500">{dict.auth.orContinueWith}</span>
             </div>
           </div>
 
           <div className="mt-6">
-            <GoogleAuthForm action={handleGoogleSignIn}>
-              Googleで新規登録
-            </GoogleAuthForm>
+            <GoogleAuthForm action={handleGoogleSignIn}>{dict.auth.loginWithGoogle}</GoogleAuthForm>
           </div>
         </div>
       </div>

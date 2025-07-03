@@ -1,15 +1,12 @@
-import { GoogleAuthForm } from '@/components/app/auth/google-auth-form'
 import Link from 'next/link'
-import { signInWithGoogle } from '@/lib/auth/actions'
-import { SignInForm } from './signin-form'
-import { getDictionary, type Locale } from '../../dictionaries'
+import { GoogleAuthForm } from '@/components/app/auth/google-auth-form'
 import { LanguageSwitcher } from '@/components/app/language-switcher'
+import { signInWithGoogle } from '@/lib/auth/actions'
+import type { PageLang } from '../../../../types'
+import { getDictionary } from '../../dictionaries'
+import { SignInForm } from './signin-form'
 
-export default async function SignInPage({
-  params,
-}: {
-  params: Promise<{ lang: Locale }>
-}) {
+export default async function SignInPage({ params }: PageLang) {
   const { lang } = await params
   const dict = await getDictionary(lang)
 
@@ -30,7 +27,10 @@ export default async function SignInPage({
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             {dict.auth.dontHaveAccount}{' '}
-            <Link href={`/${lang}/signup`} className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link
+              href={`/${lang}/signup`}
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
               {dict.common.signUp}
             </Link>
           </p>
@@ -49,9 +49,7 @@ export default async function SignInPage({
           </div>
 
           <div className="mt-6">
-            <GoogleAuthForm action={handleGoogleSignIn}>
-              {dict.auth.loginWithGoogle}
-            </GoogleAuthForm>
+            <GoogleAuthForm action={handleGoogleSignIn}>{dict.auth.loginWithGoogle}</GoogleAuthForm>
           </div>
         </div>
       </div>
