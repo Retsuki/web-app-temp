@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "gen:api": "openapi-typescript http://localhost:8080/api/v1/doc -o ./src/lib/api/schema.d.ts"
+    "gen:api": "openapi-typescript http://localhost:8080/api/v1/doc -o ./src/lib/api/schema.d.ts",
+    "orval": "orval --config ./orval.config.ts",
+    "orval:watch": "orval --config ./orval.config.ts --watch"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.1",
@@ -46,6 +48,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
     "openapi-typescript": "^7.8.0",
+    "orval": "^7.10.0",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.4",
     "typescript": "^5"
