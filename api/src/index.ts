@@ -7,6 +7,7 @@ import { createApp } from './_shared/factory/create-app.js'
 import { billingApi } from './features/billing/index.js'
 import { healthApi } from './features/health/index.js'
 import { usersApi } from './features/users/index.js'
+import { stripeWebhookApi } from './features/stripe-webhook/index.js'
 
 const app = createApp()
 
@@ -14,6 +15,7 @@ const app = createApp()
 usersApi(app)
 healthApi(app)
 billingApi(app)
+stripeWebhookApi(app)
 
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 8080
 serve(

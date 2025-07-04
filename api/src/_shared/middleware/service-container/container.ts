@@ -9,6 +9,9 @@ export interface AppConfig {
 }
 
 export class ServiceContainer {
+  // Database
+  public readonly db = db
+  
   // Feature containers
   public readonly users: UserContainer
   public readonly billing: BillingContainer

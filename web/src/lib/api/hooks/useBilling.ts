@@ -2,22 +2,28 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import * as billing from '@/lib/api/billing'
+// TODO: Uncomment when billing API is available
+// import { apiClient, createAuthenticatedClient } from '../client'
+import type { components } from '../schema'
 
-// Query keys
-const billingKeys = {
-  all: ['billing'] as const,
-  plans: () => [...billingKeys.all, 'plans'] as const,
-  subscription: () => [...billingKeys.all, 'subscription'] as const,
-  history: (params?: { limit?: number; offset?: number }) =>
-    [...billingKeys.all, 'history', params] as const,
-}
+export type Plan = components['schemas']['Plan']
+export type Subscription = components['schemas']['SubscriptionResponse']
+export type PaymentHistory = components['schemas']['PaymentHistoryItem']
+export type CheckoutSession = components['schemas']['CheckoutSessionResponse']
 
 // Get plans
 export function usePlans() {
   return useQuery({
-    queryKey: billingKeys.plans(),
-    queryFn: billing.getPlans,
+    queryKey: ['billing', 'plans'],
+    queryFn: async () => {
+      // TODO: Uncomment when billing API is available
+      // const { data, error } = await apiClient.GET('/api/v1/plans')
+      // if (error) {
+      //   throw error
+      // }
+      // return data
+      return { plans: [] } // Temporary mock data
+    },
     staleTime: 1000 * 60 * 60, // Cache for 1 hour
   })
 }
@@ -25,8 +31,17 @@ export function usePlans() {
 // Get subscription
 export function useSubscription() {
   return useQuery({
-    queryKey: billingKeys.subscription(),
-    queryFn: billing.getSubscription,
+    queryKey: ['billing', 'subscription'],
+    queryFn: async () => {
+      // TODO: Uncomment when billing API is available
+      // const client = createAuthenticatedClient()
+      // const { data, error } = await client.GET('/api/v1/billing/subscription')
+      // if (error) {
+      //   throw error
+      // }
+      // return data
+      return null // Temporary mock data
+    },
   })
 }
 
@@ -35,7 +50,21 @@ export function useCreateCheckout() {
   const router = useRouter()
 
   return useMutation({
-    mutationFn: billing.createCheckoutSession,
+    mutationFn: async (params: {
+      planId: 'indie' | 'pro'
+      billingCycle: 'monthly' | 'yearly'
+    }) => {
+      // TODO: Uncomment when billing API is available
+      // const client = createAuthenticatedClient()
+      // const { data, error } = await client.POST('/api/v1/billing/checkout', {
+      //   body: params,
+      // })
+      // if (error) {
+      //   throw error
+      // }
+      // return data
+      return { url: '#' } // Temporary mock data
+    },
     onSuccess: (data) => {
       // Redirect to Stripe checkout
       router.push(data.url)
@@ -48,10 +77,24 @@ export function useUpdateSubscription() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: billing.updateSubscription,
+    mutationFn: async (params: {
+      planId: 'indie' | 'pro'
+      billingCycle: 'monthly' | 'yearly'
+    }) => {
+      // TODO: Uncomment when billing API is available
+      // const client = createAuthenticatedClient()
+      // const { data, error } = await client.PATCH('/api/v1/billing/subscription', {
+      //   body: params,
+      // })
+      // if (error) {
+      //   throw error
+      // }
+      // return data
+      return {} // Temporary mock data
+    },
     onSuccess: () => {
       // Invalidate subscription cache
-      queryClient.invalidateQueries({ queryKey: billingKeys.subscription() })
+      queryClient.invalidateQueries({ queryKey: ['billing', 'subscription'] })
     },
   })
 }
@@ -61,10 +104,19 @@ export function useCancelSubscription() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: billing.cancelSubscription,
+    mutationFn: async () => {
+      // TODO: Uncomment when billing API is available
+      // const client = createAuthenticatedClient()
+      // const { data, error } = await client.DELETE('/api/v1/billing/subscription')
+      // if (error) {
+      //   throw error
+      // }
+      // return data
+      return {} // Temporary mock data
+    },
     onSuccess: () => {
       // Invalidate subscription cache
-      queryClient.invalidateQueries({ queryKey: billingKeys.subscription() })
+      queryClient.invalidateQueries({ queryKey: ['billing', 'subscription'] })
     },
   })
 }
@@ -72,7 +124,18 @@ export function useCancelSubscription() {
 // Get payment history
 export function usePaymentHistory(params?: { limit?: number; offset?: number }) {
   return useQuery({
-    queryKey: billingKeys.history(params),
-    queryFn: () => billing.getPaymentHistory(params),
+    queryKey: ['billing', 'history', params],
+    queryFn: async () => {
+      // TODO: Uncomment when billing API is available
+      // const client = createAuthenticatedClient()
+      // const { data, error } = await client.GET('/api/v1/billing/history', {
+      //   params: { query: params },
+      // })
+      // if (error) {
+      //   throw error
+      // }
+      // return data
+      return { items: [], total: 0 } // Temporary mock data
+    },
   })
 }
