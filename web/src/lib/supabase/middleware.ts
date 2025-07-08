@@ -1,5 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
-import { type NextRequest, NextResponse } from 'next/server'
+import type { NextRequest, NextResponse } from 'next/server'
 
 export async function updateSession(request: NextRequest, response: NextResponse) {
   // Use the provided response to maintain middleware chain

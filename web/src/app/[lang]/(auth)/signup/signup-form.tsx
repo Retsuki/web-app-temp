@@ -1,13 +1,13 @@
 'use client'
 
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { signUp } from '@/lib/auth/actions'
-import { Form } from '@/components/ui/form'
-import { FormInput } from '@/components/app/input/form-input'
 import { PrimaryButton } from '@/components/app/button/primary-button'
-import { formSchema, FormValues } from './_schema'
+import { FormInput } from '@/components/app/input/form-input'
+import { Form } from '@/components/ui/form'
+import { signUp } from '@/lib/auth/actions'
+import { type FormValues, formSchema } from './_schema'
 
 export function SignUpForm() {
   const [error, setError] = useState<string | null>(null)
@@ -27,7 +27,7 @@ export function SignUpForm() {
     setLoading(true)
 
     const result = await signUp(data)
-    
+
     if (result?.error) {
       setError(result.error)
       setLoading(false)
@@ -55,7 +55,7 @@ export function SignUpForm() {
             placeholder="メールアドレス"
             autoComplete="email"
           />
-          
+
           <FormInput
             control={form.control}
             name="password"
@@ -77,11 +77,7 @@ export function SignUpForm() {
         )}
 
         <div>
-          <PrimaryButton
-            type="submit"
-            disabled={loading}
-            className="w-full"
-          >
+          <PrimaryButton type="submit" disabled={loading} className="w-full">
             {loading ? '読み込み中...' : '新規登録'}
           </PrimaryButton>
         </div>

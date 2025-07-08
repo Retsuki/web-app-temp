@@ -1,19 +1,18 @@
-import { createRoute } from "@hono/zod-openapi";
-import { z } from "@hono/zod-openapi";
-import { errorResponses } from "../../../../_shared/utils/error/index.js";
-import { updateProfileReqSchema, userProfileResSchema } from "./dto.js";
+import { createRoute, z } from '@hono/zod-openapi'
+import { errorResponses } from '../../../../_shared/utils/error/index.js'
+import { updateProfileReqSchema, userProfileResSchema } from './dto.js'
 
 export const updateProfileRoute = createRoute({
-  method: "put",
-  path: "/users/me",
-  tags: ["users"],
-  summary: "プロフィール更新",
-  description: "認証済みユーザーの自分のプロフィール情報を更新します",
+  method: 'put',
+  path: '/users/me',
+  tags: ['users'],
+  summary: 'プロフィール更新',
+  description: '認証済みユーザーの自分のプロフィール情報を更新します',
   security: [{ bearerAuth: [] }],
   request: {
     body: {
       content: {
-        "application/json": {
+        'application/json': {
           schema: updateProfileReqSchema,
         },
       },
@@ -21,9 +20,9 @@ export const updateProfileRoute = createRoute({
   },
   responses: {
     200: {
-      description: "プロフィール更新成功",
+      description: 'プロフィール更新成功',
       content: {
-        "application/json": {
+        'application/json': {
           schema: z.object({
             success: z.boolean(),
             data: userProfileResSchema,
@@ -37,4 +36,4 @@ export const updateProfileRoute = createRoute({
     },
     ...errorResponses,
   },
-});
+})

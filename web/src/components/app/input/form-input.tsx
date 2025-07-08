@@ -1,7 +1,7 @@
 'use client'
 
-import * as React from 'react'
-import { Control, FieldPath, FieldValues } from 'react-hook-form'
+import type * as React from 'react'
+import type { Control, FieldPath, FieldValues } from 'react-hook-form'
 import {
   FormControl,
   FormDescription,
@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils'
 
 interface FormInputProps<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > extends Omit<React.ComponentProps<'input'>, 'name' | 'value' | 'onChange' | 'onBlur' | 'ref'> {
   control: Control<TFieldValues>
   name: TName
@@ -26,7 +26,7 @@ interface FormInputProps<
 
 export function FormInput<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >({
   control,
   name,
@@ -44,12 +44,7 @@ export function FormInput<
         <FormItem className={containerClassName}>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>
-            <Input
-              {...field}
-              {...props}
-              className={cn(className)}
-              value={field.value ?? ''}
-            />
+            <Input {...field} {...props} className={cn(className)} value={field.value ?? ''} />
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />

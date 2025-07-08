@@ -30,7 +30,7 @@ export default async function RootLayout({
   params: Promise<{ lang: string }>
 }>) {
   const { lang } = await params
-  
+
   return (
     <html lang={lang}>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>

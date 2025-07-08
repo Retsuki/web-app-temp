@@ -27,7 +27,7 @@ export default defineConfig({
       },
     },
     hooks: {
-      afterAllFilesWrite: 'npx biome check --apply',
+      afterAllFilesWrite: 'npx biome check --write',
     },
   },
 })

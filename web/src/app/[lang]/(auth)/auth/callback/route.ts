@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { apiClient } from '@/lib/api/client'
+import { postApiV1UsersServer } from '@/lib/api/server-api'
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
@@ -18,28 +18,17 @@ export async function GET(request: Request) {
       } = await supabase.auth.getUser()
 
       if (user) {
-        // セッションからアクセストークンを取得
-        const {
-          data: { session },
-        } = await supabase.auth.getSession()
-
-        if (session?.access_token) {
-          try {
-            // APIを使用してユーザープロフィールを作成
-            await apiClient.POST('/api/v1/users', {
-              body: {
-                userId: user.id,
-                email: user.email!,
-                nickname: user.user_metadata.full_name || user.email!.split('@')[0],
-              },
-              headers: {
-                Authorization: `Bearer ${session.access_token}`,
-              },
-            })
-          } catch (error) {
-            // ユーザーが既に存在する場合はエラーを無視
-            console.log('User profile creation skipped:', error)
-          }
+        try {
+          // APIを使用してユーザープロフィールを作成
+          // サーバーサイド用のAPIクライアントを使用（自動的に認証ヘッダーが付与される）
+          await postApiV1UsersServer({
+            userId: user.id,
+            email: user.email!,
+            nickname: user.user_metadata.full_name || user.email!.split('@')[0],
+          })
+        } catch (error) {
+          // ユーザーが既に存在する場合はエラーを無視
+          console.log('User profile creation skipped:', error)
         }
       }
 

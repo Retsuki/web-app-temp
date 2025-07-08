@@ -1,17 +1,17 @@
-import { createRoute } from "@hono/zod-openapi";
-import { errorResponses } from "../../../../_shared/utils/error/index.js";
-import { createUserRequestSchema, createUserResponseSchema } from "./dto.js";
+import { createRoute } from '@hono/zod-openapi'
+import { errorResponses } from '../../../../_shared/utils/error/index.js'
+import { createUserRequestSchema, createUserResponseSchema } from './dto.js'
 
 export const createUserRoute = createRoute({
-  method: "post",
-  path: "/users",
-  tags: ["users"],
-  summary: "ユーザープロフィールを作成",
-  description: "新規ユーザーのプロフィールを作成します",
+  method: 'post',
+  path: '/users',
+  tags: ['users'],
+  summary: 'ユーザープロフィールを作成',
+  description: '新規ユーザーのプロフィールを作成します',
   request: {
     body: {
       content: {
-        "application/json": {
+        'application/json': {
           schema: createUserRequestSchema,
         },
       },
@@ -19,13 +19,13 @@ export const createUserRoute = createRoute({
   },
   responses: {
     201: {
-      description: "ユーザープロフィール作成成功",
+      description: 'ユーザープロフィール作成成功',
       content: {
-        "application/json": {
+        'application/json': {
           schema: createUserResponseSchema,
         },
       },
     },
     ...errorResponses,
   },
-});
+})

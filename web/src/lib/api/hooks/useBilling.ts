@@ -50,10 +50,7 @@ export function useCreateCheckout() {
   const router = useRouter()
 
   return useMutation({
-    mutationFn: async (params: {
-      planId: 'indie' | 'pro'
-      billingCycle: 'monthly' | 'yearly'
-    }) => {
+    mutationFn: async (params: { planId: 'indie' | 'pro'; billingCycle: 'monthly' | 'yearly' }) => {
       // TODO: Uncomment when billing API is available
       // const client = createAuthenticatedClient()
       // const { data, error } = await client.POST('/api/v1/billing/checkout', {
@@ -77,10 +74,7 @@ export function useUpdateSubscription() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (params: {
-      planId: 'indie' | 'pro'
-      billingCycle: 'monthly' | 'yearly'
-    }) => {
+    mutationFn: async (params: { planId: 'indie' | 'pro'; billingCycle: 'monthly' | 'yearly' }) => {
       // TODO: Uncomment when billing API is available
       // const client = createAuthenticatedClient()
       // const { data, error } = await client.PATCH('/api/v1/billing/subscription', {

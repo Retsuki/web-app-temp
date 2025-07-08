@@ -6,7 +6,7 @@ export class GetSubscriptionUseCase {
 
   async execute(userId: string): Promise<GetSubscriptionResponse> {
     const subscription = await this.subscriptionRepository.findByUserId(userId)
-    
+
     if (!subscription) {
       return null
     }

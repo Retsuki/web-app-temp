@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import type { FieldPath, FieldValues, Control } from "react-hook-form";
-import { Checkbox } from "@/components/ui/checkbox";
+import type { Control, FieldPath, FieldValues } from 'react-hook-form'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   FormControl,
   FormDescription,
@@ -9,16 +9,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form'
 
 type FormCheckboxProps<TFieldValues extends FieldValues> = {
-  control: Control<TFieldValues>;
-  name: FieldPath<TFieldValues>;
-  label?: string;
-  description?: string;
-  className?: string;
-  disabled?: boolean;
-};
+  control: Control<TFieldValues>
+  name: FieldPath<TFieldValues>
+  label?: string
+  description?: string
+  className?: string
+  disabled?: boolean
+}
 
 export function FormCheckbox<TFieldValues extends FieldValues>({
   control,
@@ -56,5 +56,5 @@ export function FormCheckbox<TFieldValues extends FieldValues>({
         </FormItem>
       )}
     />
-  );
+  )
 }

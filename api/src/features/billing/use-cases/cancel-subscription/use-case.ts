@@ -20,7 +20,9 @@ export class CancelSubscriptionUseCase {
     let canceledSubscription
     if (dto.immediately) {
       // 即時解約
-      canceledSubscription = await stripe.subscriptions.cancel(currentSubscription.stripeSubscriptionId)
+      canceledSubscription = await stripe.subscriptions.cancel(
+        currentSubscription.stripeSubscriptionId
+      )
     } else {
       // 期間終了時に解約
       canceledSubscription = await stripe.subscriptions.update(
@@ -35,7 +37,7 @@ export class CancelSubscriptionUseCase {
     await this.subscriptionRepository.updateByStripeSubscriptionId(
       currentSubscription.stripeSubscriptionId,
       {
-        cancelAt: canceledSubscription.cancel_at 
+        cancelAt: canceledSubscription.cancel_at
           ? new Date(canceledSubscription.cancel_at * 1000)
           : null,
         status: canceledSubscription.status as any,
@@ -44,7 +46,7 @@ export class CancelSubscriptionUseCase {
 
     return {
       subscriptionId: currentSubscription.subscriptionId,
-      cancelAt: canceledSubscription.cancel_at 
+      cancelAt: canceledSubscription.cancel_at
         ? new Date(canceledSubscription.cancel_at * 1000).toISOString()
         : null,
       message: dto.immediately

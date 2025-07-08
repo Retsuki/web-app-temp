@@ -27,7 +27,10 @@ export class UpdateSubscriptionUseCase {
     }
 
     // 3. 同じプランへの変更はエラー
-    if (currentSubscription.plan === dto.planId && currentSubscription.billingCycle === dto.billingCycle) {
+    if (
+      currentSubscription.plan === dto.planId &&
+      currentSubscription.billingCycle === dto.billingCycle
+    ) {
       throw new AppHTTPException(400, {
         code: ERROR_CODES.INVALID_REQUEST,
         message: '既に同じプランです',
@@ -35,11 +38,13 @@ export class UpdateSubscriptionUseCase {
     }
 
     // 4. Stripeサブスクリプションを更新
-    const stripeSubscription = await stripe.subscriptions.retrieve(currentSubscription.stripeSubscriptionId)
-    
+    const stripeSubscription = await stripe.subscriptions.retrieve(
+      currentSubscription.stripeSubscriptionId
+    )
+
     // アップグレードかダウングレードかを判定
     const isUpgradeRequest = isUpgrade(currentSubscription.plan, dto.planId)
-    
+
     // 更新を実行
     const updatedSubscription = await stripe.subscriptions.update(stripeSubscription.id, {
       items: [
@@ -50,7 +55,9 @@ export class UpdateSubscriptionUseCase {
       ],
       // アップグレードは即時、ダウングレードは期間終了時
       proration_behavior: isUpgradeRequest ? 'always_invoice' : 'none',
-      ...(isUpgradeRequest ? {} : { cancel_at_period_end: false, billing_cycle_anchor: 'unchanged' }),
+      ...(isUpgradeRequest
+        ? {}
+        : { cancel_at_period_end: false, billing_cycle_anchor: 'unchanged' }),
     })
 
     // 5. DBを更新
@@ -68,7 +75,7 @@ export class UpdateSubscriptionUseCase {
       plan: dto.planId,
       billingCycle: dto.billingCycle,
       status: updatedSubscription.status,
-      message: isUpgradeRequest 
+      message: isUpgradeRequest
         ? 'プランをアップグレードしました。差額は日割りで請求されます。'
         : 'プランを変更しました。次回請求時から新しいプランが適用されます。',
     }

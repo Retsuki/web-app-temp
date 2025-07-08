@@ -1,1 +1,1057 @@
-{"openapi":"3.0.0","info":{"title":"API","version":"1.0.0"},"components":{"schemas":{"CreateUserResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid","description":"プロフィールID"},"userId":{"type":"string","format":"uuid","description":"ユーザーID"},"email":{"type":"string","format":"email","description":"メールアドレス"},"nickname":{"type":"string","description":"ニックネーム"},"createdAt":{"type":"string","format":"date-time","description":"作成日時"},"updatedAt":{"type":"string","format":"date-time","description":"更新日時"}},"required":["id","userId","email","nickname","createdAt","updatedAt"]},"ErrBadRequest":{"type":"object","properties":{"error":{"type":"object","properties":{"code":{"type":"string","enum":["UNAUTHORIZED","FORBIDDEN_OPERATION","NOT_FOUND","INVALID_TOKEN","INVALID_TYPE","INVALID_REQUEST","UNKNOWN_ERROR","CONFLICT","PROFILE_NOT_FOUND"],"description":"エラーコード","example":"INVALID_TOKEN"},"message":{"type":"string","description":"エラーの説明メッセージ"},"requestId":{"type":"string","description":"リクエストID","example":"req_1234"},"statusCode":{"type":"integer","description":"HTTPステータスコード","example":400}},"required":["code","message","requestId","statusCode"]}},"required":["error"]},"ErrUnauthorized":{"type":"object","properties":{"error":{"type":"object","properties":{"code":{"type":"string","enum":["UNAUTHORIZED","FORBIDDEN_OPERATION","NOT_FOUND","INVALID_TOKEN","INVALID_TYPE","INVALID_REQUEST","UNKNOWN_ERROR","CONFLICT","PROFILE_NOT_FOUND"],"description":"エラーコード","example":"UNAUTHORIZED"},"message":{"type":"string","description":"エラーの説明メッセージ"},"requestId":{"type":"string","description":"リクエストID","example":"req_1234"},"statusCode":{"type":"integer","description":"HTTPステータスコード","example":401}},"required":["code","message","requestId","statusCode"]}},"required":["error"]},"ErrForbidden":{"type":"object","properties":{"error":{"type":"object","properties":{"code":{"type":"string","enum":["UNAUTHORIZED","FORBIDDEN_OPERATION","NOT_FOUND","INVALID_TOKEN","INVALID_TYPE","INVALID_REQUEST","UNKNOWN_ERROR","CONFLICT","PROFILE_NOT_FOUND"],"description":"エラーコード","example":"FORBIDDEN_OPERATION"},"message":{"type":"string","description":"エラーの説明メッセージ"},"requestId":{"type":"string","description":"リクエストID","example":"req_1234"},"statusCode":{"type":"integer","description":"HTTPステータスコード","example":403}},"required":["code","message","requestId","statusCode"]}},"required":["error"]},"ErrNotFound":{"type":"object","properties":{"error":{"type":"object","properties":{"code":{"type":"string","enum":["UNAUTHORIZED","FORBIDDEN_OPERATION","NOT_FOUND","INVALID_TOKEN","INVALID_TYPE","INVALID_REQUEST","UNKNOWN_ERROR","CONFLICT","PROFILE_NOT_FOUND"],"description":"エラーコード","example":"NOT_FOUND"},"message":{"type":"string","description":"エラーの説明メッセージ"},"requestId":{"type":"string","description":"リクエストID","example":"req_1234"},"statusCode":{"type":"integer","description":"HTTPステータスコード","example":404}},"required":["code","message","requestId","statusCode"]}},"required":["error"]},"ErrConflict":{"type":"object","properties":{"error":{"type":"object","properties":{"code":{"type":"string","enum":["UNAUTHORIZED","FORBIDDEN_OPERATION","NOT_FOUND","INVALID_TOKEN","INVALID_TYPE","INVALID_REQUEST","UNKNOWN_ERROR","CONFLICT","PROFILE_NOT_FOUND"],"description":"エラーコード","example":"CONFLICT"},"message":{"type":"string","description":"エラーの説明メッセージ"},"requestId":{"type":"string","description":"リクエストID","example":"req_1234"},"statusCode":{"type":"integer","description":"HTTPステータスコード","example":409}},"required":["code","message","requestId","statusCode"]}},"required":["error"]},"ErrInternalServer":{"type":"object","properties":{"error":{"type":"object","properties":{"code":{"type":"string","enum":["UNAUTHORIZED","FORBIDDEN_OPERATION","NOT_FOUND","INVALID_TOKEN","INVALID_TYPE","INVALID_REQUEST","UNKNOWN_ERROR","CONFLICT","PROFILE_NOT_FOUND"],"description":"エラーコード","example":"UNKNOWN_ERROR"},"message":{"type":"string","description":"エラーの説明メッセージ"},"requestId":{"type":"string","description":"リクエストID","example":"req_1234"},"statusCode":{"type":"integer","description":"HTTPステータスコード","example":500}},"required":["code","message","requestId","statusCode"]}},"required":["error"]},"CreateUserRequest":{"type":"object","properties":{"userId":{"type":"string","format":"uuid","description":"Supabase AuthのユーザーID"},"email":{"type":"string","format":"email","description":"メールアドレス"},"nickname":{"type":"string","minLength":1,"maxLength":50,"description":"ニックネーム"}},"required":["userId","email","nickname"]},"UserProfile":{"type":"object","properties":{"id":{"type":"string","format":"uuid","description":"プロフィールID","example":"123e4567-e89b-12d3-a456-426614174000"},"userId":{"type":"string","format":"uuid","description":"ユーザーID","example":"123e4567-e89b-12d3-a456-426614174001"},"email":{"type":"string","format":"email","description":"メールアドレス","example":"user@example.com"},"nickname":{"type":"string","description":"ニックネーム","example":"たろう"},"createdAt":{"type":"string","format":"date-time","description":"作成日時","example":"2024-01-01T00:00:00Z"},"updatedAt":{"type":"string","format":"date-time","description":"更新日時","example":"2024-01-01T00:00:00Z"}},"required":["id","userId","email","nickname","createdAt","updatedAt"]},"UpdateProfileRequest":{"type":"object","properties":{"nickname":{"type":"string","minLength":1,"maxLength":50,"description":"ニックネーム","example":"たろう"}}},"DeleteAccountRequest":{"type":"object","properties":{"confirmation":{"type":"string","enum":["DELETE_MY_ACCOUNT"],"description":"削除確認文字列（DELETE_MY_ACCOUNTと入力）","example":"DELETE_MY_ACCOUNT"}},"required":["confirmation"]}},"parameters":{}},"paths":{"/api/v1/users":{"post":{"tags":["users"],"summary":"ユーザープロフィールを作成","description":"新規ユーザーのプロフィールを作成します","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CreateUserRequest"}}}},"responses":{"201":{"description":"ユーザープロフィール作成成功","content":{"application/json":{"schema":{"$ref":"#/components/schemas/CreateUserResponse"}}}},"400":{"description":"クライアントからのリクエストに問題があり、サーバーが処理を完了できませんでした。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrBadRequest"}}}},"401":{"description":"認証が必要です。アクセストークンが無効か期限切れの可能性があります。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrUnauthorized"}}}},"403":{"description":"この操作を実行する権限がありません。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrForbidden"}}}},"404":{"description":"リクエストされたリソースが見つかりませんでした。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrNotFound"}}}},"409":{"description":"リソースの競合が発生しました。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrConflict"}}}},"500":{"description":"サーバー内部でエラーが発生しました。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrInternalServer"}}}}}}},"/api/v1/users/me":{"get":{"tags":["users"],"summary":"自分のプロフィール取得","description":"認証済みユーザーの自分のプロフィール情報を取得します","security":[{"bearerAuth":[]}],"responses":{"200":{"description":"プロフィール取得成功","content":{"application/json":{"schema":{"type":"object","properties":{"success":{"type":"boolean"},"data":{"$ref":"#/components/schemas/UserProfile"},"metadata":{"type":"object","properties":{"timestamp":{"type":"string","format":"date-time"},"version":{"type":"string"}},"required":["timestamp","version"]}},"required":["success","data","metadata"]}}}},"400":{"description":"クライアントからのリクエストに問題があり、サーバーが処理を完了できませんでした。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrBadRequest"}}}},"401":{"description":"認証が必要です。アクセストークンが無効か期限切れの可能性があります。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrUnauthorized"}}}},"403":{"description":"この操作を実行する権限がありません。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrForbidden"}}}},"404":{"description":"リクエストされたリソースが見つかりませんでした。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrNotFound"}}}},"409":{"description":"リソースの競合が発生しました。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrConflict"}}}},"500":{"description":"サーバー内部でエラーが発生しました。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrInternalServer"}}}}}},"put":{"tags":["users"],"summary":"プロフィール更新","description":"認証済みユーザーの自分のプロフィール情報を更新します","security":[{"bearerAuth":[]}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UpdateProfileRequest"}}}},"responses":{"200":{"description":"プロフィール更新成功","content":{"application/json":{"schema":{"type":"object","properties":{"success":{"type":"boolean"},"data":{"$ref":"#/components/schemas/UserProfile"},"metadata":{"type":"object","properties":{"timestamp":{"type":"string","format":"date-time"},"version":{"type":"string"}},"required":["timestamp","version"]}},"required":["success","data","metadata"]}}}},"400":{"description":"クライアントからのリクエストに問題があり、サーバーが処理を完了できませんでした。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrBadRequest"}}}},"401":{"description":"認証が必要です。アクセストークンが無効か期限切れの可能性があります。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrUnauthorized"}}}},"403":{"description":"この操作を実行する権限がありません。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrForbidden"}}}},"404":{"description":"リクエストされたリソースが見つかりませんでした。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrNotFound"}}}},"409":{"description":"リソースの競合が発生しました。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrConflict"}}}},"500":{"description":"サーバー内部でエラーが発生しました。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrInternalServer"}}}}}},"delete":{"tags":["users"],"summary":"アカウント削除","description":"認証済みユーザーのアカウントを論理削除します。この操作は取り消せません。","security":[{"bearerAuth":[]}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DeleteAccountRequest"}}}},"responses":{"204":{"description":"アカウント削除成功"},"400":{"description":"クライアントからのリクエストに問題があり、サーバーが処理を完了できませんでした。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrBadRequest"}}}},"401":{"description":"認証が必要です。アクセストークンが無効か期限切れの可能性があります。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrUnauthorized"}}}},"403":{"description":"この操作を実行する権限がありません。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrForbidden"}}}},"404":{"description":"リクエストされたリソースが見つかりませんでした。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrNotFound"}}}},"409":{"description":"リソースの競合が発生しました。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrConflict"}}}},"500":{"description":"サーバー内部でエラーが発生しました。","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ErrInternalServer"}}}}}}},"/api/v1/health":{"get":{"tags":["system"],"summary":"ヘルスチェック","description":"APIサーバーの稼働状況を確認します","responses":{"200":{"description":"サーバー正常稼働中","content":{"application/json":{"schema":{"type":"object","properties":{"status":{"type":"string","enum":["ok"]},"timestamp":{"type":"string","format":"date-time"},"version":{"type":"string"},"uptime":{"type":"number"}},"required":["status","timestamp","version","uptime"]}}}}}}},"/api/v1/api/v1/plans":{"get":{"tags":["billing"],"summary":"Get available plans","description":"Get list of available subscription plans","responses":{"200":{"description":"List of available plans","content":{"application/json":{"schema":{"type":"object","properties":{"plans":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string","enum":["free","indie","pro"]},"name":{"type":"string"},"description":{"type":"string"},"monthlyPrice":{"type":"number"},"yearlyPrice":{"type":"number"},"features":{"type":"object","properties":{"projectLimit":{"type":"number"},"apiCallsPerMonth":{"type":"number"},"teamMembers":{"type":"number"},"storage":{"type":"number"},"support":{"type":"string","enum":["community","email","priority"]}},"required":["projectLimit","apiCallsPerMonth","teamMembers","storage","support"]}},"required":["id","name","description","monthlyPrice","yearlyPrice","features"]}}},"required":["plans"]}}}}}}},"/api/v1/api/v1/billing/subscription":{"get":{"tags":["billing"],"summary":"Get current subscription","description":"Get current user subscription details","security":[{"bearerAuth":[]}],"responses":{"200":{"description":"Current subscription or null","content":{"application/json":{"schema":{"type":"object","nullable":true,"properties":{"subscriptionId":{"type":"string"},"plan":{"type":"string","enum":["free","indie","pro"]},"status":{"type":"string","enum":["active","canceled","past_due","unpaid","incomplete"]},"billingCycle":{"type":"string","enum":["monthly","yearly"]},"currentPeriodStart":{"type":"string","format":"date-time"},"currentPeriodEnd":{"type":"string","format":"date-time"},"cancelAt":{"type":"string","nullable":true,"format":"date-time"},"canceledAt":{"type":"string","nullable":true,"format":"date-time"}},"required":["subscriptionId","plan","status","billingCycle","currentPeriodStart","currentPeriodEnd","cancelAt","canceledAt"]}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"type":"object","properties":{"error":{"type":"string"}},"required":["error"]}}}}}},"patch":{"tags":["billing"],"summary":"Update subscription","description":"Update subscription plan or billing cycle","security":[{"bearerAuth":[]}],"requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"planId":{"type":"string","enum":["indie","pro"]},"billingCycle":{"type":"string","enum":["monthly","yearly"]}},"required":["planId","billingCycle"]}}}},"responses":{"200":{"description":"Subscription updated successfully","content":{"application/json":{"schema":{"type":"object","properties":{"subscriptionId":{"type":"string"},"plan":{"type":"string"},"billingCycle":{"type":"string"},"status":{"type":"string"},"message":{"type":"string"}},"required":["subscriptionId","plan","billingCycle","status","message"]}}}},"400":{"description":"Bad request","content":{"application/json":{"schema":{"type":"object","properties":{"error":{"type":"string"}},"required":["error"]}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"type":"object","properties":{"error":{"type":"string"}},"required":["error"]}}}},"404":{"description":"Subscription not found","content":{"application/json":{"schema":{"type":"object","properties":{"error":{"type":"string"}},"required":["error"]}}}}}},"delete":{"tags":["billing"],"summary":"Cancel subscription","description":"Cancel subscription immediately or at period end","security":[{"bearerAuth":[]}],"requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"immediately":{"type":"boolean","default":false}}}}}},"responses":{"200":{"description":"Subscription canceled successfully","content":{"application/json":{"schema":{"type":"object","properties":{"subscriptionId":{"type":"string"},"cancelAt":{"type":"string","nullable":true},"message":{"type":"string"}},"required":["subscriptionId","cancelAt","message"]}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"type":"object","properties":{"error":{"type":"string"}},"required":["error"]}}}},"404":{"description":"Subscription not found","content":{"application/json":{"schema":{"type":"object","properties":{"error":{"type":"string"}},"required":["error"]}}}}}}},"/api/v1/api/v1/billing/history":{"get":{"tags":["billing"],"summary":"Get payment history","description":"Get user payment history","security":[{"bearerAuth":[]}],"parameters":[{"schema":{"type":"string","pattern":"^\\d+$","default":"10"},"required":false,"name":"limit","in":"query"}],"responses":{"200":{"description":"Payment history","content":{"application/json":{"schema":{"type":"object","properties":{"payments":{"type":"array","items":{"type":"object","properties":{"paymentId":{"type":"string"},"amount":{"type":"number"},"currency":{"type":"string"},"status":{"type":"string","enum":["pending","succeeded","failed"]},"description":{"type":"string","nullable":true},"paidAt":{"type":"string","nullable":true,"format":"date-time"},"createdAt":{"type":"string","format":"date-time"}},"required":["paymentId","amount","currency","status","description","paidAt","createdAt"]}},"hasMore":{"type":"boolean"}},"required":["payments","hasMore"]}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"type":"object","properties":{"error":{"type":"string"}},"required":["error"]}}}}}}},"/api/v1/api/v1/billing/checkout":{"post":{"tags":["billing"],"summary":"Create checkout session","description":"Create a Stripe checkout session for subscription","security":[{"bearerAuth":[]}],"requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"planId":{"type":"string","enum":["indie","pro"]},"billingCycle":{"type":"string","enum":["monthly","yearly"]},"locale":{"type":"string","enum":["ja","en"],"default":"ja"}},"required":["planId","billingCycle"]}}}},"responses":{"200":{"description":"Checkout session created successfully","content":{"application/json":{"schema":{"type":"object","properties":{"checkoutUrl":{"type":"string","format":"uri"},"sessionId":{"type":"string"}},"required":["checkoutUrl","sessionId"]}}}},"400":{"description":"Bad request","content":{"application/json":{"schema":{"type":"object","properties":{"error":{"type":"string"}},"required":["error"]}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"type":"object","properties":{"error":{"type":"string"}},"required":["error"]}}}},"404":{"description":"User not found","content":{"application/json":{"schema":{"type":"object","properties":{"error":{"type":"string"}},"required":["error"]}}}}}}},"/api/v1/api/v1/stripe/webhook":{"post":{"tags":["webhook"],"summary":"Stripe webhook endpoint","description":"Endpoint to receive Stripe webhook events","parameters":[{"schema":{"type":"string"},"required":true,"name":"stripe-signature","in":"header"}],"requestBody":{"content":{"text/plain":{"schema":{"type":"string"}}}},"responses":{"200":{"description":"Webhook processed successfully","content":{"application/json":{"schema":{"type":"object","properties":{"received":{"type":"boolean"}},"required":["received"]}}}},"400":{"description":"Invalid webhook signature","content":{"application/json":{"schema":{"type":"object","properties":{"error":{"type":"string"}},"required":["error"]}}}}}}}}}
+{
+  "openapi": "3.0.0",
+  "info": { "title": "API", "version": "1.0.0" },
+  "components": {
+    "schemas": {
+      "CreateUserResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "description": "プロフィールID" },
+          "userId": { "type": "string", "format": "uuid", "description": "ユーザーID" },
+          "email": { "type": "string", "format": "email", "description": "メールアドレス" },
+          "nickname": { "type": "string", "description": "ニックネーム" },
+          "createdAt": { "type": "string", "format": "date-time", "description": "作成日時" },
+          "updatedAt": { "type": "string", "format": "date-time", "description": "更新日時" }
+        },
+        "required": ["id", "userId", "email", "nickname", "createdAt", "updatedAt"]
+      },
+      "ErrBadRequest": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "UNAUTHORIZED",
+                  "FORBIDDEN_OPERATION",
+                  "NOT_FOUND",
+                  "INVALID_TOKEN",
+                  "INVALID_TYPE",
+                  "INVALID_REQUEST",
+                  "UNKNOWN_ERROR",
+                  "CONFLICT",
+                  "PROFILE_NOT_FOUND"
+                ],
+                "description": "エラーコード",
+                "example": "INVALID_TOKEN"
+              },
+              "message": { "type": "string", "description": "エラーの説明メッセージ" },
+              "requestId": {
+                "type": "string",
+                "description": "リクエストID",
+                "example": "req_1234"
+              },
+              "statusCode": {
+                "type": "integer",
+                "description": "HTTPステータスコード",
+                "example": 400
+              }
+            },
+            "required": ["code", "message", "requestId", "statusCode"]
+          }
+        },
+        "required": ["error"]
+      },
+      "ErrUnauthorized": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "UNAUTHORIZED",
+                  "FORBIDDEN_OPERATION",
+                  "NOT_FOUND",
+                  "INVALID_TOKEN",
+                  "INVALID_TYPE",
+                  "INVALID_REQUEST",
+                  "UNKNOWN_ERROR",
+                  "CONFLICT",
+                  "PROFILE_NOT_FOUND"
+                ],
+                "description": "エラーコード",
+                "example": "UNAUTHORIZED"
+              },
+              "message": { "type": "string", "description": "エラーの説明メッセージ" },
+              "requestId": {
+                "type": "string",
+                "description": "リクエストID",
+                "example": "req_1234"
+              },
+              "statusCode": {
+                "type": "integer",
+                "description": "HTTPステータスコード",
+                "example": 401
+              }
+            },
+            "required": ["code", "message", "requestId", "statusCode"]
+          }
+        },
+        "required": ["error"]
+      },
+      "ErrForbidden": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "UNAUTHORIZED",
+                  "FORBIDDEN_OPERATION",
+                  "NOT_FOUND",
+                  "INVALID_TOKEN",
+                  "INVALID_TYPE",
+                  "INVALID_REQUEST",
+                  "UNKNOWN_ERROR",
+                  "CONFLICT",
+                  "PROFILE_NOT_FOUND"
+                ],
+                "description": "エラーコード",
+                "example": "FORBIDDEN_OPERATION"
+              },
+              "message": { "type": "string", "description": "エラーの説明メッセージ" },
+              "requestId": {
+                "type": "string",
+                "description": "リクエストID",
+                "example": "req_1234"
+              },
+              "statusCode": {
+                "type": "integer",
+                "description": "HTTPステータスコード",
+                "example": 403
+              }
+            },
+            "required": ["code", "message", "requestId", "statusCode"]
+          }
+        },
+        "required": ["error"]
+      },
+      "ErrNotFound": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "UNAUTHORIZED",
+                  "FORBIDDEN_OPERATION",
+                  "NOT_FOUND",
+                  "INVALID_TOKEN",
+                  "INVALID_TYPE",
+                  "INVALID_REQUEST",
+                  "UNKNOWN_ERROR",
+                  "CONFLICT",
+                  "PROFILE_NOT_FOUND"
+                ],
+                "description": "エラーコード",
+                "example": "NOT_FOUND"
+              },
+              "message": { "type": "string", "description": "エラーの説明メッセージ" },
+              "requestId": {
+                "type": "string",
+                "description": "リクエストID",
+                "example": "req_1234"
+              },
+              "statusCode": {
+                "type": "integer",
+                "description": "HTTPステータスコード",
+                "example": 404
+              }
+            },
+            "required": ["code", "message", "requestId", "statusCode"]
+          }
+        },
+        "required": ["error"]
+      },
+      "ErrConflict": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "UNAUTHORIZED",
+                  "FORBIDDEN_OPERATION",
+                  "NOT_FOUND",
+                  "INVALID_TOKEN",
+                  "INVALID_TYPE",
+                  "INVALID_REQUEST",
+                  "UNKNOWN_ERROR",
+                  "CONFLICT",
+                  "PROFILE_NOT_FOUND"
+                ],
+                "description": "エラーコード",
+                "example": "CONFLICT"
+              },
+              "message": { "type": "string", "description": "エラーの説明メッセージ" },
+              "requestId": {
+                "type": "string",
+                "description": "リクエストID",
+                "example": "req_1234"
+              },
+              "statusCode": {
+                "type": "integer",
+                "description": "HTTPステータスコード",
+                "example": 409
+              }
+            },
+            "required": ["code", "message", "requestId", "statusCode"]
+          }
+        },
+        "required": ["error"]
+      },
+      "ErrInternalServer": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "enum": [
+                  "UNAUTHORIZED",
+                  "FORBIDDEN_OPERATION",
+                  "NOT_FOUND",
+                  "INVALID_TOKEN",
+                  "INVALID_TYPE",
+                  "INVALID_REQUEST",
+                  "UNKNOWN_ERROR",
+                  "CONFLICT",
+                  "PROFILE_NOT_FOUND"
+                ],
+                "description": "エラーコード",
+                "example": "UNKNOWN_ERROR"
+              },
+              "message": { "type": "string", "description": "エラーの説明メッセージ" },
+              "requestId": {
+                "type": "string",
+                "description": "リクエストID",
+                "example": "req_1234"
+              },
+              "statusCode": {
+                "type": "integer",
+                "description": "HTTPステータスコード",
+                "example": 500
+              }
+            },
+            "required": ["code", "message", "requestId", "statusCode"]
+          }
+        },
+        "required": ["error"]
+      },
+      "CreateUserRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Supabase AuthのユーザーID"
+          },
+          "email": { "type": "string", "format": "email", "description": "メールアドレス" },
+          "nickname": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50,
+            "description": "ニックネーム"
+          }
+        },
+        "required": ["userId", "email", "nickname"]
+      },
+      "UserProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "プロフィールID",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ユーザーID",
+            "example": "123e4567-e89b-12d3-a456-426614174001"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "メールアドレス",
+            "example": "user@example.com"
+          },
+          "nickname": { "type": "string", "description": "ニックネーム", "example": "たろう" },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "作成日時",
+            "example": "2024-01-01T00:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新日時",
+            "example": "2024-01-01T00:00:00Z"
+          }
+        },
+        "required": ["id", "userId", "email", "nickname", "createdAt", "updatedAt"]
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50,
+            "description": "ニックネーム",
+            "example": "たろう"
+          }
+        }
+      },
+      "DeleteAccountRequest": {
+        "type": "object",
+        "properties": {
+          "confirmation": {
+            "type": "string",
+            "enum": ["DELETE_MY_ACCOUNT"],
+            "description": "削除確認文字列（DELETE_MY_ACCOUNTと入力）",
+            "example": "DELETE_MY_ACCOUNT"
+          }
+        },
+        "required": ["confirmation"]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/api/v1/users": {
+      "post": {
+        "tags": ["users"],
+        "summary": "ユーザープロフィールを作成",
+        "description": "新規ユーザーのプロフィールを作成します",
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateUserRequest" } }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "ユーザープロフィール作成成功",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreateUserResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントからのリクエストに問題があり、サーバーが処理を完了できませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrBadRequest" } }
+            }
+          },
+          "401": {
+            "description": "認証が必要です。アクセストークンが無効か期限切れの可能性があります。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrUnauthorized" } }
+            }
+          },
+          "403": {
+            "description": "この操作を実行する権限がありません。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrForbidden" } }
+            }
+          },
+          "404": {
+            "description": "リクエストされたリソースが見つかりませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrNotFound" } }
+            }
+          },
+          "409": {
+            "description": "リソースの競合が発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrConflict" } }
+            }
+          },
+          "500": {
+            "description": "サーバー内部でエラーが発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrInternalServer" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/me": {
+      "get": {
+        "tags": ["users"],
+        "summary": "自分のプロフィール取得",
+        "description": "認証済みユーザーの自分のプロフィール情報を取得します",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "プロフィール取得成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/UserProfile" },
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "timestamp": { "type": "string", "format": "date-time" },
+                        "version": { "type": "string" }
+                      },
+                      "required": ["timestamp", "version"]
+                    }
+                  },
+                  "required": ["success", "data", "metadata"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントからのリクエストに問題があり、サーバーが処理を完了できませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrBadRequest" } }
+            }
+          },
+          "401": {
+            "description": "認証が必要です。アクセストークンが無効か期限切れの可能性があります。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrUnauthorized" } }
+            }
+          },
+          "403": {
+            "description": "この操作を実行する権限がありません。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrForbidden" } }
+            }
+          },
+          "404": {
+            "description": "リクエストされたリソースが見つかりませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrNotFound" } }
+            }
+          },
+          "409": {
+            "description": "リソースの競合が発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrConflict" } }
+            }
+          },
+          "500": {
+            "description": "サーバー内部でエラーが発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrInternalServer" } }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["users"],
+        "summary": "プロフィール更新",
+        "description": "認証済みユーザーの自分のプロフィール情報を更新します",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateProfileRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "プロフィール更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": { "$ref": "#/components/schemas/UserProfile" },
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "timestamp": { "type": "string", "format": "date-time" },
+                        "version": { "type": "string" }
+                      },
+                      "required": ["timestamp", "version"]
+                    }
+                  },
+                  "required": ["success", "data", "metadata"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントからのリクエストに問題があり、サーバーが処理を完了できませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrBadRequest" } }
+            }
+          },
+          "401": {
+            "description": "認証が必要です。アクセストークンが無効か期限切れの可能性があります。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrUnauthorized" } }
+            }
+          },
+          "403": {
+            "description": "この操作を実行する権限がありません。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrForbidden" } }
+            }
+          },
+          "404": {
+            "description": "リクエストされたリソースが見つかりませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrNotFound" } }
+            }
+          },
+          "409": {
+            "description": "リソースの競合が発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrConflict" } }
+            }
+          },
+          "500": {
+            "description": "サーバー内部でエラーが発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrInternalServer" } }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["users"],
+        "summary": "アカウント削除",
+        "description": "認証済みユーザーのアカウントを論理削除します。この操作は取り消せません。",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DeleteAccountRequest" }
+            }
+          }
+        },
+        "responses": {
+          "204": { "description": "アカウント削除成功" },
+          "400": {
+            "description": "クライアントからのリクエストに問題があり、サーバーが処理を完了できませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrBadRequest" } }
+            }
+          },
+          "401": {
+            "description": "認証が必要です。アクセストークンが無効か期限切れの可能性があります。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrUnauthorized" } }
+            }
+          },
+          "403": {
+            "description": "この操作を実行する権限がありません。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrForbidden" } }
+            }
+          },
+          "404": {
+            "description": "リクエストされたリソースが見つかりませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrNotFound" } }
+            }
+          },
+          "409": {
+            "description": "リソースの競合が発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrConflict" } }
+            }
+          },
+          "500": {
+            "description": "サーバー内部でエラーが発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrInternalServer" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "tags": ["system"],
+        "summary": "ヘルスチェック",
+        "description": "APIサーバーの稼働状況を確認します",
+        "responses": {
+          "200": {
+            "description": "サーバー正常稼働中",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "enum": ["ok"] },
+                    "timestamp": { "type": "string", "format": "date-time" },
+                    "version": { "type": "string" },
+                    "uptime": { "type": "number" }
+                  },
+                  "required": ["status", "timestamp", "version", "uptime"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/api/v1/plans": {
+      "get": {
+        "tags": ["billing"],
+        "summary": "Get available plans",
+        "description": "Get list of available subscription plans",
+        "responses": {
+          "200": {
+            "description": "List of available plans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "plans": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "enum": ["free", "indie", "pro"] },
+                          "name": { "type": "string" },
+                          "description": { "type": "string" },
+                          "monthlyPrice": { "type": "number" },
+                          "yearlyPrice": { "type": "number" },
+                          "features": {
+                            "type": "object",
+                            "properties": {
+                              "projectLimit": { "type": "number" },
+                              "apiCallsPerMonth": { "type": "number" },
+                              "teamMembers": { "type": "number" },
+                              "storage": { "type": "number" },
+                              "support": {
+                                "type": "string",
+                                "enum": ["community", "email", "priority"]
+                              }
+                            },
+                            "required": [
+                              "projectLimit",
+                              "apiCallsPerMonth",
+                              "teamMembers",
+                              "storage",
+                              "support"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "description",
+                          "monthlyPrice",
+                          "yearlyPrice",
+                          "features"
+                        ]
+                      }
+                    }
+                  },
+                  "required": ["plans"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/api/v1/billing/subscription": {
+      "get": {
+        "tags": ["billing"],
+        "summary": "Get current subscription",
+        "description": "Get current user subscription details",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Current subscription or null",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "nullable": true,
+                  "properties": {
+                    "subscriptionId": { "type": "string" },
+                    "plan": { "type": "string", "enum": ["free", "indie", "pro"] },
+                    "status": {
+                      "type": "string",
+                      "enum": ["active", "canceled", "past_due", "unpaid", "incomplete"]
+                    },
+                    "billingCycle": { "type": "string", "enum": ["monthly", "yearly"] },
+                    "currentPeriodStart": { "type": "string", "format": "date-time" },
+                    "currentPeriodEnd": { "type": "string", "format": "date-time" },
+                    "cancelAt": { "type": "string", "nullable": true, "format": "date-time" },
+                    "canceledAt": { "type": "string", "nullable": true, "format": "date-time" }
+                  },
+                  "required": [
+                    "subscriptionId",
+                    "plan",
+                    "status",
+                    "billingCycle",
+                    "currentPeriodStart",
+                    "currentPeriodEnd",
+                    "cancelAt",
+                    "canceledAt"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["billing"],
+        "summary": "Update subscription",
+        "description": "Update subscription plan or billing cycle",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "planId": { "type": "string", "enum": ["indie", "pro"] },
+                  "billingCycle": { "type": "string", "enum": ["monthly", "yearly"] }
+                },
+                "required": ["planId", "billingCycle"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Subscription updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "subscriptionId": { "type": "string" },
+                    "plan": { "type": "string" },
+                    "billingCycle": { "type": "string" },
+                    "status": { "type": "string" },
+                    "message": { "type": "string" }
+                  },
+                  "required": ["subscriptionId", "plan", "billingCycle", "status", "message"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } },
+                  "required": ["error"]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } },
+                  "required": ["error"]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Subscription not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["billing"],
+        "summary": "Cancel subscription",
+        "description": "Cancel subscription immediately or at period end",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": { "immediately": { "type": "boolean", "default": false } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Subscription canceled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "subscriptionId": { "type": "string" },
+                    "cancelAt": { "type": "string", "nullable": true },
+                    "message": { "type": "string" }
+                  },
+                  "required": ["subscriptionId", "cancelAt", "message"]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } },
+                  "required": ["error"]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Subscription not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/api/v1/billing/history": {
+      "get": {
+        "tags": ["billing"],
+        "summary": "Get payment history",
+        "description": "Get user payment history",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "schema": { "type": "string", "pattern": "^\\d+$", "default": "10" },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "payments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "paymentId": { "type": "string" },
+                          "amount": { "type": "number" },
+                          "currency": { "type": "string" },
+                          "status": {
+                            "type": "string",
+                            "enum": ["pending", "succeeded", "failed"]
+                          },
+                          "description": { "type": "string", "nullable": true },
+                          "paidAt": { "type": "string", "nullable": true, "format": "date-time" },
+                          "createdAt": { "type": "string", "format": "date-time" }
+                        },
+                        "required": [
+                          "paymentId",
+                          "amount",
+                          "currency",
+                          "status",
+                          "description",
+                          "paidAt",
+                          "createdAt"
+                        ]
+                      }
+                    },
+                    "hasMore": { "type": "boolean" }
+                  },
+                  "required": ["payments", "hasMore"]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/api/v1/billing/checkout": {
+      "post": {
+        "tags": ["billing"],
+        "summary": "Create checkout session",
+        "description": "Create a Stripe checkout session for subscription",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "planId": { "type": "string", "enum": ["indie", "pro"] },
+                  "billingCycle": { "type": "string", "enum": ["monthly", "yearly"] },
+                  "locale": { "type": "string", "enum": ["ja", "en"], "default": "ja" }
+                },
+                "required": ["planId", "billingCycle"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Checkout session created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "checkoutUrl": { "type": "string", "format": "uri" },
+                    "sessionId": { "type": "string" }
+                  },
+                  "required": ["checkoutUrl", "sessionId"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } },
+                  "required": ["error"]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } },
+                  "required": ["error"]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/api/v1/stripe/webhook": {
+      "post": {
+        "tags": ["webhook"],
+        "summary": "Stripe webhook endpoint",
+        "description": "Endpoint to receive Stripe webhook events",
+        "parameters": [
+          {
+            "schema": { "type": "string" },
+            "required": true,
+            "name": "stripe-signature",
+            "in": "header"
+          }
+        ],
+        "requestBody": { "content": { "text/plain": { "schema": { "type": "string" } } } },
+        "responses": {
+          "200": {
+            "description": "Webhook processed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "received": { "type": "boolean" } },
+                  "required": ["received"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid webhook signature",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string" } },
+                  "required": ["error"]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import type { FieldPath, FieldValues, Control } from 'react-hook-form';
+import type { Control, FieldPath, FieldValues } from 'react-hook-form'
 import {
   FormControl,
   FormDescription,
@@ -8,26 +8,26 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { cn } from '@/lib/utils';
+} from '@/components/ui/form'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { cn } from '@/lib/utils'
 
 type RadioOption = {
-  value: string;
-  label: string;
-  description?: string;
-};
+  value: string
+  label: string
+  description?: string
+}
 
 type FormRadioGroupProps<TFieldValues extends FieldValues> = {
-  control: Control<TFieldValues>;
-  name: FieldPath<TFieldValues>;
-  label?: string;
-  description?: string;
-  options: RadioOption[];
-  className?: string;
-  orientation?: 'horizontal' | 'vertical';
-  disabled?: boolean;
-};
+  control: Control<TFieldValues>
+  name: FieldPath<TFieldValues>
+  label?: string
+  description?: string
+  options: RadioOption[]
+  className?: string
+  orientation?: 'horizontal' | 'vertical'
+  disabled?: boolean
+}
 
 export function FormRadioGroup<TFieldValues extends FieldValues>({
   control,
@@ -63,15 +63,15 @@ export function FormRadioGroup<TFieldValues extends FieldValues>({
                   htmlFor={`${name}-${option.value}`}
                   className="flex items-start space-x-2 cursor-pointer"
                 >
-                  <RadioGroupItem value={option.value} id={`${name}-${option.value}`} className="mt-0.5" />
+                  <RadioGroupItem
+                    value={option.value}
+                    id={`${name}-${option.value}`}
+                    className="mt-0.5"
+                  />
                   <div className="flex flex-col flex-1">
-                    <span className="font-normal">
-                      {option.label}
-                    </span>
+                    <span className="font-normal">{option.label}</span>
                     {option.description && (
-                      <FormDescription className="mt-1">
-                        {option.description}
-                      </FormDescription>
+                      <FormDescription className="mt-1">{option.description}</FormDescription>
                     )}
                   </div>
                 </FormLabel>
@@ -82,5 +82,5 @@ export function FormRadioGroup<TFieldValues extends FieldValues>({
         </FormItem>
       )}
     />
-  );
+  )
 }

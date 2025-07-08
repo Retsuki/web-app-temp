@@ -1,12 +1,12 @@
-import * as React from "react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { type VariantProps } from "class-variance-authority";
+import type { VariantProps } from 'class-variance-authority'
+import * as React from 'react'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
-export interface GoogleButtonProps 
-  extends React.ComponentProps<"button">,
+export interface GoogleButtonProps
+  extends React.ComponentProps<'button'>,
     VariantProps<typeof Button> {
-  asChild?: boolean;
+  asChild?: boolean
 }
 
 const GoogleIcon = () => (
@@ -28,30 +28,29 @@ const GoogleIcon = () => (
       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
     />
   </svg>
-);
+)
 
-export const GoogleButton = React.forwardRef<
-  HTMLButtonElement,
-  GoogleButtonProps
->(({ className, variant = "outline", children, ...props }, ref) => {
-  return (
-    <Button
-      ref={ref}
-      variant={variant}
-      className={cn(
-        "relative border-gray-300 text-gray-700 bg-white hover:bg-gray-50",
-        "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
-        "disabled:opacity-50 disabled:cursor-not-allowed",
-        className
-      )}
-      {...props}
-    >
-      <div className="flex items-center gap-3">
-        <GoogleIcon />
-        <span>{children}</span>
-      </div>
-    </Button>
-  );
-});
+export const GoogleButton = React.forwardRef<HTMLButtonElement, GoogleButtonProps>(
+  ({ className, variant = 'outline', children, ...props }, ref) => {
+    return (
+      <Button
+        ref={ref}
+        variant={variant}
+        className={cn(
+          'relative border-gray-300 text-gray-700 bg-white hover:bg-gray-50',
+          'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500',
+          'disabled:opacity-50 disabled:cursor-not-allowed',
+          className
+        )}
+        {...props}
+      >
+        <div className="flex items-center gap-3">
+          <GoogleIcon />
+          <span>{children}</span>
+        </div>
+      </Button>
+    )
+  }
+)
 
-GoogleButton.displayName = "GoogleButton";
+GoogleButton.displayName = 'GoogleButton'

@@ -1,13 +1,13 @@
 'use client'
 
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { signIn } from '@/lib/auth/actions'
-import { Form } from '@/components/ui/form'
-import { FormInput } from '@/components/app/input/form-input'
 import { PrimaryButton } from '@/components/app/button/primary-button'
+import { FormInput } from '@/components/app/input/form-input'
+import { Form } from '@/components/ui/form'
+import { signIn } from '@/lib/auth/actions'
 import type { Dictionary } from '../../dictionaries'
 
 interface SignInFormProps {
@@ -16,12 +16,8 @@ interface SignInFormProps {
 
 export function SignInForm({ dict }: SignInFormProps) {
   const formSchema = z.object({
-    email: z
-      .string()
-      .email(dict.auth.invalidEmail),
-    password: z
-      .string()
-      .min(1, dict.auth.password),
+    email: z.string().email(dict.auth.invalidEmail),
+    password: z.string().min(1, dict.auth.password),
   })
 
   type FormValues = z.infer<typeof formSchema>
@@ -41,7 +37,7 @@ export function SignInForm({ dict }: SignInFormProps) {
     setLoading(true)
 
     const result = await signIn(data)
-    
+
     if (result?.error) {
       setError(result.error)
       setLoading(false)
@@ -60,7 +56,7 @@ export function SignInForm({ dict }: SignInFormProps) {
             placeholder={dict.auth.email}
             autoComplete="email"
           />
-          
+
           <FormInput
             control={form.control}
             name="password"
@@ -82,11 +78,7 @@ export function SignInForm({ dict }: SignInFormProps) {
         )}
 
         <div>
-          <PrimaryButton
-            type="submit"
-            disabled={loading}
-            className="w-full"
-          >
+          <PrimaryButton type="submit" disabled={loading} className="w-full">
             {loading ? dict.common.loading : dict.common.signIn}
           </PrimaryButton>
         </div>

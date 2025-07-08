@@ -1,17 +1,13 @@
-import { getDictionary, type Locale } from './dictionaries'
-import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { LanguageSwitcher } from '@/components/app/language-switcher'
+import { createClient } from '@/lib/supabase/server'
+import { getDictionary, type Locale } from './dictionaries'
 
-export default async function Home({
-  params,
-}: {
-  params: Promise<{ lang: Locale }>
-}) {
+export default async function Home({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = await params
   const dict = await getDictionary(lang)
   const supabase = await createClient()
-  
+
   const {
     data: { user },
   } = await supabase.auth.getUser()

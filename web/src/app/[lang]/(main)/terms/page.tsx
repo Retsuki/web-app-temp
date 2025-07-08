@@ -1,10 +1,10 @@
-import { Card } from "@/components/ui/card";
+import { Card } from '@/components/ui/card'
 
 export default function TermsPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-3xl font-bold mb-8">利用規約</h1>
-      
+
       <Card className="p-6">
         <div className="prose prose-gray dark:prose-invert max-w-none">
           <p className="mb-4">
@@ -32,7 +32,9 @@ export default function TermsPage() {
             </li>
           </ol>
 
-          <h2 className="text-xl font-semibold mt-6 mb-3">第3条（ユーザーIDおよびパスワードの管理）</h2>
+          <h2 className="text-xl font-semibold mt-6 mb-3">
+            第3条（ユーザーIDおよびパスワードの管理）
+          </h2>
           <ol className="list-decimal pl-6 mb-4">
             <li className="mb-2">
               ユーザーは、自己の責任において、本サービスのユーザーIDおよびパスワードを適切に管理するものとします。
@@ -43,11 +45,15 @@ export default function TermsPage() {
           </ol>
 
           <h2 className="text-xl font-semibold mt-6 mb-3">第4条（禁止事項）</h2>
-          <p className="mb-2">ユーザーは、本サービスの利用にあたり、以下の行為をしてはなりません。</p>
+          <p className="mb-2">
+            ユーザーは、本サービスの利用にあたり、以下の行為をしてはなりません。
+          </p>
           <ul className="list-disc pl-6 mb-4">
             <li>法令または公序良俗に違反する行為</li>
             <li>犯罪行為に関連する行為</li>
-            <li>当社、本サービスの他のユーザー、またはその他第三者の知的財産権、肖像権、プライバシー、名誉その他の権利または利益を侵害する行為</li>
+            <li>
+              当社、本サービスの他のユーザー、またはその他第三者の知的財産権、肖像権、プライバシー、名誉その他の権利または利益を侵害する行為
+            </li>
             <li>当社のサーバーまたはネットワークの機能を破壊したり、妨害したりする行為</li>
             <li>本サービスの運営を妨害するおそれのある行為</li>
             <li>不正アクセスをし、またはこれを試みる行為</li>
@@ -62,7 +68,9 @@ export default function TermsPage() {
               当社は、以下のいずれかの事由があると判断した場合、ユーザーに事前に通知することなく本サービスの全部または一部の提供を停止または中断することができるものとします。
               <ul className="list-disc pl-6 mt-2">
                 <li>本サービスにかかるコンピュータシステムの保守点検または更新を行う場合</li>
-                <li>地震、落雷、火災、停電または天災などの不可抗力により、本サービスの提供が困難となった場合</li>
+                <li>
+                  地震、落雷、火災、停電または天災などの不可抗力により、本サービスの提供が困難となった場合
+                </li>
                 <li>コンピュータまたは通信回線等が事故により停止した場合</li>
                 <li>その他、当社が本サービスの提供が困難と判断した場合</li>
               </ul>
@@ -101,11 +109,9 @@ export default function TermsPage() {
             </li>
           </ol>
 
-          <p className="mt-8 text-sm text-gray-600 dark:text-gray-400">
-            最終更新日：2025年1月30日
-          </p>
+          <p className="mt-8 text-sm text-gray-600 dark:text-gray-400">最終更新日：2025年1月30日</p>
         </div>
       </Card>
     </div>
-  );
+  )
 }

@@ -1,8 +1,8 @@
+import { match } from '@formatjs/intl-localematcher'
+import Negotiator from 'negotiator'
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
-import { match } from '@formatjs/intl-localematcher'
-import Negotiator from 'negotiator'
 
 const locales = ['ja', 'en']
 const defaultLocale = 'ja'
@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
   // Redirect if there is no locale
   const locale = getLocale(request)
   request.nextUrl.pathname = `/${locale}${pathname}`
-  
+
   // Create redirect response and update session
   const response = NextResponse.redirect(request.nextUrl)
   return await updateSession(request, response)

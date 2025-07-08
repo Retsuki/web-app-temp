@@ -6,15 +6,15 @@ export class GetPaymentHistoryUseCase {
 
   async execute(userId: string, limit = 10): Promise<GetPaymentHistoryResponse> {
     const payments = await this.paymentRepository.findByUserId(userId, limit + 1)
-    
+
     // Check if there are more payments
     const hasMore = payments.length > limit
     if (hasMore) {
       payments.pop() // Remove the extra item
     }
-    
+
     return {
-      payments: payments.map(payment => ({
+      payments: payments.map((payment) => ({
         paymentId: payment.paymentId,
         amount: payment.amount,
         currency: payment.currency,

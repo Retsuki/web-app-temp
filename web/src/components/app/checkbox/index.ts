@@ -1,1 +1,1 @@
-export { FormCheckbox } from './form-checkbox';
+export { FormCheckbox } from './form-checkbox'

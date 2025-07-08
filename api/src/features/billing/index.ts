@@ -1,11 +1,11 @@
 import type { App } from '../../_shared/factory/create-app.js'
 import { validateUserId } from '../../_shared/utils/auth/index.js'
+import { cancelSubscriptionRoute } from './use-cases/cancel-subscription/route.js'
 import { createCheckoutRoute } from './use-cases/create-checkout/route.js'
 import { getPaymentHistoryRoute } from './use-cases/get-payment-history/route.js'
 import { getPlansRoute } from './use-cases/get-plans/route.js'
 import { getSubscriptionRoute } from './use-cases/get-subscription/route.js'
 import { updateSubscriptionRoute } from './use-cases/update-subscription/route.js'
-import { cancelSubscriptionRoute } from './use-cases/cancel-subscription/route.js'
 
 export const billingApi = (app: App) => {
   // GET /plans - Get available plans

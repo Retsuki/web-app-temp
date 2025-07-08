@@ -1,38 +1,38 @@
-"use client";
+'use client'
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { OutlineButton } from "@/components/app/button/outline-button";
-import { PrimaryButton } from "@/components/app/button/primary-button";
-import { FormCheckbox } from "@/components/app/checkbox/form-checkbox";
-import { FormInput } from "@/components/app/input/form-input";
-import { FormRadioGroup } from "@/components/app/radio/form-radio-group";
-import { Form } from "@/components/ui/form";
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { OutlineButton } from '@/components/app/button/outline-button'
+import { PrimaryButton } from '@/components/app/button/primary-button'
+import { FormCheckbox } from '@/components/app/checkbox/form-checkbox'
+import { FormInput } from '@/components/app/input/form-input'
+import { FormRadioGroup } from '@/components/app/radio/form-radio-group'
+import { Form } from '@/components/ui/form'
 
 const formSchema = z.object({
-  email: z.string().email("有効なメールアドレスを入力してください"),
-  password: z.string().min(1, "パスワードを入力してください"),
-  plan: z.string().min(1, "プランを選択してください"),
+  email: z.string().email('有効なメールアドレスを入力してください'),
+  password: z.string().min(1, 'パスワードを入力してください'),
+  plan: z.string().min(1, 'プランを選択してください'),
   orientation: z.string().optional(),
   terms: z.boolean().default(false),
   newsletter: z.boolean().default(false),
   notifications: z.boolean().default(false),
-});
+})
 
 export default function UIComponentsPage() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
-      plan: "",
-      orientation: "vertical",
+      email: '',
+      password: '',
+      plan: '',
+      orientation: 'vertical',
       terms: false,
       newsletter: false,
       notifications: false,
     },
-  });
+  })
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
@@ -43,9 +43,7 @@ export default function UIComponentsPage() {
 
         {/* ボタンコンポーネント */}
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">
-            ボタン
-          </h2>
+          <h2 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">ボタン</h2>
 
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 space-y-6">
             {/* Primaryボタン */}
@@ -122,19 +120,19 @@ export default function UIComponentsPage() {
                     description="ご利用になるプランを選択してください"
                     options={[
                       {
-                        value: "free",
-                        label: "無料プラン",
-                        description: "基本機能のみ利用可能",
+                        value: 'free',
+                        label: '無料プラン',
+                        description: '基本機能のみ利用可能',
                       },
                       {
-                        value: "pro",
-                        label: "プロプラン",
-                        description: "月額 ¥1,000",
+                        value: 'pro',
+                        label: 'プロプラン',
+                        description: '月額 ¥1,000',
                       },
                       {
-                        value: "enterprise",
-                        label: "エンタープライズ",
-                        description: "カスタム料金",
+                        value: 'enterprise',
+                        label: 'エンタープライズ',
+                        description: 'カスタム料金',
                       },
                     ]}
                   />
@@ -145,8 +143,8 @@ export default function UIComponentsPage() {
                     label="表示方向（横配置）"
                     orientation="horizontal"
                     options={[
-                      { value: "vertical", label: "縦" },
-                      { value: "horizontal", label: "横" },
+                      { value: 'vertical', label: '縦' },
+                      { value: 'horizontal', label: '横' },
                     ]}
                   />
                 </form>
@@ -179,5 +177,5 @@ export default function UIComponentsPage() {
         </section>
       </div>
     </div>
-  );
+  )
 }

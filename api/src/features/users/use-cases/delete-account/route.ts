@@ -1,18 +1,18 @@
-import { createRoute } from "@hono/zod-openapi";
-import { errorResponses } from "../../../../_shared/utils/error/index.js";
-import { deleteAccountReqSchema } from "./dto.js";
+import { createRoute } from '@hono/zod-openapi'
+import { errorResponses } from '../../../../_shared/utils/error/index.js'
+import { deleteAccountReqSchema } from './dto.js'
 
 export const deleteAccountRoute = createRoute({
-  method: "delete",
-  path: "/users/me",
-  tags: ["users"],
-  summary: "アカウント削除",
-  description: "認証済みユーザーのアカウントを論理削除します。この操作は取り消せません。",
+  method: 'delete',
+  path: '/users/me',
+  tags: ['users'],
+  summary: 'アカウント削除',
+  description: '認証済みユーザーのアカウントを論理削除します。この操作は取り消せません。',
   security: [{ bearerAuth: [] }],
   request: {
     body: {
       content: {
-        "application/json": {
+        'application/json': {
           schema: deleteAccountReqSchema,
         },
       },
@@ -20,8 +20,8 @@ export const deleteAccountRoute = createRoute({
   },
   responses: {
     204: {
-      description: "アカウント削除成功",
+      description: 'アカウント削除成功',
     },
     ...errorResponses,
   },
-});
+})
