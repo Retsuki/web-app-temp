@@ -4,6 +4,12 @@ if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('STRIPE_SECRET_KEY is not set')
 }
 
+// サイトURLの検証
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+if (!siteUrl.startsWith('http://') && !siteUrl.startsWith('https://')) {
+  throw new Error('NEXT_PUBLIC_SITE_URL must include a valid scheme (http:// or https://)')
+}
+
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2025-02-24.acacia',
   typescript: true,
@@ -28,8 +34,8 @@ export const STRIPE_CONFIG = {
 
   // URLs
   urls: {
-    success: `${process.env.NEXT_PUBLIC_SITE_URL}/{locale}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel: `${process.env.NEXT_PUBLIC_SITE_URL}/{locale}/pricing`,
-    portal: `${process.env.NEXT_PUBLIC_SITE_URL}/{locale}/dashboard/billing`,
+    success: `${siteUrl}/{locale}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel: `${siteUrl}/{locale}/billing/cancel`,
+    portal: `${siteUrl}/{locale}/billing`,
   },
 } as const
