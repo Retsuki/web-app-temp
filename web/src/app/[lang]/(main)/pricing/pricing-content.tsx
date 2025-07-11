@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
-import { useAuth } from '@/features/auth/auth-context'
+import { useAuth } from '@/features/auth/hooks/auth-context'
 // import { useCreateCheckout, usePlans, useSubscription } from '@/lib/api/hooks/useBilling'
 
 export default function PricingContent({ dict }: { dict: any }) {

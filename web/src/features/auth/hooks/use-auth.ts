@@ -2,20 +2,10 @@
 
 import type { User } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
-import type React from 'react'
-import { createContext, useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
-interface AuthContextType {
-  user: User | null
-  loading: boolean
-  signOut: () => Promise<void>
-  refreshSession: () => Promise<void>
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
@@ -80,25 +70,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        signOut,
-        refreshSession,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  )
-}
-
-// カスタムフック
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
+  return {
+    user,
+    loading,
+    signOut,
+    refreshSession,
   }
-  return context
 }

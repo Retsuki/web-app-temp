@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import type { SignInData, SignUpData } from './auth-types'
+import type { SignInData, SignUpData } from '../types'
 
 export async function signUp(data: SignUpData) {
   const supabase = await createClient()
