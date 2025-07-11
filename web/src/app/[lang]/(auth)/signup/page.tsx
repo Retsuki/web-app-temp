@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { GoogleAuthForm } from '@/components/app/auth/google-auth-form'
-import { signInWithGoogle } from '@/lib/auth/actions'
+import { signInWithGoogle } from '@/lib/auth/auth-actions'
 import { getDictionary, type PageLang } from '../../dictionaries'
 import { SignUpForm } from './signup-form'
 

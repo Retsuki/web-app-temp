@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { PrimaryButton } from '@/components/app/button/primary-button'
 import { FormInput } from '@/components/app/input/form-input'
 import { Form } from '@/components/ui/form'
-import { signIn } from '@/lib/auth/actions'
+import { signIn } from '@/lib/auth/auth-actions'
 import type { Dictionary } from '../../dictionaries'
 
 interface SignInFormProps {

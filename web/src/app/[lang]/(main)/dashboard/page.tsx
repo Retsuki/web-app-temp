@@ -1,5 +1,5 @@
-import { signOut } from '@/lib/auth/actions'
-import { requireAuth } from '@/lib/auth/server-helpers'
+import { signOut } from '@/lib/auth/auth-actions'
+import { requireAuth } from '@/lib/auth/auth-server'
 import { getDictionary, type PageLang } from '../../dictionaries'
 import { ProfileEdit } from './profile-edit'
 

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { getApiV1UsersMeServer } from '@/lib/api/server-api'
 import { createClient as createSupabase } from '@/lib/supabase/server'
 
 /**
@@ -41,7 +42,7 @@ export async function getAuthenticatedApiClient() {
  */
 export async function requireAuth() {
   const supabase = await createSupabase()
-  
+
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -50,21 +51,17 @@ export async function requireAuth() {
     redirect('/signin')
   }
 
-  // Supabaseから直接プロフィールを取得
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('user_id', user.id)
-    .single()
+  try {
+    // API経由でプロフィールを取得
+    const profile = await getApiV1UsersMeServer()
 
-  if (error) {
+    return {
+      user,
+      profile,
+      error: null,
+    }
+  } catch (error) {
     console.error('プロフィール取得エラー:', error)
     return { user, profile: null, error }
-  }
-
-  return {
-    user,
-    profile,
-    error: null,
   }
 }

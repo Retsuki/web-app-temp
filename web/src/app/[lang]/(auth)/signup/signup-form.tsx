@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import { PrimaryButton } from '@/components/app/button/primary-button'
 import { FormInput } from '@/components/app/input/form-input'
 import { Form } from '@/components/ui/form'
-import { signUp } from '@/lib/auth/actions'
+import { signUp } from '@/lib/auth/auth-actions'
 import { type FormValues, formSchema } from './_schema'
 
 export function SignUpForm() {

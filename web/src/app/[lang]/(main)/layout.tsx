@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { requireAuth } from '@/lib/auth/server-helpers'
+import { requireAuth } from '@/lib/auth/auth-server'
 import { getDictionary, type PageLang } from '../dictionaries'
 import MainNav from './main-nav'
 
