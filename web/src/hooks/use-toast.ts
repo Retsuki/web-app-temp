@@ -2,12 +2,8 @@ import { toast } from 'sonner'
 
 export function useToast() {
   return {
-    toast: (props: {
-      title?: string
-      description?: string
-      variant?: 'default' | 'destructive'
-    }) => {
-      if (props.variant === 'destructive') {
+    toast: (props: { title?: string; description?: string; variant?: 'success' | 'error' }) => {
+      if (props.variant === 'error') {
         toast.error(props.title, {
           description: props.description,
         })
