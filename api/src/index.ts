@@ -1,7 +1,4 @@
-import dotenv from 'dotenv'
-
-dotenv.config()
-
+import 'dotenv/config'
 import { serve } from '@hono/node-server'
 import { createApp } from './_shared/factory/create-app.js'
 import { billingApi } from './features/billing/index.js'
@@ -17,7 +14,7 @@ healthApi(app)
 billingApi(app)
 stripeWebhookApi(app)
 
-const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 8080
+const port = Number(process.env.PORT) || 8080
 serve(
   {
     fetch: app.fetch,
