@@ -1,5 +1,4 @@
-import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
-import type * as schema from '../../drizzle/db/schema.js'
+import type { Database } from '../../drizzle/index.js'
 import { UserRepository } from './repositories/user.repository.js'
 import { CreateUserUseCase } from './use-cases/create-user/use-case.js'
 import { DeleteUserAccountUseCase } from './use-cases/delete-account/use-case.js'
@@ -13,7 +12,7 @@ export class UserContainer {
   public readonly deleteAccount: DeleteUserAccountUseCase
   public readonly createUser: CreateUserUseCase
 
-  constructor(db: PostgresJsDatabase<typeof schema>) {
+  constructor(db: Database) {
     // Initialize repository
     this.repository = new UserRepository(db)
 

@@ -1,5 +1,4 @@
-import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js'
-import type * as schema from '../../drizzle/db/schema.js'
+import type { Database } from '../../drizzle/index.js'
 import { UserRepository } from '../users/repositories/user.repository.js'
 import { PaymentRepository } from './repositories/payment.repository.js'
 import { SubscriptionRepository } from './repositories/subscription.repository.js'
@@ -23,7 +22,7 @@ export class BillingContainer {
   public readonly updateSubscriptionUseCase: UpdateSubscriptionUseCase
   public readonly cancelSubscriptionUseCase: CancelSubscriptionUseCase
 
-  constructor(db: PostgresJsDatabase<typeof schema>) {
+  constructor(db: Database) {
     // Initialize repositories
     this.subscriptionRepository = new SubscriptionRepository(db)
     this.paymentRepository = new PaymentRepository(db)
