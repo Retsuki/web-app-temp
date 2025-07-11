@@ -33,7 +33,7 @@ export default function BillingContent({ dict }: { dict: Dictionary }) {
   const { data: subscriptionResponse, isLoading: subscriptionLoading } =
     useGetApiV1BillingSubscription()
   const { data: historyResponse, isLoading: historyLoading } = useGetApiV1BillingHistory({
-    limit: 10,
+    limit: '10',
   })
   const cancelSubscription = useDeleteApiV1BillingSubscription()
 
@@ -48,7 +48,7 @@ export default function BillingContent({ dict }: { dict: Dictionary }) {
 
   const handleCancelSubscription = async () => {
     try {
-      await cancelSubscription.mutateAsync({})
+      await cancelSubscription.mutateAsync({ data: {} })
       setShowCancelDialog(false)
       toast({
         title: dict.common.success,
@@ -58,7 +58,7 @@ export default function BillingContent({ dict }: { dict: Dictionary }) {
       toast({
         title: dict.common.error,
         description: dict.billing.cancelError || 'Failed to cancel subscription',
-        variant: 'destructive',
+        variant: 'error',
       })
     }
   }
@@ -77,6 +77,7 @@ export default function BillingContent({ dict }: { dict: Dictionary }) {
     past_due: 'destructive',
     unpaid: 'destructive',
     trialing: 'outline',
+    incomplete: 'destructive',
   } as const
 
   return (

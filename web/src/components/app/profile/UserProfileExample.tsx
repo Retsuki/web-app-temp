@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -17,22 +17,25 @@ export function UserProfileExample() {
 
   // プロフィール取得（自動的に認証ヘッダーが付与される）
   const {
-    data: profile,
+    data: response,
     isLoading,
     error,
     refetch,
-  } = useGetApiV1UsersMe({
-    query: {
-      onSuccess: (data) => {
-        setNickname(data.nickname || '')
-      },
-    },
-  })
+  } = useGetApiV1UsersMe()
+
+  const profile = response?.data
+
+  // プロフィールデータが取得されたらnicknameを設定
+  useEffect(() => {
+    if (profile?.nickname) {
+      setNickname(profile.nickname)
+    }
+  }, [profile])
 
   // プロフィール更新用のmutation
   const updateProfileMutation = usePutApiV1UsersMe({
     mutation: {
-      onSuccess: (data) => {
+      onSuccess: () => {
         toast.success('プロフィールを更新しました')
         refetch() // データを再取得
       },
@@ -49,7 +52,6 @@ export function UserProfileExample() {
     updateProfileMutation.mutate({
       data: {
         nickname,
-        metadata: profile.metadata || {},
       },
     })
   }

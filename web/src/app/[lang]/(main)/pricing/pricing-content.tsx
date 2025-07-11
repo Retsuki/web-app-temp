@@ -56,8 +56,8 @@ export default function PricingContent({ dict }: { dict: Dictionary }) {
             window.location.href = data.checkoutUrl
           }
         },
-        onError: (error) => {
-          toast.error(error.message || 'Failed to create checkout session')
+        onError: () => {
+          toast.error('Failed to create checkout session')
         },
       }
     )

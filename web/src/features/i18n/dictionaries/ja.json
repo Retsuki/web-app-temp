@@ -70,6 +70,15 @@
     "period": {
       "monthly": "月",
       "yearly": "年"
+    },
+    "features": {
+      "projectLimit": "プロジェクト数",
+      "dataLimit": "データ使用量",
+      "requestLimit": "API リクエスト数",
+      "support": "サポート",
+      "apiCalls": "API コール数/月",
+      "teamMembers": "チームメンバー",
+      "storage": "ストレージ"
     }
   },
   "billing": {
@@ -98,7 +107,8 @@
       "canceled": "解約済み",
       "past_due": "支払い遅延",
       "unpaid": "未払い",
-      "trialing": "トライアル中"
+      "trialing": "トライアル中",
+      "incomplete": "未完了"
     },
     "cancelSuccess": "サブスクリプションを解約しました",
     "cancelError": "サブスクリプションの解約に失敗しました"

@@ -70,6 +70,15 @@
     "period": {
       "monthly": "month",
       "yearly": "year"
+    },
+    "features": {
+      "projectLimit": "Project limit",
+      "dataLimit": "Data usage",
+      "requestLimit": "API requests",
+      "support": "Support",
+      "apiCalls": "API calls/month",
+      "teamMembers": "Team members",
+      "storage": "Storage"
     }
   },
   "billing": {
@@ -98,7 +107,8 @@
       "canceled": "Canceled",
       "past_due": "Past Due",
       "unpaid": "Unpaid",
-      "trialing": "Trial"
+      "trialing": "Trial",
+      "incomplete": "Incomplete"
     },
     "cancelSuccess": "Subscription canceled successfully",
     "cancelError": "Failed to cancel subscription"

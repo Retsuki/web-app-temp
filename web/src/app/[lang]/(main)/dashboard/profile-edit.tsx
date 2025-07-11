@@ -7,8 +7,7 @@ import { z } from 'zod'
 import { PrimaryButton } from '@/components/app/button/primary-button'
 import { FormInput } from '@/components/app/input/form-input'
 import { Form } from '@/components/ui/form'
-
-// import { useMyProfile, useUpdateUser } from '@/lib/api/hooks/useUser'
+import { useGetApiV1UsersMe, usePutApiV1UsersMe } from '@/lib/api/generated/users/users'
 
 const profileSchema = z.object({
   nickname: z
@@ -20,27 +19,16 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>
 
 export function ProfileEdit() {
-  // Temporarily commented out due to missing imports
-  // const { data: profileResponse, isLoading, error } = useMyProfile()
-  // const updateUser = useUpdateUser()
-
-  // Temporary mock data
-  const profileResponse = { data: { nickname: 'テストユーザー' } }
-  const isLoading = false
-  const error = null
-  const updateUser = {
-    mutateAsync: async () => {},
-    isPending: false,
-    isError: false,
-    isSuccess: false,
-  }
+  const { data: response, isLoading, error } = useGetApiV1UsersMe()
+  const updateUser = usePutApiV1UsersMe()
+  const profile = response?.data
 
   const [isEditing, setIsEditing] = useState(false)
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      nickname: profileResponse?.data?.nickname || '',
+      nickname: profile?.nickname || '',
     },
   })
 
@@ -57,19 +45,18 @@ export function ProfileEdit() {
     return <div className="text-red-600">プロフィールの読み込みに失敗しました</div>
   }
 
-  const profile = profileResponse?.data
 
-  const onSubmit = async (_data: ProfileFormData) => {
+  const onSubmit = async (data: ProfileFormData) => {
     if (!profile) {
       return
     }
 
     try {
-      // Temporarily commented out due to missing imports
-      // await updateUser.mutateAsync({
-      //   nickname: data.nickname,
-      // })
-      await updateUser.mutateAsync()
+      await updateUser.mutateAsync({
+        data: {
+          nickname: data.nickname,
+        },
+      })
       setIsEditing(false)
     } catch (error) {
       console.error('更新エラー:', error)
