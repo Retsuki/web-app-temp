@@ -25,7 +25,7 @@ export const getDb = () => {
 export const db = new Proxy({} as ReturnType<typeof drizzle>, {
   get(target, prop, receiver) {
     return Reflect.get(getDb(), prop, receiver)
-  }
+  },
 })
 
 export type Transaction = Parameters<Parameters<(typeof db)['transaction']>[0]>[0]

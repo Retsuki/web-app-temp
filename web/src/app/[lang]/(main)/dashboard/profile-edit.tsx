@@ -45,7 +45,6 @@ export function ProfileEdit() {
     return <div className="text-red-600">プロフィールの読み込みに失敗しました</div>
   }
 
-
   const onSubmit = async (data: ProfileFormData) => {
     if (!profile) {
       return

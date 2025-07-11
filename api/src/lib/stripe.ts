@@ -20,7 +20,7 @@ export const getStripe = (): Stripe => {
 export const stripe = new Proxy({} as Stripe, {
   get(target, prop, receiver) {
     return Reflect.get(getStripe(), prop, receiver)
-  }
+  },
 })
 
 // Stripe関連の定数 - Lazy evaluation to ensure environment variables are loaded
@@ -33,12 +33,20 @@ export const STRIPE_CONFIG = {
   // Price IDs
   priceIds: {
     indie: {
-      get monthly() { return process.env.STRIPE_PRICE_ID_INDIE_MONTHLY! },
-      get yearly() { return process.env.STRIPE_PRICE_ID_INDIE_YEARLY! },
+      get monthly() {
+        return process.env.STRIPE_PRICE_ID_INDIE_MONTHLY!
+      },
+      get yearly() {
+        return process.env.STRIPE_PRICE_ID_INDIE_YEARLY!
+      },
     },
     pro: {
-      get monthly() { return process.env.STRIPE_PRICE_ID_PRO_MONTHLY! },
-      get yearly() { return process.env.STRIPE_PRICE_ID_PRO_YEARLY! },
+      get monthly() {
+        return process.env.STRIPE_PRICE_ID_PRO_MONTHLY!
+      },
+      get yearly() {
+        return process.env.STRIPE_PRICE_ID_PRO_YEARLY!
+      },
     },
   },
 

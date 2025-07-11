@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -16,12 +16,7 @@ export function UserProfileExample() {
   const [nickname, setNickname] = useState('')
 
   // プロフィール取得（自動的に認証ヘッダーが付与される）
-  const {
-    data: response,
-    isLoading,
-    error,
-    refetch,
-  } = useGetApiV1UsersMe()
+  const { data: response, isLoading, error, refetch } = useGetApiV1UsersMe()
 
   const profile = response?.data
 
