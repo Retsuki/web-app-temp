@@ -1,50 +1,44 @@
 # Hono API用のDockerfile
 FROM node:20-alpine AS base
 
-# 依存関係のインストール
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-
-# 依存関係ファイルをコピー
-COPY package.json package-lock.json ./
-RUN npm ci
-
-# ソースコードのビルド
 FROM base AS builder
+
+RUN apk add --no-cache gcompat
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
 
-# TypeScriptをビルド
-RUN npm run build
+# npmのインストール
+COPY package.json package-lock.json tsconfig.json ./
+COPY src ./src
+COPY drizzle.config.ts ./
 
-# 本番環境用の依存関係のみインストール
-FROM base AS prod-deps
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci --only=production
+# ビルド時は開発依存関係を含めてインストール
+ENV NODE_ENV=development
 
-# 本番環境用イメージ
+RUN npm ci && \
+    npm run build && \
+    npm prune --production
+
+# 実行ステージ
 FROM base AS runner
+
+RUN apk add --no-cache gcompat && \
+    addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 hono
+
 WORKDIR /app
+RUN chown hono:nodejs /app
 
-ENV NODE_ENV=production
-
-# 非rootユーザーを作成
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 hono
-
-# ビルド成果物と本番用依存関係をコピー
-COPY --from=prod-deps /app/node_modules ./node_modules
-COPY --from=builder --chown=hono:nodejs /app/dist ./dist
-COPY --chown=hono:nodejs package.json ./
+# 必要なファイルをコピー
+COPY --from=builder --chown=hono:nodejs /app/package.json ./
+COPY --from=builder --chown=hono:nodejs /app/node_modules ./node_modules/
+COPY --from=builder --chown=hono:nodejs /app/dist ./dist/
 
 USER hono
-
-# Cloud Runはポート8080を期待
 EXPOSE 8080
-ENV PORT 8080
 
-# APIサーバーを起動
+# 実行時の環境変数設定
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# アプリケーションの起動
 CMD ["node", "dist/index.js"]
