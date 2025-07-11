@@ -18,25 +18,28 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import type { Dictionary } from '@/features/i18n'
 import { useToast } from '@/features/toast/use-toast'
 import {
-  useGetApiV1ApiV1BillingSubscription,
-  useGetApiV1ApiV1BillingHistory,
-  useDeleteApiV1ApiV1BillingSubscription,
+  useDeleteApiV1BillingSubscription,
+  useGetApiV1BillingHistory,
+  useGetApiV1BillingSubscription,
 } from '@/lib/api/generated/billing/billing'
-import type { Dictionary } from '@/features/i18n'
 
 export default function BillingContent({ dict }: { dict: Dictionary }) {
   const [showCancelDialog, setShowCancelDialog] = useState(false)
-  
+
   // API hooks
-  const { data: subscriptionResponse, isLoading: subscriptionLoading } = useGetApiV1ApiV1BillingSubscription()
-  const { data: historyResponse, isLoading: historyLoading } = useGetApiV1ApiV1BillingHistory({ limit: 10 })
-  const cancelSubscription = useDeleteApiV1ApiV1BillingSubscription()
+  const { data: subscriptionResponse, isLoading: subscriptionLoading } =
+    useGetApiV1BillingSubscription()
+  const { data: historyResponse, isLoading: historyLoading } = useGetApiV1BillingHistory({
+    limit: 10,
+  })
+  const cancelSubscription = useDeleteApiV1BillingSubscription()
 
   // Extract data from API responses
-  const subscription = subscriptionResponse?.data
-  const history = historyResponse?.data
+  const subscription = subscriptionResponse
+  const history = historyResponse
 
   const router = useRouter()
   const { toast } = useToast()
