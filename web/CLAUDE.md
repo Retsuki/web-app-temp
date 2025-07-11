@@ -50,22 +50,32 @@
 ├── components/
 │   ├── ui/                # shadcn/ui ベースコンポーネント
 │   └── app/               # アプリケーションコンポーネント
-│       ├── auth/          # 認証関連コンポーネント（Google OAuth）
 │       ├── button/        # カスタムボタン
 │       ├── checkbox/      # フォームチェックボックス
 │       ├── input/         # フォーム入力
 │       ├── radio/         # ラジオボタングループ
 │       ├── profile/       # ユーザープロフィール
+│       ├── provider/      # アプリケーションプロバイダー
+│       │   └── app-provider.tsx # QueryClient & Auth Provider
 │       └── language-switcher.tsx # 言語切り替え
-├── contexts/              # React Context
-│   └── auth-context.tsx   # 認証コンテキスト
+├── features/              # 機能別モジュール（Bulletproof React）
+│   └── auth/             # 認証機能
+│       ├── components/   # 認証関連コンポーネント
+│       │   └── google-auth-form.tsx
+│       ├── hooks/        # カスタムフック
+│       │   └── auth-context.tsx # AuthProvider & useAuth
+│       ├── server/       # サーバーサイド処理
+│       │   ├── auth-actions.ts  # Server Actions
+│       │   └── auth-server.ts   # サーバー側ユーティリティ
+│       ├── types/        # 型定義
+│       │   └── index.ts
+│       └── index.ts      # Public API
 ├── lib/
 │   ├── api/              # API クライアント & 型
 │   │   ├── schema.d.ts   # 自動生成された型定義
 │   │   ├── orval-client.ts # クライアントサイドAPI
 │   │   ├── orval-server-client.ts # サーバーサイドAPI
 │   │   └── server-api.ts # サーバーAPIユーティリティ
-│   ├── auth/             # 認証ユーティリティ
 │   ├── supabase/         # Supabase クライアント
 │   └── utils.ts          # ユーティリティ関数
 ├── public/
@@ -85,7 +95,7 @@
 - アプリケーション固有のコンポーネント
 - ビジネスロジックを含む可能性
 - UI コンポーネントから構成
-- 例: GoogleAuthForm, UserProfileExample, LanguageSwitcher, FormInput, FormCheckbox, FormRadioGroup
+- 例: UserProfileExample, LanguageSwitcher, FormInput, FormCheckbox, FormRadioGroup
 
 #### 3. 機能コンポーネント（ルートフォルダー内）
 - ページ固有のコンポーネント
@@ -171,25 +181,37 @@ const { data } = await apiClient.GET('/api/v1/health');
 
 ## 認証フロー
 
+### 認証機能の構成 (Bulletproof React Pattern)
+```
+/features/auth/
+├── components/      # 認証用UIコンポーネント
+│   └── google-auth-form.tsx
+├── hooks/          # カスタムフック
+│   └── auth-context.tsx  # AuthProvider & useAuth
+├── server/         # サーバーサイド処理
+│   ├── auth-actions.ts   # Server Actions
+│   └── auth-server.ts    # サーバーユーティリティ
+├── types/          # 型定義
+│   └── index.ts
+└── index.ts        # Public API
+```
+
 ### クライアントサイド認証
 ```typescript
-// AuthContext が提供するもの:
-- user: 現在のユーザーオブジェクト
-- signIn: メール/パスワードでサインイン
-- signUp: メール/パスワードでサインアップ
-- signInWithGoogle: OAuth サインイン
-- signOut: セッションクリア
-- loading: 認証状態ローディング
+// useAuth フックが提供するもの:
+import { useAuth } from '@/features/auth';
+
+const { user, loading, signOut, refreshSession } = useAuth();
 ```
 
 ### サーバーサイド認証
 ```typescript
 // Server Components 内で:
-const supabase = createClient();
-const { data: { user } } = await supabase.auth.getUser();
+import { requireAuth } from '@/features/auth';
+const { profile, error } = await requireAuth();
 
-// Server Actions 内で:
-const user = await getUser(); // ヘルパー関数
+// Server Actions:
+import { signIn, signUp, signOut, signInWithGoogle } from '@/features/auth';
 ```
 
 ### OAuth フロー
