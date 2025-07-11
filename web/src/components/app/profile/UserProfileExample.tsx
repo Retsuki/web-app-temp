@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useId } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -14,6 +14,7 @@ import { useGetApiV1UsersMe, usePutApiV1UsersMe } from '@/lib/api/generated/user
  */
 export function UserProfileExample() {
   const [nickname, setNickname] = useState('')
+  const nicknameId = useId()
 
   // プロフィール取得（自動的に認証ヘッダーが付与される）
   const { data: response, isLoading, error, refetch } = useGetApiV1UsersMe()
@@ -42,7 +43,9 @@ export function UserProfileExample() {
   })
 
   const handleUpdate = () => {
-    if (!profile) return
+    if (!profile) {
+      return
+    }
 
     updateProfileMutation.mutate({
       data: {
@@ -86,9 +89,9 @@ export function UserProfileExample() {
         </div>
 
         <div>
-          <Label htmlFor="nickname">ニックネーム</Label>
+          <Label htmlFor={nicknameId}>ニックネーム</Label>
           <Input
-            id="nickname"
+            id={nicknameId}
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             placeholder="ニックネームを入力"

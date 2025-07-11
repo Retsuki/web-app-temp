@@ -10,7 +10,9 @@ const defaultLocale = 'ja'
 function getLocale(request: NextRequest): string {
   // Get Accept-Language header
   const negotiatorHeaders: Record<string, string> = {}
-  request.headers.forEach((value, key) => (negotiatorHeaders[key] = value))
+  request.headers.forEach((value, key) => {
+    negotiatorHeaders[key] = value
+  })
 
   // Create language array from headers
   const languages = new Negotiator({ headers: negotiatorHeaders }).languages()

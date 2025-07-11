@@ -45,8 +45,8 @@ export const PLANS: Record<PlanId, Plan> = {
     yearlyPrice: 10000,
     get stripePriceIds() {
       return {
-        monthly: process.env.STRIPE_PRICE_ID_INDIE_MONTHLY!,
-        yearly: process.env.STRIPE_PRICE_ID_INDIE_YEARLY!,
+        monthly: process.env.STRIPE_PRICE_ID_INDIE_MONTHLY || '',
+        yearly: process.env.STRIPE_PRICE_ID_INDIE_YEARLY || '',
       }
     },
     features: {
@@ -65,8 +65,8 @@ export const PLANS: Record<PlanId, Plan> = {
     yearlyPrice: 30000,
     get stripePriceIds() {
       return {
-        monthly: process.env.STRIPE_PRICE_ID_PRO_MONTHLY!,
-        yearly: process.env.STRIPE_PRICE_ID_PRO_YEARLY!,
+        monthly: process.env.STRIPE_PRICE_ID_PRO_MONTHLY || '',
+        yearly: process.env.STRIPE_PRICE_ID_PRO_YEARLY || '',
       }
     },
     features: {

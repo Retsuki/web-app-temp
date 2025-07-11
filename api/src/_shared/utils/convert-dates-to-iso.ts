@@ -25,6 +25,8 @@ export function convertDatesToIso<T extends Record<string, unknown>>(obj: T): Wi
 }
 
 export const convertDateToIso = (date: Date | string | null | undefined) => {
-  if (!date) return new Date().toISOString()
+  if (!date) {
+    return new Date().toISOString()
+  }
   return new Date(date).toISOString()
 }

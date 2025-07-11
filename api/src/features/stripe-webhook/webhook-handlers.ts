@@ -27,7 +27,7 @@ export class WebhookHandlers {
       stripePriceId: subscription.items.data[0].price.id,
       stripeProductId: subscription.items.data[0].price.product as string,
       plan: planId,
-      status: subscription.status as any,
+      status: subscription.status,
       billingCycle,
       currentPeriodStart: new Date(subscription.current_period_start * 1000),
       currentPeriodEnd: new Date(subscription.current_period_end * 1000),
@@ -50,7 +50,7 @@ export class WebhookHandlers {
     await this.db
       .update(subscriptions)
       .set({
-        status: subscription.status as any,
+        status: subscription.status,
         currentPeriodStart: new Date(subscription.current_period_start * 1000),
         currentPeriodEnd: new Date(subscription.current_period_end * 1000),
         cancelAt: subscription.cancel_at ? new Date(subscription.cancel_at * 1000) : null,
@@ -99,7 +99,7 @@ export class WebhookHandlers {
     logger.info({ invoiceId: invoice.id }, 'Handling invoice payment succeeded')
 
     const subscription = invoice.subscription as string
-    const customerId = invoice.customer as string
+    const _customerId = invoice.customer as string
 
     // Get user ID from subscription
     const [sub] = await this.db
@@ -181,8 +181,8 @@ export class WebhookHandlers {
       stripeEventId: event.id,
       eventType: event.type,
       apiVersion: event.api_version || null,
-      payload: event as any,
-      objectId: (event.data.object as any).id || null,
+      payload: event,
+      objectId: ('id' in event.data.object && typeof event.data.object.id === 'string' ? event.data.object.id : null),
       objectType: event.data.object.object || null,
       status: 'processed',
       processedAt: new Date(),

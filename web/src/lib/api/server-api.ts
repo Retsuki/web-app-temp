@@ -4,7 +4,11 @@
  * サーバーサイドのSupabaseクライアントを使用します
  */
 
-import type { CreateUserRequest, CreateUserResponse } from '@/lib/api/generated/schemas'
+import type {
+  CreateUserRequest,
+  CreateUserResponse,
+  GetApiV1UsersMe200,
+} from '@/lib/api/generated/schemas'
 import { orvalServerClient } from './orval-server-client'
 
 export const postApiV1UsersServer = (
@@ -22,7 +26,7 @@ export const postApiV1UsersServer = (
 
 // プロフィール取得用のAPI関数
 export const getApiV1UsersMeServer = (signal?: AbortSignal) => {
-  return orvalServerClient<any>({
+  return orvalServerClient<GetApiV1UsersMe200>({
     url: '/api/v1/users/me',
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },

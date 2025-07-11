@@ -59,7 +59,7 @@ export const handleZodError = (
   result:
     | {
         success: true
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        // biome-ignore lint/suspicious/noExplicitAny: Generic data type for flexible error handling
         data: any
       }
     | {

@@ -1,5 +1,4 @@
 import { z } from '@hono/zod-openapi'
-import { userProfileResSchema } from '../get-profile/dto.js'
 
 /**
  * プロフィール更新リクエストスキーマ

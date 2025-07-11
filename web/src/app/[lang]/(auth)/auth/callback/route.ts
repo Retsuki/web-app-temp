@@ -23,8 +23,8 @@ export async function GET(request: Request) {
           // サーバーサイド用のAPIクライアントを使用（自動的に認証ヘッダーが付与される）
           await postApiV1UsersServer({
             userId: user.id,
-            email: user.email!,
-            nickname: user.user_metadata.full_name || user.email!.split('@')[0],
+            email: user.email || '',
+            nickname: user.user_metadata.full_name || user.email?.split('@')[0] || 'User',
           })
         } catch (error) {
           // ユーザーが既に存在する場合はエラーを無視

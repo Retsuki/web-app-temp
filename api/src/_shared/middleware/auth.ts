@@ -37,7 +37,7 @@ export const authMiddleware: MiddlewareHandler<{
     c.set('userId', payload.sub)
 
     await next()
-  } catch (error) {
+  } catch (_error) {
     throw new AppHTTPException(401, { code: ERROR_CODES.INVALID_TOKEN })
   }
 }

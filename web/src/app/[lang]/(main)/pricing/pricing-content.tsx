@@ -79,12 +79,13 @@ export default function PricingContent({ dict }: { dict: Dictionary }) {
     <div className="space-y-8">
       {/* Billing cycle toggle */}
       <div className="flex items-center justify-center gap-4">
-        <Label htmlFor="billing-toggle">{dict.pricing.monthly}</Label>
+        <Label>{dict.pricing.monthly}</Label>
         {/* Switch component temporarily replaced with button */}
         <button
-          id="billing-toggle"
+          type="button"
           className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200"
           onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
+          aria-label="Toggle billing cycle"
         >
           <span
             className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${

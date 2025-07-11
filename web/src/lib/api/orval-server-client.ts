@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from '@/lib/supabase/server'
 
 /**
@@ -15,9 +14,9 @@ export const orvalServerClient = async <T>({
 }: {
   url: string
   method: string
-  params?: any
-  data?: any
-  headers?: any
+  params?: Record<string, string>
+  data?: unknown
+  headers?: HeadersInit
   signal?: AbortSignal
 }): Promise<T> => {
   const supabase = await createClient()
@@ -34,7 +33,7 @@ export const orvalServerClient = async <T>({
       ...headers,
     },
     ...(params && {
-      search: new URLSearchParams(params).toString(),
+      search: new URLSearchParams(params as Record<string, string>).toString(),
     }),
     ...(data && { body: JSON.stringify(data) }),
     signal,

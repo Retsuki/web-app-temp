@@ -18,7 +18,7 @@ export const getStripe = (): Stripe => {
 
 // For backward compatibility
 export const stripe = new Proxy({} as Stripe, {
-  get(target, prop, receiver) {
+  get(_target, prop, receiver) {
     return Reflect.get(getStripe(), prop, receiver)
   },
 })
@@ -27,25 +27,25 @@ export const stripe = new Proxy({} as Stripe, {
 export const STRIPE_CONFIG = {
   // Webhook署名シークレット
   get webhookSecret() {
-    return process.env.STRIPE_WEBHOOK_SECRET!
+    return process.env.STRIPE_WEBHOOK_SECRET || ''
   },
 
   // Price IDs
   priceIds: {
     indie: {
       get monthly() {
-        return process.env.STRIPE_PRICE_ID_INDIE_MONTHLY!
+        return process.env.STRIPE_PRICE_ID_INDIE_MONTHLY || ''
       },
       get yearly() {
-        return process.env.STRIPE_PRICE_ID_INDIE_YEARLY!
+        return process.env.STRIPE_PRICE_ID_INDIE_YEARLY || ''
       },
     },
     pro: {
       get monthly() {
-        return process.env.STRIPE_PRICE_ID_PRO_MONTHLY!
+        return process.env.STRIPE_PRICE_ID_PRO_MONTHLY || ''
       },
       get yearly() {
-        return process.env.STRIPE_PRICE_ID_PRO_YEARLY!
+        return process.env.STRIPE_PRICE_ID_PRO_YEARLY || ''
       },
     },
   },

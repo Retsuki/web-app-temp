@@ -17,7 +17,7 @@ export class CancelSubscriptionUseCase {
     }
 
     // 2. Stripeサブスクリプションを解約
-    let canceledSubscription
+    let canceledSubscription: import('stripe').Stripe.Subscription
     if (dto.immediately) {
       // 即時解約
       canceledSubscription = await stripe.subscriptions.cancel(
@@ -40,7 +40,7 @@ export class CancelSubscriptionUseCase {
         cancelAt: canceledSubscription.cancel_at
           ? new Date(canceledSubscription.cancel_at * 1000)
           : null,
-        status: canceledSubscription.status as any,
+        status: canceledSubscription.status,
       }
     )
 

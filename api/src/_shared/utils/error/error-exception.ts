@@ -14,7 +14,7 @@ export class AppHTTPException extends HTTPException {
   public code?: ErrorCode
 
   constructor(status: StatusCode, options: AppHTTPExceptionOptions = {}) {
-    super(status as any, { message: options.message, cause: options.cause })
+    super(status, { message: options.message, cause: options.cause })
     this.code = options.code
   }
 }

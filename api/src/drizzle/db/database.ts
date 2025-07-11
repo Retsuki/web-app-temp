@@ -23,7 +23,7 @@ export const getDb = () => {
 
 // For backward compatibility
 export const db = new Proxy({} as ReturnType<typeof drizzle>, {
-  get(target, prop, receiver) {
+  get(_target, prop, receiver) {
     return Reflect.get(getDb(), prop, receiver)
   },
 })

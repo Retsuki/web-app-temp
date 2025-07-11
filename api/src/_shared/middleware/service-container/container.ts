@@ -16,7 +16,7 @@ export class ServiceContainer {
   public readonly users: UserContainer
   public readonly billing: BillingContainer
 
-  constructor(config: AppConfig) {
+  constructor(_config: AppConfig) {
     // Firebase Admin SDK の初期化 (まだ初期化されていない場合のみ)
     if (!admin.apps.length) {
       logger.info('Initializing Firebase Admin SDK...')
