@@ -9,7 +9,6 @@ WORKDIR /app
 # npmのインストール
 COPY package.json package-lock.json tsconfig.json ./
 COPY src ./src
-COPY drizzle.config.ts ./
 
 # ビルド時は開発依存関係を含めてインストール
 ENV NODE_ENV=development
