@@ -1,5 +1,5 @@
 import { AppHTTPException, ERROR_CODES } from '../../../../_shared/utils/error/index.js'
-import { type PlanId, getStripePriceId, isUpgrade } from '../../../../constants/plans.js'
+import { getStripePriceId, isUpgrade, type PlanId } from '../../../../constants/plans.js'
 import { stripe } from '../../../../lib/stripe.js'
 import type { SubscriptionRepository } from '../../repositories/subscription.repository.js'
 import type { UpdateSubscriptionDto, UpdateSubscriptionResponse } from './dto.js'

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# API deployment script
+# Simple API deployment script using Google Cloud Build
 
 set -e
 
@@ -10,57 +10,76 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}Starting API deployment...${NC}"
+echo -e "${GREEN}API Deployment via Cloud Build${NC}"
 
 # Get script directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-API_DIR="$PROJECT_ROOT/api"
 
-# Change to API directory
-cd "$API_DIR"
-
-# Check if required environment variables are set
-if [ -z "$DEPLOY_ENV" ]; then
-    echo -e "${YELLOW}DEPLOY_ENV not set, defaulting to 'production'${NC}"
-    DEPLOY_ENV="production"
+# Check if gcloud is installed
+if ! command -v gcloud &> /dev/null; then
+    echo -e "${RED}Error: gcloud CLI is not installed${NC}"
+    echo "Please install Google Cloud SDK: https://cloud.google.com/sdk/docs/install"
+    exit 1
 fi
 
-echo -e "${GREEN}Deploying to: $DEPLOY_ENV${NC}"
+# Get current project
+CURRENT_PROJECT=$(gcloud config get-value project 2>/dev/null)
 
-# Build the API
-echo -e "${GREEN}Building API...${NC}"
-npm run build
-
-# Run tests if they exist
-if [ -f "package.json" ] && grep -q "\"test\"" package.json; then
-    echo -e "${GREEN}Running tests...${NC}"
-    npm test || echo -e "${YELLOW}No tests found or tests skipped${NC}"
+if [ -z "$CURRENT_PROJECT" ]; then
+    echo -e "${YELLOW}No Google Cloud project configured${NC}"
+    read -p "Enter your Google Cloud Project ID: " PROJECT_ID
+    gcloud config set project "$PROJECT_ID"
+else
+    echo -e "${GREEN}Using project: $CURRENT_PROJECT${NC}"
+    read -p "Continue with this project? (Y/n): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Nn]$ ]]; then
+        read -p "Enter your Google Cloud Project ID: " PROJECT_ID
+        gcloud config set project "$PROJECT_ID"
+    fi
 fi
 
-# Type check
-echo -e "${GREEN}Running type check...${NC}"
-npm run build
+# Change to project root directory
+cd "$PROJECT_ROOT"
 
-# Deploy based on environment
-case "$DEPLOY_ENV" in
-    "production")
-        echo -e "${GREEN}Deploying to production...${NC}"
-        # Add production deployment commands here
-        # e.g., gcloud app deploy, docker push, etc.
-        ;;
-    "staging")
-        echo -e "${GREEN}Deploying to staging...${NC}"
-        # Add staging deployment commands here
-        ;;
-    "development")
-        echo -e "${GREEN}Deploying to development...${NC}"
-        # Add development deployment commands here
-        ;;
-    *)
-        echo -e "${RED}Unknown environment: $DEPLOY_ENV${NC}"
-        exit 1
-        ;;
-esac
+# Check if Cloud Build config exists
+if [ ! -f "api/cloudbuild.yaml" ]; then
+    echo -e "${RED}Error: api/cloudbuild.yaml not found${NC}"
+    exit 1
+fi
 
-echo -e "${GREEN}API deployment completed successfully!${NC}"
+# Check if .env file exists and ask about updating secret
+if [ -f "api/.env" ]; then
+    echo -e "${YELLOW}Found api/.env file${NC}"
+    read -p "Update Secret Manager with latest environment variables? (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${GREEN}Updating Secret Manager...${NC}"
+        if gcloud secrets describe "api-env-production" &>/dev/null; then
+            gcloud secrets versions add "api-env-production" --data-file="api/.env"
+        else
+            gcloud secrets create "api-env-production" --data-file="api/.env" --replication-policy="automatic"
+        fi
+    else
+        echo -e "${YELLOW}Skipping Secret Manager update${NC}"
+    fi
+else
+    echo -e "${YELLOW}Warning: api/.env file not found${NC}"
+    echo -e "${YELLOW}Make sure 'api-env-production' secret exists in Secret Manager${NC}"
+fi
+
+# Submit to Cloud Build
+echo -e "${GREEN}Submitting to Cloud Build...${NC}"
+gcloud builds submit --config=api/cloudbuild.yaml --timeout=20m
+
+# Get service URL
+echo -e "${GREEN}Checking deployment status...${NC}"
+SERVICE_URL=$(gcloud run services describe api --region=asia-northeast1 --format="value(status.url)" 2>/dev/null || echo "")
+
+if [ -n "$SERVICE_URL" ]; then
+    echo -e "${GREEN}✓ Deployment successful!${NC}"
+    echo -e "${GREEN}Service URL: $SERVICE_URL${NC}"
+else
+    echo -e "${YELLOW}Check Cloud Console for deployment status${NC}"
+fi
