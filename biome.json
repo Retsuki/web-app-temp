@@ -17,7 +17,8 @@
       "!**/dist",
       "!**/build",
       "!**/.next",
-      "!**/coverage"
+      "!**/coverage",
+      "!**/web/src/lib/api/generated"
     ]
   },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
