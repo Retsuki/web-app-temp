@@ -1,342 +1,348 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+このファイルは、Claude Code (claude.ai/code) がこのリポジトリのコードを扱う際のガイダンスを提供します。
 
-## Frontend Overview
+## フロントエンド概要
 
-This is the Next.js frontend application for the web app template project. It uses modern React patterns with Next.js 15 App Router, providing a type-safe, internationalized, and performant user interface.
+これは Web アプリテンプレートプロジェクトの Next.js フロントエンドアプリケーションです。Next.js 15 App Router を使用した最新の React パターンを採用し、型安全で国際化対応された高パフォーマンスなユーザーインターフェースを提供します。
 
-### Core Technologies
-- **Next.js 15.3.4** with App Router and Turbopack
-- **TypeScript** for type safety
-- **Tailwind CSS v4** with CSS variables
-- **shadcn/ui** component library
-- **React Hook Form + Zod** for forms
-- **TanStack Query** for server state
-- **next-intl** for i18n (ja/en)
-- **Supabase** for authentication
+### コア技術
+- **Next.js 15.3.4** App Router と Turbopack
+- **TypeScript** 型安全性のため
+- **Tailwind CSS v4** CSS 変数使用
+- **shadcn/ui** コンポーネントライブラリ
+- **React Hook Form + Zod** フォーム用
+- **TanStack Query** サーバー状態管理
+- **next-intl** 国際化対応 (ja/en)
+- **Supabase** 認証用
 
-## Architecture Patterns
+## アーキテクチャパターン
 
-### Directory Structure
+### ディレクトリ構造
 ```
 /src/
 ├── app/                    # Next.js App Router
-│   ├── [locale]/          # Locale routing (ja/en)
-│   │   ├── (auth)/        # Auth group layout
-│   │   │   ├── signin/    # Sign in page
-│   │   │   └── signup/    # Sign up page
-│   │   ├── (main)/        # Main app group
-│   │   │   └── dashboard/ # Protected dashboard
-│   │   └── page.tsx       # Home page
-│   ├── auth/callback/     # OAuth callback handler
-│   └── layout.tsx         # Root layout
+│   ├── [locale]/          # ロケールルーティング (ja/en)
+│   │   ├── (auth)/        # 認証グループレイアウト
+│   │   │   ├── signin/    # サインインページ
+│   │   │   └── signup/    # サインアップページ
+│   │   ├── (main)/        # メインアプリグループ
+│   │   │   └── dashboard/ # 保護されたダッシュボード
+│   │   └── page.tsx       # ホームページ
+│   ├── auth/callback/     # OAuth コールバックハンドラー
+│   └── layout.tsx         # ルートレイアウト
 ├── components/
-│   ├── ui/                # shadcn/ui base components
-│   └── app/               # Application components
-│       ├── auth/          # Auth-specific components
-│       ├── button/        # Custom buttons
-│       ├── input/         # Form inputs
-│       └── providers/     # Context providers
+│   ├── ui/                # shadcn/ui ベースコンポーネント
+│   └── app/               # アプリケーションコンポーネント
+│       ├── auth/          # 認証関連コンポーネント
+│       ├── button/        # カスタムボタン
+│       ├── input/         # フォーム入力
+│       └── providers/     # コンテキストプロバイダー
 ├── lib/
-│   ├── api/              # API client & types
-│   ├── auth/             # Auth utilities
-│   ├── supabase/         # Supabase clients
-│   └── utils.ts          # Utility functions
-├── i18n/                 # Internationalization
-│   ├── routing.ts        # Locale routing config
-│   └── request.ts        # Server request helpers
-├── messages/             # Translation files
-│   ├── ja.json          # Japanese translations
-│   └── en.json          # English translations
-└── middleware.ts         # Auth & i18n middleware
+│   ├── api/              # API クライアント & 型
+│   ├── auth/             # 認証ユーティリティ
+│   ├── supabase/         # Supabase クライアント
+│   └── utils.ts          # ユーティリティ関数
+├── i18n/                 # 国際化
+│   ├── routing.ts        # ロケールルーティング設定
+│   └── request.ts        # サーバーリクエストヘルパー
+├── messages/             # 翻訳ファイル
+│   ├── ja.json          # 日本語翻訳
+│   └── en.json          # 英語翻訳
+└── middleware.ts         # 認証 & 国際化ミドルウェア
 ```
 
-### Component Design Patterns
+### コンポーネント設計パターン
 
-#### 1. UI Components (`/components/ui/`)
-- Base components from shadcn/ui
-- No business logic, pure presentation
-- Highly reusable across features
-- Example: Button, Input, Card, Dialog
+#### 1. UI コンポーネント (`/components/ui/`)
+- shadcn/ui からのベースコンポーネント
+- ビジネスロジックなし、純粋な表示用
+- 機能間で高い再利用性
+- 例: Button, Input, Card, Dialog
 
-#### 2. App Components (`/components/app/`)
-- Application-specific components
-- May contain business logic
-- Composed from UI components
-- Example: SignInForm, UserProfile, LanguageSwitcher
+#### 2. App コンポーネント (`/components/app/`)
+- アプリケーション固有のコンポーネント
+- ビジネスロジックを含む可能性
+- UI コンポーネントから構成
+- 例: SignInForm, UserProfile, LanguageSwitcher
 
-#### 3. Feature Components (in route folders)
-- Page-specific components
-- Tightly coupled to routes
-- Can be Server or Client Components
-- Example: DashboardStats, SettingsForm
+#### 3. 機能コンポーネント（ルートフォルダー内）
+- ページ固有のコンポーネント
+- ルートと密結合
+- Server または Client Components
+- 例: DashboardStats, SettingsForm
 
-### State Management Strategy
+### 状態管理戦略
 
-#### Server State
-- **TanStack Query** for API data
-- Custom hooks with `useQuery` and `useMutation`
-- Automatic caching and synchronization
-- Example:
+#### サーバー状態
+- **TanStack Query** API データ用
+- `useQuery` と `useMutation` を使用したカスタムフック
+- 自動キャッシングと同期
+- 例:
 ```typescript
-// In a Client Component
+// クライアントコンポーネント内で
 const { data, isLoading } = useUserProfile();
 ```
 
-#### Client State
-- **React Context** for global UI state (auth)
-- **React Hook Form** for form state
-- **URL state** for filters/pagination
-- Local component state for UI interactions
+#### クライアント状態
+- **React Context** グローバル UI 状態（認証）用
+- **React Hook Form** フォーム状態用
+- **URL 状態** フィルター/ページネーション用
+- UI インタラクション用のローカルコンポーネント状態
 
-### Form Handling Pattern
+### フォーム処理パターン
 ```typescript
-// All forms use this pattern:
-1. Zod schema for validation
-2. React Hook Form for state
-3. Server Action or API mutation
-4. Loading/error states
-5. Success feedback
+// すべてのフォームはこのパターンを使用:
+1. Zod スキーマでバリデーション
+2. React Hook Form で状態管理
+3. Server Action または API ミューテーション
+4. ローディング/エラー状態
+5. 成功フィードバック
 ```
 
-### API Integration Architecture
+### API 統合アーキテクチャ
 
-#### Type-Safe API Client
+#### 型安全な API クライアント
 ```typescript
-// Authenticated requests
+// 認証済みリクエスト
 const client = createAuthenticatedClient();
 const { data } = await client.GET('/api/v1/users/profile');
 
-// Public endpoints
+// パブリックエンドポイント
 const { data } = await apiClient.GET('/api/v1/health');
 ```
 
-#### Data Fetching Patterns
-1. **Server Components**: Direct fetch in components
-2. **Client Components**: TanStack Query hooks
-3. **Server Actions**: Form submissions
-4. **Route Handlers**: API proxying if needed
+#### データフェッチパターン
+1. **Server Components**: コンポーネント内で直接フェッチ
+2. **Client Components**: TanStack Query フック
+3. **Server Actions**: フォーム送信
+4. **Route Handlers**: 必要に応じて API プロキシ
 
-## Routing & Middleware
+## ルーティング & ミドルウェア
 
-### App Router Structure
-- `[locale]` dynamic segment for i18n
-- Route groups `(auth)` and `(main)` for layouts
-- Parallel routes and intercepting routes supported
-- File conventions: `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`
+### App Router 構造
+- `[locale]` 国際化用の動的セグメント
+- ルートグループ `(auth)` と `(main)` でレイアウト管理
+- パラレルルートとインターセプティングルートをサポート
+- ファイル規約: `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`
 
-### Middleware Chain
-1. **Locale Detection**: Redirects to appropriate locale
-2. **Authentication Check**: Protects routes requiring auth
-3. **Route Guards**: Redirects based on auth state
+### ミドルウェアチェーン
+1. **ロケール検出**: 適切なロケールへリダイレクト
+2. **認証チェック**: 認証が必要なルートを保護
+3. **ルートガード**: 認証状態に基づくリダイレクト
 
-### Protected Routes
-- `/[locale]/(main)/*` requires authentication
-- `/[locale]/(auth)/*` redirects if authenticated
-- Middleware handles all redirects
+### 保護されたルート
+- `/[locale]/(main)/*` 認証が必要
+- `/[locale]/(auth)/*` 認証済みの場合リダイレクト
+- ミドルウェアがすべてのリダイレクトを処理
 
-## Authentication Flow
+## 認証フロー
 
-### Client-Side Auth
+### クライアントサイド認証
 ```typescript
-// AuthContext provides:
-- user: Current user object
-- signIn: Email/password sign in
-- signUp: Email/password sign up
-- signInWithGoogle: OAuth sign in
-- signOut: Clear session
-- loading: Auth state loading
+// AuthContext が提供するもの:
+- user: 現在のユーザーオブジェクト
+- signIn: メール/パスワードでサインイン
+- signUp: メール/パスワードでサインアップ
+- signInWithGoogle: OAuth サインイン
+- signOut: セッションクリア
+- loading: 認証状態ローディング
 ```
 
-### Server-Side Auth
+### サーバーサイド認証
 ```typescript
-// In Server Components:
+// Server Components 内で:
 const supabase = createClient();
 const { data: { user } } = await supabase.auth.getUser();
 
-// In Server Actions:
-const user = await getUser(); // Helper function
+// Server Actions 内で:
+const user = await getUser(); // ヘルパー関数
 ```
 
-### OAuth Flow
-1. User clicks "Sign in with Google"
-2. Redirect to Google OAuth
-3. Callback to `/auth/callback`
-4. Token exchange and redirect
-5. User context updated
+### OAuth フロー
+1. ユーザーが「Google でサインイン」をクリック
+2. Google OAuth へリダイレクト
+3. `/auth/callback` へコールバック
+4. トークン交換とリダイレクト
+5. ユーザーコンテキスト更新
 
-## Styling System
+## スタイリングシステム
 
 ### Tailwind CSS v4
-- CSS variables for theming
-- Light/dark mode support
-- Custom color system:
-  - Primary: Mindaro (#90d80a)
-  - Secondary: Deep green (#44670d)
+- テーマ用の CSS 変数
+- ライト/ダークモードサポート
+- カスタムカラーシステム:
+  - プライマリー: Mindaro (#90d80a)
+  - セカンダリー: 深緑 (#44670d)
 
-### Component Styling Pattern
+### コンポーネントスタイリングパターン
 ```typescript
-// Use cn() utility for conditional classes
+// 条件付きクラス用に cn() ユーティリティを使用
 import { cn } from '@/lib/utils';
 
 className={cn(
   "base-classes",
   isActive && "active-classes",
-  className // Allow override
+  className // オーバーライド可能
 )}
 ```
 
-### CSS Variables
-- Defined in `globals.css`
-- Semantic naming (--primary, --background)
-- Automatic dark mode switching
+### CSS 変数
+- `globals.css` で定義
+- セマンティックな命名 (--primary, --background)
+- 自動ダークモード切り替え
 
-## Performance Optimization
+## パフォーマンス最適化
 
-### Server Components by Default
-- All components are Server Components unless 'use client'
-- Reduces client bundle size
-- Better initial load performance
+### デフォルトで Server Components
+- 'use client' がない限りすべてのコンポーネントは Server Components
+- クライアントバンドルサイズを削減
+- 初期ロードパフォーマンス向上
 
-### Data Fetching
-- Parallel data fetching in Server Components
-- Request memoization with React cache()
-- Streaming with Suspense boundaries
+### データフェッチング
+- Server Components での並列データフェッチ
+- React cache() でリクエストメモ化
+- Suspense 境界でのストリーミング
 
-### Image Optimization
-- Use `next/image` for all images
-- Automatic format conversion
-- Lazy loading by default
+### 画像最適化
+- すべての画像で `next/image` を使用
+- 自動フォーマット変換
+- デフォルトで遅延読み込み
 
-### Code Splitting
-- Automatic route-based splitting
-- Dynamic imports for heavy components
-- Turbopack for fast dev builds
+### コード分割
+- 自動ルートベース分割
+- 重いコンポーネントの動的インポート
+- 高速な開発ビルド用 Turbopack
 
-## Development Guidelines
+## 開発ガイドライン
 
-### Component Creation Checklist
-1. Decide: Server or Client Component?
-2. Choose appropriate directory
-3. Implement with TypeScript
-4. Add proper error boundaries
-5. Include loading states
-6. Test with both locales
-7. Verify mobile responsiveness
+### コンポーネント作成チェックリスト
+1. 決定: Server または Client Component?
+2. 適切なディレクトリを選択
+3. TypeScript で実装
+4. 適切なエラー境界を追加
+5. ローディング状態を含める
+6. 両方のロケールでテスト
+7. モバイルレスポンシブ性を確認
 
-### Form Development Pattern
-1. Define Zod schema
-2. Create form component with React Hook Form
-3. Implement submission handler
-4. Add loading/error states
-5. Test validation
-6. Add success feedback
+### フォーム開発パターン
+1. Zod スキーマを定義
+2. React Hook Form でフォームコンポーネント作成
+3. 送信ハンドラーを実装
+4. ローディング/エラー状態を追加
+5. バリデーションをテスト
+6. 成功フィードバックを追加
 
-### API Integration Steps
-1. Check if endpoint exists in OpenAPI
-2. Run `npm run api:schema` if needed
-3. Use appropriate client (auth/public)
-4. Handle loading/error states
-5. Implement proper TypeScript types
+### API 統合手順
+1. OpenAPI にエンドポイントが存在するか確認
+2. 必要に応じて `npm run api:schema` を実行
+3. 適切なクライアント（認証/パブリック）を使用
+4. ローディング/エラー状態を処理
+5. 適切な TypeScript 型を実装
 
-### Debugging Tips
-- Use React DevTools for component inspection
-- Check Network tab for API calls
-- Verify auth tokens in Application tab
-- Use `console.log` in Server Components
-- Check browser console for client errors
+### デバッグのヒント
+- React DevTools でコンポーネント検査
+- API 呼び出し用にネットワークタブをチェック
+- アプリケーションタブで認証トークンを確認
+- Server Components で `console.log` を使用
+- クライアントエラー用にブラウザコンソールをチェック
 
-## Common Patterns
+## 一般的なパターン
 
-### Loading States
+### ローディング状態
 ```typescript
-// Use Suspense for Server Components
+// Server Components 用に Suspense を使用
 <Suspense fallback={<LoadingSkeleton />}>
   <AsyncComponent />
 </Suspense>
 
-// Use loading state for Client Components
+// Client Components 用にローディング状態を使用
 if (isLoading) return <Spinner />;
 ```
 
-### Error Handling
+### エラーハンドリング
 ```typescript
-// Error boundaries for components
-// try-catch for Server Actions
-// Error states in React Query
-// Toast notifications for user feedback
+// コンポーネント用エラー境界
+// Server Actions 用 try-catch
+// React Query のエラー状態
+// ユーザーフィードバック用トースト通知
 ```
 
-### Empty States
+### 空の状態
 ```typescript
 if (!data || data.length === 0) {
   return <EmptyState message={t('no-data')} />;
 }
 ```
 
-## Testing Strategy
+## テスト戦略
 
-### Current State
-- No test framework implemented yet
-- Rely on TypeScript for type safety
-- Manual testing required
+### 現在の状態
+- テストフレームワークは未実装
+- 型安全性は TypeScript に依存
+- 手動テストが必要
 
-### Recommended Approach
-1. Component testing with React Testing Library
-2. E2E testing with Playwright
-3. API mocking with MSW
-4. Accessibility testing
+### 推奨アプローチ
+1. React Testing Library でコンポーネントテスト
+2. Playwright で E2E テスト
+3. MSW で API モッキング
+4. アクセシビリティテスト
 
-## Deployment Considerations
+## デプロイの考慮事項
 
-### Environment Variables
-- Use `.env.local` for local development
-- Never commit secrets
-- Validate all env vars at build time
+### 環境変数
+- ローカル開発用に `.env.local` を使用
+- シークレットは絶対にコミットしない
+- ビルド時にすべての環境変数を検証
 
-### Build Optimization
-- Run `npm run build` to check for errors
-- Monitor bundle size
-- Use dynamic imports for large components
-- Implement proper caching headers
+### ビルド最適化
+- エラーチェック用に `npm run build` を実行
+- バンドルサイズを監視
+- 大きなコンポーネントには動的インポートを使用
+- 適切なキャッシュヘッダーを実装
 
-### Performance Monitoring
-- Use Next.js built-in analytics
-- Monitor Core Web Vitals
-- Set up error tracking (Sentry)
-- Monitor API response times
+### パフォーマンス監視
+- Next.js 組み込みアナリティクスを使用
+- Core Web Vitals を監視
+- エラートラッキング設定（Sentry）
+- API レスポンス時間を監視
 
-## Important Notes
+## 重要な注意事項
 
-### Always Remember
-1. **Server Components First**: Only use Client Components when needed
-2. **Type Safety**: Leverage TypeScript fully
-3. **Accessibility**: Use semantic HTML and ARIA labels
-4. **Mobile First**: Design for mobile, enhance for desktop
-5. **Performance**: Measure and optimize
-6. **Security**: Never expose sensitive data
-7. **Code Quality**: Run `npm run lint` before commits
+### 常に覚えておくこと
+1. **Server Components ファースト**: 必要な時のみ Client Components を使用
+2. **型安全性**: TypeScript を完全に活用
+3. **アクセシビリティ**: セマンティック HTML と ARIA ラベルを使用
+4. **モバイルファースト**: モバイル用に設計、デスクトップ用に拡張
+5. **パフォーマンス**: 測定と最適化
+6. **セキュリティ**: 機密データを公開しない
+7. **コード品質**: コミット前に `npm run lint` を実行
 
-### Common Pitfalls to Avoid
-- Don't use Client Components unnecessarily
-- Avoid large client-side bundles
-- Don't fetch data in multiple places
-- Avoid prop drilling (use Context/Query)
-- Don't ignore TypeScript errors
-- Avoid inline styles (use Tailwind)
-- Don't skip loading/error states
+### 避けるべき一般的な落とし穴
+- Client Components を不必要に使用しない
+- 大きなクライアントサイドバンドルを避ける
+- 複数の場所でデータをフェッチしない
+- プロップドリルを避ける（Context/Query を使用）
+- TypeScript エラーを無視しない
+- インラインスタイルを避ける（Tailwind を使用）
+- ローディング/エラー状態をスキップしない
 
-### Quick Commands
+### クイックコマンド
 ```bash
-# Development
-npm run dev          # Start dev server
-npm run build        # Production build
-npm run lint         # Run linter
-npm run gen:api      # Generate API types
+# 開発
+npm run dev          # 開発サーバー起動
+npm run build        # プロダクションビルド
+npm run lint         # リンター実行
+npm run gen:api      # API 型生成
 
-# Code Quality
-npm run check        # Biome check
-npm run check:apply  # Fix issues
-npm run format       # Format code
+# コード品質
+npm run check        # Biome チェック
+npm run check:apply  # 問題を修正
+npm run format       # コードフォーマット
 ```
+
+# 重要な指示リマインダー
+求められたことだけを実行する。それ以上でも以下でもない。
+目的達成に絶対必要でない限り、ファイルを作成しない。
+常に新規作成より既存ファイルの編集を優先する。
+ユーザーから明示的に要求されない限り、ドキュメントファイル（*.md）や README ファイルを積極的に作成しない。
