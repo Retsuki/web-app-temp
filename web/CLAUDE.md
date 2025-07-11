@@ -13,8 +13,10 @@
 - **shadcn/ui** コンポーネントライブラリ
 - **React Hook Form + Zod** フォーム用
 - **TanStack Query** サーバー状態管理
-- **next-intl** 国際化対応 (ja/en)
-- **Supabase** 認証用
+- **Supabase** 認証・データベース用
+- **Stripe** 決済処理用（実装済み）
+- **MSW** API モッキング用
+- **Sonner** トースト通知用
 
 ## アーキテクチャパターン
 
@@ -22,33 +24,52 @@
 ```
 /src/
 ├── app/                    # Next.js App Router
-│   ├── [locale]/          # ロケールルーティング (ja/en)
+│   ├── [lang]/            # 言語ルーティング (ja/en)
 │   │   ├── (auth)/        # 認証グループレイアウト
 │   │   │   ├── signin/    # サインインページ
-│   │   │   └── signup/    # サインアップページ
-│   │   ├── (main)/        # メインアプリグループ
-│   │   │   └── dashboard/ # 保護されたダッシュボード
+│   │   │   ├── signup/    # サインアップページ
+│   │   │   └── auth/      # 認証関連
+│   │   │       └── callback/ # OAuth コールバック
+│   │   ├── (main)/        # メインアプリグループ（認証必須）
+│   │   │   ├── dashboard/ # ダッシュボード
+│   │   │   ├── billing/   # 請求管理ページ
+│   │   │   └── pricing/   # 料金プランページ
+│   │   ├── (public)/      # パブリックページ
+│   │   │   ├── legal/     # 法的文書
+│   │   │   ├── privacy-policy/ # プライバシーポリシー
+│   │   │   └── terms/     # 利用規約
+│   │   ├── checkout/      # チェックアウトフロー
+│   │   │   ├── success/   # 決済成功ページ
+│   │   │   └── cancel/    # 決済キャンセルページ
 │   │   └── page.tsx       # ホームページ
-│   ├── auth/callback/     # OAuth コールバックハンドラー
+│   ├── (ui)/              # UIショーケース
+│   ├── dictionaries/      # 翻訳ファイル
+│   │   ├── ja.json        # 日本語翻訳
+│   │   └── en.json        # 英語翻訳
 │   └── layout.tsx         # ルートレイアウト
 ├── components/
 │   ├── ui/                # shadcn/ui ベースコンポーネント
 │   └── app/               # アプリケーションコンポーネント
-│       ├── auth/          # 認証関連コンポーネント
+│       ├── auth/          # 認証関連コンポーネント（Google OAuth）
 │       ├── button/        # カスタムボタン
+│       ├── checkbox/      # フォームチェックボックス
 │       ├── input/         # フォーム入力
-│       └── providers/     # コンテキストプロバイダー
+│       ├── radio/         # ラジオボタングループ
+│       ├── profile/       # ユーザープロフィール
+│       └── language-switcher.tsx # 言語切り替え
+├── contexts/              # React Context
+│   └── auth-context.tsx   # 認証コンテキスト
 ├── lib/
 │   ├── api/              # API クライアント & 型
+│   │   ├── schema.d.ts   # 自動生成された型定義
+│   │   ├── orval-client.ts # クライアントサイドAPI
+│   │   ├── orval-server-client.ts # サーバーサイドAPI
+│   │   └── server-api.ts # サーバーAPIユーティリティ
 │   ├── auth/             # 認証ユーティリティ
 │   ├── supabase/         # Supabase クライアント
 │   └── utils.ts          # ユーティリティ関数
-├── i18n/                 # 国際化
-│   ├── routing.ts        # ロケールルーティング設定
-│   └── request.ts        # サーバーリクエストヘルパー
-├── messages/             # 翻訳ファイル
-│   ├── ja.json          # 日本語翻訳
-│   └── en.json          # 英語翻訳
+├── public/
+│   └── mockServiceWorker.js # MSW サービスワーカー
 └── middleware.ts         # 認証 & 国際化ミドルウェア
 ```
 
@@ -64,7 +85,7 @@
 - アプリケーション固有のコンポーネント
 - ビジネスロジックを含む可能性
 - UI コンポーネントから構成
-- 例: SignInForm, UserProfile, LanguageSwitcher
+- 例: GoogleAuthForm, UserProfileExample, LanguageSwitcher, FormInput, FormCheckbox, FormRadioGroup
 
 #### 3. 機能コンポーネント（ルートフォルダー内）
 - ページ固有のコンポーネント
@@ -104,11 +125,18 @@ const { data, isLoading } = useUserProfile();
 
 #### 型安全な API クライアント
 ```typescript
-// 認証済みリクエスト
-const client = createAuthenticatedClient();
+// 認証済みリクエスト（クライアントサイド）
+import { createClient } from '@/lib/api/orval-client';
+const client = await createClient();
+const { data } = await client.GET('/api/v1/users/profile');
+
+// 認証済みリクエスト（サーバーサイド）
+import { createServerClient } from '@/lib/api/orval-server-client';
+const client = await createServerClient();
 const { data } = await client.GET('/api/v1/users/profile');
 
 // パブリックエンドポイント
+import { apiClient } from '@/lib/api/orval-client';
 const { data } = await apiClient.GET('/api/v1/health');
 ```
 
@@ -121,9 +149,12 @@ const { data } = await apiClient.GET('/api/v1/health');
 ## ルーティング & ミドルウェア
 
 ### App Router 構造
-- `[locale]` 国際化用の動的セグメント
-- ルートグループ `(auth)` と `(main)` でレイアウト管理
-- パラレルルートとインターセプティングルートをサポート
+- `[lang]` 国際化用の動的セグメント（注: [locale]ではなく[lang]を使用）
+- ルートグループ:
+  - `(auth)` 認証関連ページ
+  - `(main)` 認証必須のメインアプリ
+  - `(public)` 公開ページ（法的文書など）
+- チェックアウトフロー用の専用ルート
 - ファイル規約: `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`
 
 ### ミドルウェアチェーン
@@ -132,8 +163,10 @@ const { data } = await apiClient.GET('/api/v1/health');
 3. **ルートガード**: 認証状態に基づくリダイレクト
 
 ### 保護されたルート
-- `/[locale]/(main)/*` 認証が必要
-- `/[locale]/(auth)/*` 認証済みの場合リダイレクト
+- `/[lang]/(main)/*` 認証が必要（ダッシュボード、請求、料金プラン）
+- `/[lang]/(auth)/*` 認証済みの場合リダイレクト
+- `/[lang]/checkout/*` 決済フロー（認証必須）
+- `/[lang]/(public)/*` 常にアクセス可能
 - ミドルウェアがすべてのリダイレクトを処理
 
 ## 認証フロー
@@ -162,7 +195,7 @@ const user = await getUser(); // ヘルパー関数
 ### OAuth フロー
 1. ユーザーが「Google でサインイン」をクリック
 2. Google OAuth へリダイレクト
-3. `/auth/callback` へコールバック
+3. `/[lang]/(auth)/auth/callback` へコールバック
 4. トークン交換とリダイレクト
 5. ユーザーコンテキスト更新
 
@@ -280,12 +313,13 @@ if (!data || data.length === 0) {
 ### 現在の状態
 - テストフレームワークは未実装
 - 型安全性は TypeScript に依存
+- MSW (Mock Service Worker) がセットアップ済み
 - 手動テストが必要
 
 ### 推奨アプローチ
 1. React Testing Library でコンポーネントテスト
 2. Playwright で E2E テスト
-3. MSW で API モッキング
+3. MSW で API モッキング（すでに利用可能）
 4. アクセシビリティテスト
 
 ## デプロイの考慮事項
@@ -317,6 +351,7 @@ if (!data || data.length === 0) {
 5. **パフォーマンス**: 測定と最適化
 6. **セキュリティ**: 機密データを公開しない
 7. **コード品質**: コミット前に `npm run lint` を実行
+8. **API スキーマ同期**: API変更時は `npm run api:schema` で型を更新
 
 ### 避けるべき一般的な落とし穴
 - Client Components を不必要に使用しない
@@ -334,6 +369,7 @@ npm run dev          # 開発サーバー起動
 npm run build        # プロダクションビルド
 npm run lint         # リンター実行
 npm run gen:api      # API 型生成
+npm run api:schema   # APIスキーマ取得と型生成
 
 # コード品質
 npm run check        # Biome チェック
@@ -341,8 +377,36 @@ npm run check:apply  # 問題を修正
 npm run format       # コードフォーマット
 ```
 
+## 新機能の実装状況
+
+### 実装済み機能
+- **決済システム**: Stripe 連携で完全実装
+  - サブスクリプション管理
+  - 料金プラン選択ページ
+  - チェックアウトフロー
+  - Webhook 処理
+- **請求管理**: ユーザー向け請求ページ
+- **法的文書**: 利用規約、プライバシーポリシー
+- **トースト通知**: Sonner でユーザーフィードバック
+
+### フォームコンポーネント拡充
+- **FormCheckbox**: チェックボックスコンポーネント
+- **FormRadioGroup**: ラジオボタングループ
+- すべて React Hook Form と統合済み
+
+### API 拡充
+- ユーザープロフィール API
+- 決済・サブスクリプション API
+- Webhook ハンドリング
+- プラン管理 API
+
 # 重要な指示リマインダー
 求められたことだけを実行する。それ以上でも以下でもない。
 目的達成に絶対必要でない限り、ファイルを作成しない。
 常に新規作成より既存ファイルの編集を優先する。
 ユーザーから明示的に要求されない限り、ドキュメントファイル（*.md）や README ファイルを積極的に作成しない。
+
+## 国際化の変更点
+- **ルーティング**: `[locale]` ではなく `[lang]` を使用
+- **翻訳ファイル**: `app/dictionaries/` 内に配置（`messages/` ディレクトリは存在しない）
+- **i18n 設定**: `i18n/` ディレクトリは存在しない（簡素化された実装）
