@@ -4,7 +4,7 @@ import { createCheckoutSchema } from './dto.js'
 
 export const createCheckoutRoute = createRoute({
   method: 'post',
-  path: '/api/v1/billing/checkout',
+  path: '/billing/checkout',
   tags: ['billing'],
   summary: 'Create checkout session',
   description: 'Create a Stripe checkout session for subscription',

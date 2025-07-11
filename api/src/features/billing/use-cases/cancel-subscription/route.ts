@@ -4,7 +4,7 @@ import { cancelSubscriptionSchema } from './dto.js'
 
 export const cancelSubscriptionRoute = createRoute({
   method: 'delete',
-  path: '/api/v1/billing/subscription',
+  path: '/billing/subscription',
   tags: ['billing'],
   summary: 'Cancel subscription',
   description: 'Cancel subscription immediately or at period end',

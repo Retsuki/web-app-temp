@@ -4,7 +4,7 @@ import { subscriptionSchema } from './dto.js'
 
 export const getSubscriptionRoute = createRoute({
   method: 'get',
-  path: '/api/v1/billing/subscription',
+  path: '/billing/subscription',
   tags: ['billing'],
   summary: 'Get current subscription',
   description: 'Get current user subscription details',

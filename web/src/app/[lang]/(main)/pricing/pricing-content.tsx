@@ -1,10 +1,9 @@
 'use client'
 
 import { CheckIcon, Loader2 } from 'lucide-react'
-// import { Switch } from '@/components/ui/switch'
-// import { useRouter } from '@/i18n/routing'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -16,45 +15,26 @@ import {
 } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/features/auth/hooks/auth-context'
-// import { useCreateCheckout, usePlans, useSubscription } from '@/lib/api/hooks/useBilling'
+import type { Dictionary } from '@/features/i18n'
+import {
+  useGetApiV1BillingSubscription,
+  useGetApiV1Plans,
+  usePostApiV1BillingCheckout,
+} from '@/lib/api/generated/billing/billing'
 
-export default function PricingContent({ dict }: { dict: any }) {
+export default function PricingContent({ dict }: { dict: Dictionary }) {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
   const { user } = useAuth()
   const router = useRouter()
-  // Temporarily commented out due to missing imports
-  // const { data: plans, isLoading: plansLoading } = usePlans()
-  // const { data: subscription } = useSubscription()
-  // const createCheckout = useCreateCheckout()
 
-  // Temporary mock data
-  const plans = [
-    {
-      id: 'free',
-      name: 'Free',
-      description: 'Basic features',
-      features: ['Basic feature 1', 'Basic feature 2'],
-    },
-    {
-      id: 'indie',
-      name: 'Indie',
-      description: 'For individuals',
-      features: ['All free features', 'Indie feature 1'],
-      monthlyPrice: 1000,
-      yearlyPrice: 10000,
-    },
-    {
-      id: 'pro',
-      name: 'Pro',
-      description: 'For professionals',
-      features: ['All indie features', 'Pro feature 1'],
-      monthlyPrice: 3000,
-      yearlyPrice: 30000,
-    },
-  ]
-  const plansLoading = false
-  const subscription = null
-  const createCheckout = { mutate: () => {}, isPending: false }
+  // API hooks
+  const { data: plansResponse, isLoading: plansLoading } = useGetApiV1Plans()
+  const { data: subscriptionResponse } = useGetApiV1BillingSubscription()
+  const createCheckout = usePostApiV1BillingCheckout()
+
+  // Extract data from API responses
+  const plans = plansResponse?.plans
+  const subscription = subscriptionResponse
 
   const handleSelectPlan = async (planId: 'indie' | 'pro') => {
     if (!user) {
@@ -67,7 +47,20 @@ export default function PricingContent({ dict }: { dict: any }) {
       return
     }
 
-    createCheckout.mutate({ planId, billingCycle })
+    createCheckout.mutate(
+      { data: { planId, billingCycle, locale: 'ja' } },
+      {
+        onSuccess: (data) => {
+          // Redirect to Stripe checkout URL - checkoutUrlに修正
+          if (data?.checkoutUrl) {
+            window.location.href = data.checkoutUrl
+          }
+        },
+        onError: (error) => {
+          toast.error(error.message || 'Failed to create checkout session')
+        },
+      }
+    )
   }
 
   if (plansLoading) {
@@ -116,12 +109,27 @@ export default function PricingContent({ dict }: { dict: any }) {
           <CardContent className="space-y-4">
             <div className="text-3xl font-bold">{dict.pricing.free}</div>
             <ul className="space-y-2">
-              {freePlan?.features.map((feature, i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">{feature}</span>
-                </li>
-              ))}
+              <li className="flex items-start gap-2">
+                <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span className="text-sm">
+                  {dict.pricing.features?.projectLimit || 'Project limit'}:{' '}
+                  {freePlan?.features.projectLimit}
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span className="text-sm">
+                  {dict.pricing.features?.apiCalls || 'API calls/month'}:{' '}
+                  {freePlan?.features.apiCallsPerMonth}
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span className="text-sm">
+                  {dict.pricing.features?.teamMembers || 'Team members'}:{' '}
+                  {freePlan?.features.teamMembers}
+                </span>
+              </li>
             </ul>
           </CardContent>
           <CardFooter>
@@ -149,12 +157,33 @@ export default function PricingContent({ dict }: { dict: any }) {
               <span className="text-muted-foreground">/{dict.pricing.period[billingCycle]}</span>
             </div>
             <ul className="space-y-2">
-              {indiePlan?.features.map((feature, i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">{feature}</span>
-                </li>
-              ))}
+              <li className="flex items-start gap-2">
+                <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span className="text-sm">
+                  {dict.pricing.features?.projectLimit || 'Project limit'}:{' '}
+                  {indiePlan?.features.projectLimit}
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span className="text-sm">
+                  {dict.pricing.features?.apiCalls || 'API calls/month'}:{' '}
+                  {indiePlan?.features.apiCallsPerMonth.toLocaleString()}
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span className="text-sm">
+                  {dict.pricing.features?.teamMembers || 'Team members'}:{' '}
+                  {indiePlan?.features.teamMembers}
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span className="text-sm">
+                  {dict.pricing.features?.storage || 'Storage'}: {indiePlan?.features.storage}GB
+                </span>
+              </li>
             </ul>
           </CardContent>
           <CardFooter>
@@ -194,12 +223,40 @@ export default function PricingContent({ dict }: { dict: any }) {
               <span className="text-muted-foreground">/{dict.pricing.period[billingCycle]}</span>
             </div>
             <ul className="space-y-2">
-              {proPlan?.features.map((feature, i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm">{feature}</span>
-                </li>
-              ))}
+              <li className="flex items-start gap-2">
+                <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span className="text-sm">
+                  {dict.pricing.features?.projectLimit || 'Unlimited projects'}
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span className="text-sm">
+                  {dict.pricing.features?.apiCalls || 'API calls/month'}:{' '}
+                  {proPlan?.features.apiCallsPerMonth.toLocaleString()}
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span className="text-sm">
+                  {dict.pricing.features?.teamMembers || 'Team members'}:{' '}
+                  {proPlan?.features.teamMembers === -1
+                    ? 'Unlimited'
+                    : proPlan?.features.teamMembers}
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span className="text-sm">
+                  {dict.pricing.features?.storage || 'Storage'}: {proPlan?.features.storage}GB
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span className="text-sm">
+                  {dict.pricing.features?.support || 'Priority support'}
+                </span>
+              </li>
             </ul>
           </CardContent>
           <CardFooter>

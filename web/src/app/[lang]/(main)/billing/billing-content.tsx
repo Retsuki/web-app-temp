@@ -3,7 +3,6 @@
 import { format } from 'date-fns'
 import { enUS, ja } from 'date-fns/locale'
 import { Loader2 } from 'lucide-react'
-// import { useRouter } from '@/i18n/routing'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import {
@@ -20,26 +19,24 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/features/toast/use-toast'
-// import {
-//   useCancelSubscription,
-//   usePaymentHistory,
-//   useSubscription,
-// } from '@/lib/api/hooks/useBilling'
+import {
+  useGetApiV1ApiV1BillingSubscription,
+  useGetApiV1ApiV1BillingHistory,
+  useDeleteApiV1ApiV1BillingSubscription,
+} from '@/lib/api/generated/billing/billing'
 import type { Dictionary } from '@/features/i18n'
 
 export default function BillingContent({ dict }: { dict: Dictionary }) {
   const [showCancelDialog, setShowCancelDialog] = useState(false)
-  // Temporarily commented out due to missing imports
-  // const { data: subscription, isLoading: subscriptionLoading } = useSubscription()
-  // const { data: history, isLoading: historyLoading } = usePaymentHistory({ limit: 10 })
-  // const cancelSubscription = useCancelSubscription()
+  
+  // API hooks
+  const { data: subscriptionResponse, isLoading: subscriptionLoading } = useGetApiV1ApiV1BillingSubscription()
+  const { data: historyResponse, isLoading: historyLoading } = useGetApiV1ApiV1BillingHistory({ limit: 10 })
+  const cancelSubscription = useDeleteApiV1ApiV1BillingSubscription()
 
-  // Temporary mock data
-  const subscription = null
-  const subscriptionLoading = false
-  const history = null
-  const historyLoading = false
-  const cancelSubscription = { mutateAsync: async () => {}, isPending: false }
+  // Extract data from API responses
+  const subscription = subscriptionResponse?.data
+  const history = historyResponse?.data
 
   const router = useRouter()
   const { toast } = useToast()
@@ -48,13 +45,13 @@ export default function BillingContent({ dict }: { dict: Dictionary }) {
 
   const handleCancelSubscription = async () => {
     try {
-      await cancelSubscription.mutateAsync()
+      await cancelSubscription.mutateAsync({})
       setShowCancelDialog(false)
       toast({
         title: dict.common.success,
         description: dict.billing.cancelSuccess || 'Subscription canceled successfully',
       })
-    } catch (_error) {
+    } catch {
       toast({
         title: dict.common.error,
         description: dict.billing.cancelError || 'Failed to cancel subscription',
@@ -116,14 +113,6 @@ export default function BillingContent({ dict }: { dict: Dictionary }) {
                   </span>
                 </div>
               )}
-              {subscription.monthlyUsageCount !== undefined && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">{dict.billing.monthlyUsage}</span>
-                  <span className="font-medium">
-                    {subscription.monthlyUsageCount} / {subscription.monthlyUsageLimit || '∞'}
-                  </span>
-                </div>
-              )}
               <div className="flex gap-2 pt-4">
                 <Button onClick={() => router.push('/pricing')}>{dict.billing.changePlan}</Button>
                 {subscription.status === 'active' && (
@@ -152,9 +141,9 @@ export default function BillingContent({ dict }: { dict: Dictionary }) {
             <div className="flex justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin" />
             </div>
-          ) : history?.items && history.items.length > 0 ? (
+          ) : history?.payments && history.payments.length > 0 ? (
             <div className="space-y-2">
-              {history.items.map((payment) => (
+              {history.payments.map((payment) => (
                 <div
                   key={payment.paymentId}
                   className="flex items-center justify-between py-2 border-b last:border-0"
