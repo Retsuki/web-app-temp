@@ -17,19 +17,19 @@ steps:
     args:
       - 'build'
       - '-t'
-      - 'gcr.io/$PROJECT_ID/api:$SHORT_SHA'
+      - 'asia-northeast1-docker.pkg.dev/${PROJECT_ID}/web-app-temp/api:${BUILD_ID}'
       - '-t'
-      - 'gcr.io/$PROJECT_ID/api:latest'
+      - 'asia-northeast1-docker.pkg.dev/${PROJECT_ID}/web-app-temp/api:latest'
       - '-f'
       - 'api/Dockerfile'
       - './api'
 
-  # Push Docker image to Container Registry
+  # Push Docker image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
       - '--all-tags'
-      - 'gcr.io/$PROJECT_ID/api'
+      - 'asia-northeast1-docker.pkg.dev/${PROJECT_ID}/web-app-temp/api'
 
   # Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -39,7 +39,7 @@ steps:
       - 'deploy'
       - 'api'
       - '--image'
-      - 'gcr.io/$PROJECT_ID/api:$SHORT_SHA'
+      - 'asia-northeast1-docker.pkg.dev/${PROJECT_ID}/web-app-temp/api:latest'
       - '--region'
       - 'asia-northeast1'
       - '--platform'
@@ -50,7 +50,7 @@ steps:
       - '--set-env-vars'
       - 'NODE_ENV=production'
       - '--set-secrets'
-      - '/workspace/.env=api-env-production:latest'
+      - '/app/.env=api-env-production:latest'
 
 # Build configuration
 options:

@@ -1,0 +1,22 @@
+{
+  "name": "me",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "dev": "ts-node",
+    "start": "node dist/hello.js",
+    "diary": "ts-node src/create-diary.ts",
+    "idea": "ts-node src/add-idea.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^24.0.13",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

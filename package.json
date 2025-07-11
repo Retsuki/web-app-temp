@@ -16,7 +16,8 @@
     "setup:gcp": "./scripts/gcp/setup-project.sh",
     "api:deploy": "./scripts/api/deploy.sh",
     "api:env:update": "./scripts/api/env-update.sh",
-    "api:env:download": "./scripts/api/env-download.sh"
+    "api:env:download": "./scripts/api/env-download.sh",
+    "idea": "cd ideas && npm run idea"
   },
   "repository": {
     "type": "git",
