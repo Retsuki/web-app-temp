@@ -1,5 +1,5 @@
 import { AppHTTPException, ERROR_CODES } from '../../../../_shared/utils/error/index.js'
-import { getStripePriceId, isUpgrade } from '../../../../constants/plans.js'
+import { type PlanId, getStripePriceId, isUpgrade } from '../../../../constants/plans.js'
 import { stripe } from '../../../../lib/stripe.js'
 import type { SubscriptionRepository } from '../../repositories/subscription.repository.js'
 import type { UpdateSubscriptionDto, UpdateSubscriptionResponse } from './dto.js'
@@ -43,7 +43,7 @@ export class UpdateSubscriptionUseCase {
     )
 
     // アップグレードかダウングレードかを判定
-    const isUpgradeRequest = isUpgrade(currentSubscription.plan, dto.planId)
+    const isUpgradeRequest = isUpgrade(currentSubscription.plan as PlanId, dto.planId)
 
     // 更新を実行
     const updatedSubscription = await stripe.subscriptions.update(stripeSubscription.id, {
@@ -71,7 +71,7 @@ export class UpdateSubscriptionUseCase {
     )
 
     return {
-      subscriptionId: currentSubscription.subscriptionId,
+      subscriptionId: currentSubscription.id,
       plan: dto.planId,
       billingCycle: dto.billingCycle,
       status: updatedSubscription.status,

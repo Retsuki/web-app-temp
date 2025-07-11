@@ -45,7 +45,7 @@ export class CancelSubscriptionUseCase {
     )
 
     return {
-      subscriptionId: currentSubscription.subscriptionId,
+      subscriptionId: currentSubscription.id,
       cancelAt: canceledSubscription.cancel_at
         ? new Date(canceledSubscription.cancel_at * 1000).toISOString()
         : null,

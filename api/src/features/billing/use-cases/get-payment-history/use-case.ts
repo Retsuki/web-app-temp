@@ -15,10 +15,10 @@ export class GetPaymentHistoryUseCase {
 
     return {
       payments: payments.map((payment) => ({
-        paymentId: payment.paymentId,
+        paymentId: payment.id,
         amount: payment.amount,
         currency: payment.currency,
-        status: payment.status,
+        status: payment.status as 'pending' | 'succeeded' | 'failed',
         description: payment.description,
         paidAt: payment.paidAt?.toISOString() || null,
         createdAt: payment.createdAt.toISOString(),
