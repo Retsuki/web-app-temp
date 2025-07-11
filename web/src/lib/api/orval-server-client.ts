@@ -35,7 +35,7 @@ export const orvalServerClient = async <T>({
     ...(params && {
       search: new URLSearchParams(params as Record<string, string>).toString(),
     }),
-    ...(data && { body: JSON.stringify(data) }),
+    ...(data ? { body: JSON.stringify(data) } : {}),
     signal,
   })
 

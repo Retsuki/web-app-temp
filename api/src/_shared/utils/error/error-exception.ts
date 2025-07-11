@@ -1,4 +1,5 @@
 // src/utils/error/httpException.ts
+/** biome-ignore-all lint/suspicious/noExplicitAny: false positive */
 
 import { HTTPException } from 'hono/http-exception'
 import type { StatusCode } from 'hono/utils/http-status'
@@ -13,8 +14,8 @@ interface AppHTTPExceptionOptions {
 export class AppHTTPException extends HTTPException {
   public code?: ErrorCode
 
-  constructor(status: StatusCode, options: AppHTTPExceptionOptions = {}) {
-    super(status, { message: options.message, cause: options.cause })
+  constructor(status: StatusCode = 500, options: AppHTTPExceptionOptions = {}) {
+    super(status as any, { message: options.message, cause: options.cause })
     this.code = options.code
   }
 }
