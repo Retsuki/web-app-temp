@@ -1,7 +1,6 @@
 import Link from 'next/link'
-import { LanguageSwitcher } from '@/components/app/language-switcher'
+import { getDictionary, LanguageSwitcher, type Locale } from '@/features/i18n'
 import { createClient } from '@/lib/supabase/server'
-import { getDictionary, type Locale } from './dictionaries'
 
 export default async function Home({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = await params

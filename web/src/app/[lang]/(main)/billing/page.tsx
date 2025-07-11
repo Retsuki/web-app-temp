@@ -1,4 +1,4 @@
-import { getDictionary, type PageLang } from '../../dictionaries'
+import { getDictionary, type PageLang } from '@/features/i18n'
 import BillingContent from './billing-content'
 
 export default async function BillingPage({ params }: PageLang) {

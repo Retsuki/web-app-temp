@@ -25,7 +25,7 @@ import { useToast } from '@/features/toast/use-toast'
 //   usePaymentHistory,
 //   useSubscription,
 // } from '@/lib/api/hooks/useBilling'
-import type { Dictionary } from '../../dictionaries'
+import type { Dictionary } from '@/features/i18n'
 
 export default function BillingContent({ dict }: { dict: Dictionary }) {
   const [showCancelDialog, setShowCancelDialog] = useState(false)

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { GoogleAuthForm } from '@/features/auth/components/google-auth-form'
 import { signInWithGoogle } from '@/features/auth/server/auth-actions'
-import { getDictionary, type PageLang } from '../../dictionaries'
+import { getDictionary, type PageLang } from '@/features/i18n'
 import { SignUpForm } from './signup-form'
 
 export default async function SignUpPage({ params }: PageLang) {

@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { signOut } from '@/features/auth/server/auth-actions'
 import { cn } from '@/lib/utils'
-import type { Dictionary } from '../dictionaries'
+import type { Dictionary } from '@/features/i18n'
 
 interface MainNavProps {
   dict: Dictionary

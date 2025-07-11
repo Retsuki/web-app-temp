@@ -1,7 +1,7 @@
 import { XCircle } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { getDictionary, type PageLang } from '../../dictionaries'
+import { getDictionary, type PageLang } from '@/features/i18n'
 
 export default async function CheckoutCancelPage({ params }: PageLang) {
   const { lang } = await params

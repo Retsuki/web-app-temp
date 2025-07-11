@@ -1,4 +1,4 @@
-import { getDictionary, type PageLang } from '../../dictionaries'
+import { getDictionary, type PageLang } from '@/features/i18n'
 import PricingContent from './pricing-content'
 
 export default async function PricingPage({ params }: PageLang) {

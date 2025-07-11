@@ -1,6 +1,6 @@
 import { signOut } from '@/features/auth/server/auth-actions'
 import { requireAuth } from '@/features/auth/server/auth-server'
-import { getDictionary, type PageLang } from '../../dictionaries'
+import { getDictionary, type PageLang } from '@/features/i18n'
 import { ProfileEdit } from './profile-edit'
 
 export default async function DashboardPage({ params }: PageLang) {

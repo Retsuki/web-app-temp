@@ -8,7 +8,7 @@ import { PrimaryButton } from '@/components/app/button/primary-button'
 import { FormInput } from '@/components/app/input/form-input'
 import { Form } from '@/components/ui/form'
 import { signIn } from '@/features/auth/server/auth-actions'
-import type { Dictionary } from '../../dictionaries'
+import type { Dictionary } from '@/features/i18n'
 
 interface SignInFormProps {
   dict: Dictionary

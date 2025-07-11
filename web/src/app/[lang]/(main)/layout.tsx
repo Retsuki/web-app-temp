@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { requireAuth } from '@/features/auth/server/auth-server'
-import { getDictionary, type PageLang } from '../dictionaries'
+import { getDictionary, type PageLang } from '@/features/i18n'
 import MainNav from './main-nav'
 
 export default async function MainLayout({
