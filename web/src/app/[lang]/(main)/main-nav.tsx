@@ -4,7 +4,7 @@ import { CreditCardIcon, DollarSignIcon, HomeIcon, LogOutIcon } from 'lucide-rea
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { signOut } from '@/lib/auth/auth-actions'
+import { signOut } from '@/features/auth/auth-actions'
 import { cn } from '@/lib/utils'
 import type { Dictionary } from '../dictionaries'
 
