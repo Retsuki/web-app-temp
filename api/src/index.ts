@@ -1,4 +1,13 @@
-import 'dotenv/config'
+import { existsSync } from 'node:fs'
+import { config } from 'dotenv'
+
+// Load environment variables from mounted secret or .env file
+if (existsSync('/etc/secrets/.env')) {
+  config({ path: '/etc/secrets/.env' })
+} else {
+  config()
+}
+
 import { serve } from '@hono/node-server'
 import { createApp } from './_shared/factory/create-app.js'
 import { billingApi } from './features/billing/index.js'

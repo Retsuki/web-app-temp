@@ -43,9 +43,11 @@ export const PLANS: Record<PlanId, Plan> = {
     description: '個人開発者や小規模プロジェクト向け',
     monthlyPrice: 1000,
     yearlyPrice: 10000,
-    stripePriceIds: {
-      monthly: process.env.STRIPE_PRICE_ID_INDIE_MONTHLY!,
-      yearly: process.env.STRIPE_PRICE_ID_INDIE_YEARLY!,
+    get stripePriceIds() {
+      return {
+        monthly: process.env.STRIPE_PRICE_ID_INDIE_MONTHLY!,
+        yearly: process.env.STRIPE_PRICE_ID_INDIE_YEARLY!,
+      }
     },
     features: {
       projectLimit: 5,
@@ -61,9 +63,11 @@ export const PLANS: Record<PlanId, Plan> = {
     description: 'チームや成長中のビジネス向け',
     monthlyPrice: 3000,
     yearlyPrice: 30000,
-    stripePriceIds: {
-      monthly: process.env.STRIPE_PRICE_ID_PRO_MONTHLY!,
-      yearly: process.env.STRIPE_PRICE_ID_PRO_YEARLY!,
+    get stripePriceIds() {
+      return {
+        monthly: process.env.STRIPE_PRICE_ID_PRO_MONTHLY!,
+        yearly: process.env.STRIPE_PRICE_ID_PRO_YEARLY!,
+      }
     },
     features: {
       projectLimit: -1, // 無制限
