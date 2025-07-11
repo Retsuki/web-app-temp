@@ -10,11 +10,13 @@
     "check": "biome check .",
     "check:apply": "biome check --write .",
     "gen:api": "curl -X GET http://localhost:8080/api/v1/doc | tee ./web/openapi.json && cd web && npm run orval",
-    "setup": "./scripts/setup.sh",
-    "setup:gcp": "./scripts/setup-gcp.sh",
-    "deploy:gcp": "./scripts/deploy-gcp.sh",
     "supabase:start": "supabase start",
-    "supabase:stop": "supabase stop --project-id web_app_temp"
+    "supabase:stop": "supabase stop --project-id web_app_temp",
+    "setup": "./scripts/setup.sh",
+    "setup:gcp": "./scripts/gcp/setup-project.sh",
+    "api:deploy": "./scripts/api/deploy.sh",
+    "api:env:update": "./scripts/api/env-update.sh",
+    "api:env:download": "./scripts/api/env-download.sh"
   },
   "repository": {
     "type": "git",
