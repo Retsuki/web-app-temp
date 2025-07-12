@@ -57,5 +57,5 @@ images:
   - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$BUILD_ID'
   - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest'
 
-options:
-  logging: CLOUD_LOGGING_ONLY
+
+timeout: '1200s'
