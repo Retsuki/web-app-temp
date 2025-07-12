@@ -27,6 +27,9 @@ ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV API_URL=$API_URL
 
+# APIクライアントを生成（orvalのafterAllFilesWriteフックを無効化するため環境変数を設定）
+RUN SKIP_BIOME=true npm run gen:api || npm run gen:api
+
 # Next.jsアプリケーションをビルド
 RUN npm run build
 
