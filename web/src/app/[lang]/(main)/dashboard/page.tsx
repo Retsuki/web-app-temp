@@ -1,6 +1,7 @@
 import { signOut } from '@/features/auth/server/auth-actions'
 import { requireAuth } from '@/features/auth/server/auth-server'
 import { getDictionary, type PageLang } from '@/features/i18n'
+import { FileUploadSection } from './file-upload-section'
 import { ProfileEdit } from './profile-edit'
 
 export default async function DashboardPage({ params }: PageLang) {
@@ -78,7 +79,12 @@ export default async function DashboardPage({ params }: PageLang) {
             {/* Client Componentの例 */}
             <ProfileEdit />
 
-            <form action={signOut}>
+            {/* ファイルアップロード機能 */}
+            <div className="mt-8">
+              <FileUploadSection />
+            </div>
+
+            <form action={signOut} className="mt-6">
               <button
                 type="submit"
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
