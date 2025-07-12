@@ -31,7 +31,7 @@ export const createApp = () => {
         '/api/v1/ui',
         '/api/v1/doc',
         '/api/v1/health',
-        // "/api/v1/*",
+        '/api/v1/stripe/webhook',
       ],
       authMiddleware
     )
