@@ -53,10 +53,22 @@ export async function signIn(data: SignInData) {
 export async function signInWithGoogle() {
   const supabase = await createClient()
 
+  // headers()を使用して現在のホストを取得
+  const { headers } = await import('next/headers')
+  const headersList = await headers()
+  const host = headersList.get('host') || ''
+  const protocol = headersList.get('x-forwarded-proto') || 'http'
+
+  // 環境変数が設定されている場合はそちらを優先、なければ動的に生成
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
+
+  console.log('🐛 [DEBUG] NEXT_PUBLIC_SITE_URL: ', process.env.NEXT_PUBLIC_SITE_URL)
+  console.log('🐛 [DEBUG] siteUrl: ', siteUrl)
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+      redirectTo: `${siteUrl}/auth/callback`,
       queryParams: {
         access_type: 'offline',
         prompt: 'consent',
