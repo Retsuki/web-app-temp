@@ -5,13 +5,9 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
-  
+
   // 環境変数から正しいURLを取得、なければリクエストのoriginを使用
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || requestUrl.origin
-
-  // パスから言語を取得
-  const pathParts = requestUrl.pathname.split('/')
-  const lang = pathParts[1] || 'ja' // デフォルトは'ja'
 
   if (code) {
     const supabase = await createClient()
@@ -38,10 +34,10 @@ export async function GET(request: Request) {
         }
       }
 
-      return NextResponse.redirect(`${siteUrl}/${lang}/dashboard`)
+      return NextResponse.redirect(`${siteUrl}/dashboard`)
     }
   }
 
   // エラーの場合はサインインページへリダイレクト
-  return NextResponse.redirect(`${siteUrl}/${lang}/signin?error=auth_failed`)
+  return NextResponse.redirect(`${siteUrl}/signin?error=auth_failed`)
 }
