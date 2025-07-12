@@ -29,8 +29,8 @@ export class WebhookHandlers {
       plan: planId,
       status: subscription.status,
       billingCycle,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: new Date(subscription.items.data[0].current_period_start * 1000),
+      currentPeriodEnd: new Date(subscription.items.data[0].current_period_end * 1000),
     })
 
     // Update user profile
@@ -51,8 +51,8 @@ export class WebhookHandlers {
       .update(subscriptions)
       .set({
         status: subscription.status,
-        currentPeriodStart: new Date(subscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        currentPeriodStart: new Date(subscription.items.data[0].current_period_start * 1000),
+        currentPeriodEnd: new Date(subscription.items.data[0].current_period_end * 1000),
         cancelAt: subscription.cancel_at ? new Date(subscription.cancel_at * 1000) : null,
         canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
         updatedAt: new Date(),
@@ -98,6 +98,12 @@ export class WebhookHandlers {
   async handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
     logger.info({ invoiceId: invoice.id }, 'Handling invoice payment succeeded')
 
+    const invoiceId = invoice.id
+    if (!invoiceId) {
+      logger.warn({ invoiceId }, 'No invoice ID found')
+      return
+    }
+
     // Get subscription ID from parent.subscription_details.subscription
     const subscriptionIdOrObject = invoice.parent?.subscription_details?.subscription
 
@@ -133,7 +139,7 @@ export class WebhookHandlers {
     const paymentData = {
       userId: sub.userId,
       subscriptionId: sub.id,
-      stripeInvoiceId: invoice.id!,
+      stripeInvoiceId: invoiceId,
       stripePaymentIntentId: paymentIntentId,
       amount: invoice.amount_paid,
       currency: invoice.currency,
@@ -161,6 +167,12 @@ export class WebhookHandlers {
 
   async handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     logger.info({ invoiceId: invoice.id }, 'Handling invoice payment failed')
+
+    const invoiceId = invoice.id
+    if (!invoiceId) {
+      logger.warn({ invoiceId }, 'No invoice ID found')
+      return
+    }
 
     // Get subscription ID from parent.subscription_details.subscription
     const subscriptionIdOrObject = invoice.parent?.subscription_details?.subscription
@@ -201,7 +213,7 @@ export class WebhookHandlers {
       const paymentData = {
         userId: sub.userId,
         subscriptionId: sub.id,
-        stripeInvoiceId: invoice.id!,
+        stripeInvoiceId: invoiceId,
         stripePaymentIntentId: paymentIntentId,
         amount: invoice.amount_due,
         currency: invoice.currency,

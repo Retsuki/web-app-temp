@@ -51,7 +51,7 @@ export class CancelSubscriptionUseCase {
         : null,
       message: dto.immediately
         ? 'サブスクリプションを解約しました。'
-        : `サブスクリプションは${new Date(canceledSubscription.current_period_end * 1000).toLocaleDateString('ja-JP')}に解約されます。それまではサービスをご利用いただけます。`,
+        : `サブスクリプションは${new Date(canceledSubscription.items.data[0].current_period_end * 1000).toLocaleDateString('ja-JP')}に解約されます。それまではサービスをご利用いただけます。`,
     }
   }
 }
