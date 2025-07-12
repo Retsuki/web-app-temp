@@ -52,7 +52,15 @@ export function useStorageList(options: StorageListOptions): UseStorageListRetur
     } finally {
       setIsLoading(false)
     }
-  }, [user, options])
+  }, [
+    user,
+    options.bucket,
+    options.folder,
+    options.limit,
+    options.offset,
+    options.sortBy,
+    options.sortOrder,
+  ])
 
   useEffect(() => {
     fetchFiles()

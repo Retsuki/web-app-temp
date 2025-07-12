@@ -4,16 +4,21 @@ import type { ImageResizeOptions } from '../types'
  * ファイル名をサニタイズ
  */
 export function sanitizeFileName(fileName: string): string {
-  // 日本語や特殊文字を取り除き、安全なファイル名に変換
+  // ファイル拡張子を取得
   const extension = fileName.split('.').pop() || ''
   const nameWithoutExt = fileName.replace(/\.[^/.]+$/, '')
 
-  // 危険な文字を削除/置換
-  const sanitized = nameWithoutExt
-    .replace(/[^\w\s\-._\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/g, '') // 英数字、ひらがな、カタカナ、漢字以外を削除
-    .replace(/\s+/g, '-') // スペースをハイフンに置換
+  // 英数字とハイフン、アンダースコアのみを許可
+  let sanitized = nameWithoutExt
+    .replace(/[^a-zA-Z0-9\-_]/g, '-') // 英数字以外をハイフンに置換
+    .replace(/-+/g, '-') // 連続するハイフンを1つに
     .replace(/^-+|-+$/g, '') // 先頭と末尾のハイフンを削除
-    .substring(0, 100) // 長さ制限
+    .substring(0, 50) // 長さ制限
+
+  // ファイル名が空になった場合はランダムな文字列を生成
+  if (!sanitized) {
+    sanitized = `file-${Date.now()}`
+  }
 
   return sanitized + (extension ? `.${extension}` : '')
 }

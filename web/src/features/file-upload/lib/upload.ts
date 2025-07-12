@@ -64,6 +64,9 @@ export async function uploadFile(
     })
 
     if (error) {
+      console.error('Supabase storage upload error:', error)
+      console.error('File path:', filePath)
+      console.error('Bucket:', bucket)
       const uploadError: FileUploadError = {
         message: error.message || 'アップロードに失敗しました',
         code: 'UPLOAD_FAILED',
@@ -95,6 +98,7 @@ export async function uploadFile(
 
     return uploadedFile
   } catch (error) {
+    console.error('Upload error:', error)
     if (error && typeof error === 'object' && 'code' in error) {
       throw error
     }
