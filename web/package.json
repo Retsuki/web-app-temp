@@ -6,7 +6,11 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "cd .. && npm run lint",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "check:apply": "biome check --write .",
     "orval": "orval --config ./orval.config.ts",
     "orval:watch": "orval --config ./orval.config.ts --watch",
     "gen:api": "orval --config ./orval.config.ts"
