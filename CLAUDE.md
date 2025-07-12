@@ -17,6 +17,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ 共通UIコンポーネント（shadcn/ui）
 - ✅ 型安全なAPI連携（OpenAPI + openapi-fetch）
 - ✅ 決済機能（Stripe連携）
+- 🚧 ファイルアップロード機能
+- 🚧 Google Analytics連携
 - 🚧 通知システム（準備中）
 
 ## Project Overview
