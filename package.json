@@ -20,6 +20,7 @@
     "web:deploy": "./scripts/web/deploy.sh",
     "web:env:update": "./scripts/web/env-update.sh",
     "web:env:download": "./scripts/web/env-download.sh",
+    "env-switch": "./scripts/env-switch.sh",
     "idea": "cd ideas && npm run idea"
   },
   "repository": {
