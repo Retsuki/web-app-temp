@@ -78,3 +78,7 @@ images:
   - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest'
 
 timeout: '1200s'
+
+# Cloud Build options
+options:
+  logging: CLOUD_LOGGING_ONLY
