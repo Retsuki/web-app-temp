@@ -50,7 +50,7 @@ export async function signIn(data: SignInData) {
   redirect('/dashboard')
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(lang = 'ja') {
   const supabase = await createClient()
 
   // headers()を使用して現在のホストを取得
@@ -64,11 +64,12 @@ export async function signInWithGoogle() {
 
   console.log('🐛 [DEBUG] NEXT_PUBLIC_SITE_URL: ', process.env.NEXT_PUBLIC_SITE_URL)
   console.log('🐛 [DEBUG] siteUrl: ', siteUrl)
+  console.log('🐛 [DEBUG] redirectTo: ', `${siteUrl}/${lang}/auth/callback`)
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${siteUrl}/auth/callback`,
+      redirectTo: `${siteUrl}/${lang}/auth/callback`,
       queryParams: {
         access_type: 'offline',
         prompt: 'consent',

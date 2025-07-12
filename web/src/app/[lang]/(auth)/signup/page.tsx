@@ -10,7 +10,7 @@ export default async function SignUpPage({ params }: PageLang) {
 
   async function handleGoogleSignIn() {
     'use server'
-    await signInWithGoogle()
+    await signInWithGoogle(lang)
   }
 
   return (

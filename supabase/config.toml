@@ -51,7 +51,15 @@ file_size_limit = "50MiB"
 [auth]
 enabled = true
 site_url = "http://localhost:3000"
-additional_redirect_urls = ["https://127.0.0.1:3000", "http://localhost:3000/auth/callback"]
+additional_redirect_urls = [
+  "https://127.0.0.1:3000", 
+  "http://localhost:3000/auth/callback", 
+  "http://localhost:3000/ja/auth/callback",
+  "http://localhost:3000/en/auth/callback",
+  "https://web-app-web-180146147603.asia-northeast1.run.app/auth/callback",
+  "https://web-app-web-180146147603.asia-northeast1.run.app/ja/auth/callback",
+  "https://web-app-web-180146147603.asia-northeast1.run.app/en/auth/callback"
+]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
 refresh_token_reuse_interval = 10
