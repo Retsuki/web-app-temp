@@ -7,6 +7,12 @@ export async function GET(request: Request) {
   const code = requestUrl.searchParams.get('code')
   const origin = requestUrl.origin
 
+  console.log('🐛 [DEBUG] origin: ', origin)
+
+  // パスから言語を取得
+  const pathParts = requestUrl.pathname.split('/')
+  const lang = pathParts[1] || 'ja' // デフォルトは'ja'
+
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
@@ -32,10 +38,10 @@ export async function GET(request: Request) {
         }
       }
 
-      return NextResponse.redirect(`${origin}/dashboard`)
+      return NextResponse.redirect(`${origin}/${lang}/dashboard`)
     }
   }
 
   // エラーの場合はサインインページへリダイレクト
-  return NextResponse.redirect(`${origin}/signin?error=auth_failed`)
+  return NextResponse.redirect(`${origin}/${lang}/signin?error=auth_failed`)
 }
