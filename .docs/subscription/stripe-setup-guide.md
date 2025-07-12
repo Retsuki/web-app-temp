@@ -117,12 +117,11 @@ STRIPE_PRICE_ID_PRO_YEARLY=price_1O3jkl...
 ```
 
 4. 「リッスンするイベント」で以下を選択：
-   - `customer.subscription.created`
-   - `customer.subscription.updated`
-   - `customer.subscription.deleted`
-   - `invoice.payment_succeeded`
-   - `invoice.payment_failed`
-   - `customer.updated`
+   - `customer.subscription.created` - サブスクリプション作成時
+   - `customer.subscription.updated` - サブスクリプション更新時
+   - `customer.subscription.deleted` - サブスクリプション削除時
+   - `invoice.payment_succeeded` - 支払い成功時
+   - `invoice.payment_failed` - 支払い失敗時
 
 5. 「エンドポイントを追加」をクリック
 
