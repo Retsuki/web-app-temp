@@ -16,7 +16,6 @@ export {
   generateFilePath,
   getAuthenticatedStorageClient,
   getDownloadUrl,
-  getServerStorageClient,
   getStorageClient,
   isImageFile,
   resizeImage,
@@ -26,6 +25,9 @@ export {
   validateFileSize,
   validateFileType,
 } from './lib'
+
+// サーバー用関数は別途インポートが必要
+// import { getServerStorageClient } from '@/features/file-upload/lib/server-client'
 // Types
 export type {
   FileListItem,

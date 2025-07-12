@@ -35,15 +35,7 @@ export function useFileUpload(): UseFileUploadReturn {
       setProgress(0)
 
       try {
-        const uploadedFile = await uploadFile(file, user.id, {
-          ...options,
-          onProgress: (progressValue) => {
-            setProgress(progressValue)
-            if (options.onProgress) {
-              options.onProgress(progressValue)
-            }
-          },
-        })
+        const uploadedFile = await uploadFile(file, user.id, options)
 
         setUploadedFiles((prev) => [...prev, uploadedFile])
         toast.success(`${file.name} をアップロードしました`)
@@ -76,18 +68,7 @@ export function useFileUpload(): UseFileUploadReturn {
         const totalFiles = files.length
         let completedFiles = 0
 
-        const { successful, failed } = await uploadFiles(files, user.id, {
-          ...options,
-          onProgress: (progressValue) => {
-            // 全体の進捗を計算
-            const overallProgress = ((completedFiles + progressValue / 100) / totalFiles) * 100
-            setProgress(overallProgress)
-
-            if (progressValue === 100) {
-              completedFiles++
-            }
-          },
-        })
+        const { successful, failed } = await uploadFiles(files, user.id, options)
 
         setUploadedFiles((prev) => [...prev, ...successful])
 

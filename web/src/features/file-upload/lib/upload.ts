@@ -61,12 +61,6 @@ export async function uploadFile(
     const { data, error } = await storage.from(bucket).upload(filePath, uploadFile, {
       contentType: file.type,
       upsert: false,
-      onUploadProgress: (progress) => {
-        if (onProgress) {
-          const percentage = (progress.loaded / progress.total) * 100
-          onProgress(percentage)
-        }
-      },
     })
 
     if (error) {

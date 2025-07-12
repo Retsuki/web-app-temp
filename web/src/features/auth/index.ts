@@ -6,7 +6,8 @@ export { GoogleAuthForm } from './components/google-auth-form'
 export { AuthProvider, useAuth } from './hooks/auth-context'
 // Server Actions
 export { signIn, signInWithGoogle, signOut, signUp } from './server/auth-actions'
-// Server Utilities
-export { requireAuth } from './server/auth-server'
 // Types
 export type { SignInData, SignUpData } from './types'
+
+// Server Utilities - 別途インポートが必要
+// import { requireAuth } from '@/features/auth/server/auth-server'
