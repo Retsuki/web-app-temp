@@ -98,34 +98,53 @@ export class WebhookHandlers {
   async handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
     logger.info({ invoiceId: invoice.id }, 'Handling invoice payment succeeded')
 
-    const subscription = invoice.subscription as string
+    // Get subscription ID from parent.subscription_details.subscription
+    const subscriptionIdOrObject = invoice.parent?.subscription_details?.subscription
+
+    if (!subscriptionIdOrObject) {
+      logger.warn({ invoiceId: invoice.id }, 'No subscription ID found in invoice')
+      return
+    }
+
+    // Extract subscription ID (it might be a string or an object)
+    const subscriptionId =
+      typeof subscriptionIdOrObject === 'string'
+        ? subscriptionIdOrObject
+        : subscriptionIdOrObject.id
 
     // Get user ID from subscription
     const [sub] = await this.db
       .select()
       .from(subscriptions)
-      .where(eq(subscriptions.stripeSubscriptionId, subscription))
+      .where(eq(subscriptions.stripeSubscriptionId, subscriptionId))
       .limit(1)
 
     if (!sub) {
-      logger.warn({ subscriptionId: subscription }, 'Subscription not found for invoice')
+      logger.warn({ subscriptionId }, 'Subscription not found for invoice')
       return
     }
 
+    // Get payment intent ID from payments data if available
+    const paymentIntent = invoice.payments?.data?.[0]?.payment?.payment_intent
+    const paymentIntentId =
+      typeof paymentIntent === 'string' ? paymentIntent : paymentIntent?.id || null
+
     // Record payment
-    await this.db.insert(paymentHistory).values({
+    const paymentData = {
       userId: sub.userId,
       subscriptionId: sub.id,
-      stripeInvoiceId: invoice.id,
-      stripePaymentIntentId: invoice.payment_intent ? String(invoice.payment_intent) : null,
+      stripeInvoiceId: invoice.id!,
+      stripePaymentIntentId: paymentIntentId,
       amount: invoice.amount_paid,
       currency: invoice.currency,
-      status: 'succeeded',
+      status: 'succeeded' as const,
       description: `${sub.plan} plan - ${sub.billingCycle} billing`,
       periodStart: new Date(invoice.period_start * 1000),
       periodEnd: new Date(invoice.period_end * 1000),
       paidAt: new Date(),
-    })
+    }
+
+    await this.db.insert(paymentHistory).values(paymentData)
 
     // Reset monthly usage if needed
     if (sub.billingCycle === 'monthly') {
@@ -143,7 +162,19 @@ export class WebhookHandlers {
   async handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     logger.info({ invoiceId: invoice.id }, 'Handling invoice payment failed')
 
-    const subscription = invoice.subscription as string
+    // Get subscription ID from parent.subscription_details.subscription
+    const subscriptionIdOrObject = invoice.parent?.subscription_details?.subscription
+
+    if (!subscriptionIdOrObject) {
+      logger.warn({ invoiceId: invoice.id }, 'No subscription ID found in invoice')
+      return
+    }
+
+    // Extract subscription ID (it might be a string or an object)
+    const subscriptionId =
+      typeof subscriptionIdOrObject === 'string'
+        ? subscriptionIdOrObject
+        : subscriptionIdOrObject.id
 
     // Update subscription status
     await this.db
@@ -152,28 +183,36 @@ export class WebhookHandlers {
         status: 'past_due',
         updatedAt: new Date(),
       })
-      .where(eq(subscriptions.stripeSubscriptionId, subscription))
+      .where(eq(subscriptions.stripeSubscriptionId, subscriptionId))
 
     // Record failed payment
     const [sub] = await this.db
       .select()
       .from(subscriptions)
-      .where(eq(subscriptions.stripeSubscriptionId, subscription))
+      .where(eq(subscriptions.stripeSubscriptionId, subscriptionId))
       .limit(1)
 
     if (sub) {
-      await this.db.insert(paymentHistory).values({
+      // Get payment intent ID from payments data if available
+      const paymentIntent = invoice.payments?.data?.[0]?.payment?.payment_intent
+      const paymentIntentId =
+        typeof paymentIntent === 'string' ? paymentIntent : paymentIntent?.id || null
+
+      const paymentData = {
         userId: sub.userId,
         subscriptionId: sub.id,
-        stripeInvoiceId: invoice.id,
-        stripePaymentIntentId: invoice.payment_intent ? String(invoice.payment_intent) : null,
+        stripeInvoiceId: invoice.id!,
+        stripePaymentIntentId: paymentIntentId,
         amount: invoice.amount_due,
         currency: invoice.currency,
-        status: 'failed',
+        status: 'failed' as const,
         description: `Payment failed for ${sub.plan} plan`,
         periodStart: invoice.period_start ? new Date(invoice.period_start * 1000) : null,
         periodEnd: invoice.period_end ? new Date(invoice.period_end * 1000) : null,
-      })
+        failedAt: new Date(),
+      }
+
+      await this.db.insert(paymentHistory).values(paymentData)
     }
   }
 
@@ -183,7 +222,10 @@ export class WebhookHandlers {
       eventType: event.type,
       apiVersion: event.api_version || null,
       payload: event,
-      objectId: ('id' in event.data.object && typeof event.data.object.id === 'string' ? event.data.object.id : null),
+      objectId:
+        'id' in event.data.object && typeof event.data.object.id === 'string'
+          ? event.data.object.id
+          : null,
       objectType: event.data.object.object || null,
       status: 'processed',
       processedAt: new Date(),
