@@ -99,7 +99,6 @@ export class WebhookHandlers {
     logger.info({ invoiceId: invoice.id }, 'Handling invoice payment succeeded')
 
     const subscription = invoice.subscription as string
-    const _customerId = invoice.customer as string
 
     // Get user ID from subscription
     const [sub] = await this.db
@@ -118,7 +117,7 @@ export class WebhookHandlers {
       userId: sub.userId,
       subscriptionId: sub.id,
       stripeInvoiceId: invoice.id,
-      stripePaymentIntentId: invoice.payment_intent as string | null,
+      stripePaymentIntentId: invoice.payment_intent ? String(invoice.payment_intent) : null,
       amount: invoice.amount_paid,
       currency: invoice.currency,
       status: 'succeeded',
@@ -167,11 +166,13 @@ export class WebhookHandlers {
         userId: sub.userId,
         subscriptionId: sub.id,
         stripeInvoiceId: invoice.id,
-        stripePaymentIntentId: invoice.payment_intent as string | null,
+        stripePaymentIntentId: invoice.payment_intent ? String(invoice.payment_intent) : null,
         amount: invoice.amount_due,
         currency: invoice.currency,
         status: 'failed',
         description: `Payment failed for ${sub.plan} plan`,
+        periodStart: invoice.period_start ? new Date(invoice.period_start * 1000) : null,
+        periodEnd: invoice.period_end ? new Date(invoice.period_end * 1000) : null,
       })
     }
   }
