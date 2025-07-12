@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 export const stripeWebhookRoute = createRoute({
   method: 'post',
-  path: '/api/v1/stripe/webhook',
+  path: '/stripe/webhook',
   tags: ['webhook'],
   summary: 'Stripe webhook endpoint',
   description: 'Endpoint to receive Stripe webhook events',
