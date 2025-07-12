@@ -16,7 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ✅ APIサーバー基盤（Hono）
 - ✅ 共通UIコンポーネント（shadcn/ui）
 - ✅ 型安全なAPI連携（OpenAPI + openapi-fetch）
-- 🚧 決済機能（準備中）
+- ✅ 決済機能（Stripe連携）
 - 🚧 通知システム（準備中）
 
 ## Project Overview
@@ -49,6 +49,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 #### Infrastructure
 - **Database**: Supabase (PostgreSQL)
 - **Auth**: Supabase Auth
+- **Payment**: Stripe
 - **Storage**: Supabase Storage（予定）
 - **Deployment**: Vercel（予定）
 
@@ -114,7 +115,9 @@ web_app_temp/
 │   │   │   │   ├── /signin/        # サインインページ
 │   │   │   │   └── /signup/        # サインアップページ
 │   │   │   ├── /(main)/            # メインアプリケーション
-│   │   │   │   └── /dashboard/     # ダッシュボード
+│   │   │   │   ├── /dashboard/     # ダッシュボード
+│   │   │   │   ├── /pricing/       # 料金プランページ
+│   │   │   │   └── /billing/       # 請求管理ページ
 │   │   │   ├── /auth/              # 認証コールバック
 │   │   │   │   └── /callback/      # OAuth認証コールバック
 │   │   │   ├── /[locale]/          # 多言語対応ルート (ja/en)
@@ -142,13 +145,19 @@ web_app_temp/
 │   │   │   │   └── /seed/         # シードデータ
 │   │   │   └── /migrations/       # マイグレーションファイル
 │   │   ├── /features/              # 機能別モジュール
-│   │   │   └── /{feature}/         # 各機能ディレクトリ
+│   │   │   ├── /billing/           # 請求・サブスクリプション管理
+│   │   │   ├── /stripe-webhook/    # Stripe Webhookハンドラー
+│   │   │   └── /{feature}/         # その他機能ディレクトリ
 │   │   │       ├── container.ts    # DIコンテナ
 │   │   │       ├── repositories/   # データアクセス層
 │   │   │       └── use-cases/      # ビジネスロジック層
 │   │   ├── /middleware/            # APIミドルウェア
 │   │   ├── /route/                 # APIルート定義
 │   │   ├── /utils/                 # ユーティリティ関数
+│   │   ├── /lib/                   # ライブラリ設定
+│   │   │   └── stripe.ts          # Stripeクライアント設定
+│   │   ├── /constants/             # 定数定義
+│   │   │   └── plans.ts           # 料金プラン定義
 │   │   └── index.ts               # APIサーバーエントリポイント
 │   └── drizzle.config.ts          # Drizzle設定
 │
@@ -193,6 +202,18 @@ web_app_temp/
 - **OutlineButton**: セカンダリーアクションボタン
 - **GoogleButton**: Google認証専用ボタン
 
+#### 決済システム（Stripe）
+- **サブスクリプション管理**: Free/Indie/Proの3プラン構成
+- **料金プラン**: 月額・年額の選択が可能
+- **チェックアウトフロー**: Stripe Checkoutによる安全な決済
+- **Webhookハンドリング**: 決済イベントの自動処理
+- **プラン管理機能**:
+  - 現在のサブスクリプション状態表示
+  - プラン変更・アップグレード
+  - サブスクリプションキャンセル
+  - 支払い履歴の確認
+- **カスタマーポータル**: Stripeカスタマーポータルへのアクセス
+
 #### カラーシステム
 - **Primary Color**: Mindaro系の緑黄色 (#90d80a)
 - **Secondary Color**: 深緑色 (#44670d)
@@ -221,6 +242,15 @@ GOOGLE_CLIENT_SECRET=your_google_client_secret
 
 # Site URL
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRICE_ID_INDIE_MONTHLY=price_...
+STRIPE_PRICE_ID_INDIE_YEARLY=price_...
+STRIPE_PRICE_ID_PRO_MONTHLY=price_...
+STRIPE_PRICE_ID_PRO_YEARLY=price_...
 
 # Google Cloud (for deployment)
 GOOGLE_CLOUD_PROJECT_ID=your_project_id
@@ -323,10 +353,12 @@ npm run dev  # Supabase, API, Webを一括起動
 - コミット前にも必ずlintを実行する
 
 ## Future Enhancements
-- 決済システム（Stripe連携）
 - メール通知システム
 - ファイルアップロード機能
 - PWA対応
 - テスト環境（Jest, Playwright）
 - CI/CD パイプライン
 - モニタリング・分析
+- 多要素認証（2FA）
+- APIレート制限
+- ユーザー分析ダッシュボード
