@@ -90,107 +90,163 @@ async function addIdea() {
 ## 作成日時
 ${getCurrentDateTime()}
 
+# コンセプト
+<!-- 一言で表現するコンセプト -->
+
 ## 概要
-${description || '（説明なし）'}
+${description || '<!-- システム開発するときの世界観・ビジョン -->'}
 
-## タグ
-${tags.length > 0 ? tags.map((tag) => `- ${tag}`).join('\n') : '（タグなし）'}
+## ターゲット
+<!-- 主なターゲット層 -->
 
-## 背景・課題
-<!-- このアイディアが生まれた背景や解決したい課題を記述 -->
+## 機能
+<!-- 主要機能のリスト -->
+- 
 
+## サービスの流れ
+<!-- ユーザーがサービスを使う流れ -->
+1. 
 
-## アイディアの詳細
-<!-- アイディアの具体的な内容を記述 -->
+## 金額
+<!-- 料金プラン -->
 
+## 画面
+<!-- 画面構成・遷移 -->
+- LP(/)
+- サインアップ画面(/signup)
+- ログイン画面(/login)
+- ダッシュボード(/)
 
-## 期待される効果・メリット
-<!-- このアイディアを実現することで得られる効果やメリット -->
-
-
-## 実現に必要なもの
-<!-- 技術スタック、リソース、時間など -->
-
-
-## 参考リンク・情報
-
-
-## メモ・備考
+## 技術スタック
+- TypeScript
+- Next.js(Frontend)
+- orval
+- tanstack/react-query
+- zod
+- Hono.js(Backend)
+- Supabase(Auth)
+- Supabase(DB)
+- Drizzle(ORM)
+- Cloud Build
+- Cloud Run
+- Cloud Tasks
+- GitHub
+- Stripe
+- Biome
 
 `
 
     // システム設計書ファイルの内容を作成
-    const systemDesignContent = `# ${title} - システム設計書
+    const systemDesignContent = `# ${title} システム設計書
 
-## 作成日時
-${getCurrentDateTime()}
+## 概要
+<!-- サービスの概要 -->
 
-## 1. システム概要
-### 1.1 目的
+## アーキテクチャ概要
 
+### 技術スタック
+- **Frontend**: Next.js 15.3.4 (App Router) + TypeScript
+- **Backend**: Hono + TypeScript
+- **Database**: PostgreSQL (Supabase)
+- **ORM**: Drizzle ORM
+- **Authentication**: Supabase Auth (Email or Google OAuth)
+- **Payment**: Stripe
+- **API Documentation**: OpenAPI + orval
+- **Queue/Job**: Cloud Tasks
+- **Container**: Cloud Run
+- **CI/CD**: Cloud Build
+- **Code Quality**: Biome
 
-### 1.2 スコープ
+### システム構成図
+\`\`\`
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│   Next.js App   │────▶│   Hono API       │────▶│   Supabase DB   │
+│  (Frontend)     │     │  (Backend)       │     │   PostgreSQL    │
+└─────────────────┘     └──────────────────┘     └─────────────────┘
+\`\`\`
 
+## ディレクトリ構造
 
-### 1.3 用語定義
+### Frontend (\`/web/\`)
+<!-- web_app_tempの構造に準拠 -->
 
+### Backend (\`/api/\`)
+<!-- web_app_tempの構造に準拠 -->
 
-## 2. 要件定義
-### 2.1 機能要件
+## データベース設計
 
+### Drizzle ORM スキーマ定義 (\`/api/src/drizzle/db/schema.ts\`)
 
-### 2.2 非機能要件
+\`\`\`typescript
+import { relations, sql } from 'drizzle-orm'
+import { index, integer, jsonb, pgTable, text, timestamp, uuid, varchar, boolean, date } from 'drizzle-orm/pg-core'
 
+// テーブル定義をここに記載
 
-## 3. システム構成
-### 3.1 アーキテクチャ
+\`\`\`
 
+## API設計
 
-### 3.2 技術スタック
+### エンドポイント一覧
 
+#### リソース管理
+- \`GET /api/v1/resources\` - 一覧取得
+- \`POST /api/v1/resources\` - 作成
+- \`GET /api/v1/resources/:id\` - 詳細取得
+- \`PUT /api/v1/resources/:id\` - 更新
+- \`DELETE /api/v1/resources/:id\` - 削除
 
-### 3.3 インフラ構成
+### リクエスト/レスポンス例
 
+\`\`\`typescript
+// Request
+{
+  "field": "value"
+}
 
-## 4. データ設計
-### 4.1 データモデル
+// Response
+{
+  "id": "uuid",
+  "field": "value",
+  "createdAt": "2025-01-01T00:00:00Z"
+}
+\`\`\`
 
+## 開発フェーズ
 
-### 4.2 データベース設計
+### Phase 1: 基本機能実装（MVP）
+- [ ] 基本CRUD機能
+- [ ] 認証機能
+- [ ] 基本UI実装
 
+### Phase 2: 追加機能実装
+- [ ] 決済機能統合
+- [ ] 高度な機能追加
 
-## 5. API設計
-### 5.1 エンドポイント一覧
+### Phase 3: 最適化・拡張
+- [ ] パフォーマンス最適化
+- [ ] スケーラビリティ向上
 
+## セキュリティ考慮事項
 
-### 5.2 API仕様
+1. **認証・認可**
+   - Supabase Auth利用
+   - RLSによるアクセス制御
 
+2. **データ保護**
+   - 機密情報の暗号化
+   - セキュアな通信
 
-## 6. 画面設計
-### 6.1 画面遷移図
+## モニタリング・ログ
 
+1. **アプリケーションモニタリング**
+   - エラー率
+   - レスポンスタイム
+   - 使用状況
 
-### 6.2 画面一覧
-
-
-## 7. セキュリティ設計
-### 7.1 認証・認可
-
-
-### 7.2 データ保護
-
-
-## 8. 実装計画
-### 8.1 開発スケジュール
-
-
-### 8.2 マイルストーン
-
-
-## 9. テスト計画
-
-
-## 10. 運用・保守
+2. **インフラモニタリング**
+   - リソース使用率
+   - コスト管理
 
 `
 
