@@ -81,6 +81,8 @@
 ## 技術スタック
 - TypeScript
 - Next.js(Frontend)
+- shadcn/ui
+- Tailwind CSS
 - orval
 - tanstack/react-query
 - zod

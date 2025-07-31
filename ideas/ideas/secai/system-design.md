@@ -7,6 +7,8 @@ SecAIは、個人開発者やスタートアップ向けの自動セキュリテ
 
 ### 技術スタック
 - **Frontend**: Next.js 15.3.4 (App Router) + TypeScript
+- **UI Components**: shadcn/ui
+- **Styling**: Tailwind CSS v4
 - **Backend**: Hono + TypeScript
 - **Database**: PostgreSQL (Supabase)
 - **ORM**: Drizzle ORM

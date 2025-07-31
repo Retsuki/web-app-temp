@@ -4,24 +4,28 @@
 
 ## プロジェクト概要
 
-これはプロジェクトのアイデアを管理するためのTypeScript CLIツールです。開発者がカテゴリ、ステータス、優先度などのメタデータとともにアイデアを素早く記録・整理できるようにします。
+これはWeb/モバイルアプリケーション開発のアイデアを管理・設計するためのTypeScript CLIツールです。開発者がアイデアから実装までの全工程を体系的に管理し、AIと協働して効率的に開発を進められるようにします。
+
+### 主な機能
+- アイデアの記録と管理（idea.md）
+- システム設計書の作成（system-design.md）
+- 実装計画の管理（implementation-plans/）
+- web_app_tempテンプレートに準拠した技術スタック
 
 ## 開発コマンド
 
 ```bash
 # ツールの実行
-npm run idea          # 対話型プロンプトで新しいアイデアを追加
-npm run idea:random   # 保存されたアイデアからランダムに表示
+npm run idea          # 対話型プロンプトで新しいアイデアを追加（idea.md, system-design.md, implementation-plans/を生成）
 
 # 開発
 npm run dev           # ts-nodeで実行
 npm run build         # TypeScriptをJavaScriptにコンパイル
 npm start            # コンパイル済みJavaScriptを実行
 
-# コード品質
-npm run lint          # ESLintチェック
-npm run format        # Prettierフォーマット
-npm run test         # テスト実行（実装時）
+# コード品質（今後実装予定）
+npm run format        # コードフォーマット
+npm run test         # テスト実行
 ```
 
 ## アーキテクチャ
@@ -30,101 +34,95 @@ npm run test         # テスト実行（実装時）
 ```
 ideas/
 ├── src/
-│   ├── index.ts         # メインエントリポイント - CLIロジック
-│   ├── idea.ts          # Ideaモデルと型定義
-│   ├── storage.ts       # ファイルベースのストレージロジック
-│   └── utils.ts         # ユーティリティ関数
-├── data/
-│   └── ideas.json       # JSONストレージファイル（初回使用時に作成）
+│   ├── add-idea.ts      # アイデア追加スクリプト（メインエントリポイント）
+│   └── （その他のユーティリティは今後追加予定）
+├── ideas/               # アイデアディレクトリ（自動生成）
+│   └── [idea-name]/     # 各アイデアのディレクトリ
+│       ├── idea.md                  # アイデアの概要・ビジネス要件
+│       ├── system-design.md         # システム設計書
+│       └── implementation-plans/    # 実装計画ディレクトリ
+│           ├── README.md            # 実装計画の使い方
+│           └── 01-feature-name.md   # 機能別実装計画
 ├── package.json         # プロジェクト設定
-└── tsconfig.json        # TypeScript設定
+├── tsconfig.json        # TypeScript設定
+└── CLAUDE.md           # このファイル
 ```
 
 ### 主要コンポーネント
 
-1. **CLIインターフェース** (`src/index.ts`)
-   - 対話型プロンプトに`inquirer`を使用
-   - ユーザー入力の検証を処理
-   - アイデアの追加と閲覧のフローを管理
+1. **アイデア追加スクリプト** (`src/add-idea.ts`)
+   - 対話型プロンプトでアイデア情報を収集
+   - 以下の3つの成果物を自動生成：
+     - `idea.md`: ビジネス要件とコンセプト
+     - `system-design.md`: 技術的な設計書
+     - `implementation-plans/`: 実装計画ディレクトリ
 
-2. **データモデル** (`src/idea.ts`)
-   - title、description、category、status、priority、tagsを持つ`Idea`インターフェース
-   - ステータス列挙型: "New", "In Progress", "Completed", "Archived"
-   - 優先度レベル: "Low", "Medium", "High"
+2. **生成されるファイル構造**
+   - **idea.md**: コンセプト、ターゲット、機能、サービスフロー、画面構成、技術スタック
+   - **system-design.md**: アーキテクチャ、ディレクトリ構造、DB設計（Drizzle ORM）、API設計、開発フェーズ
+   - **implementation-plans/README.md**: 実装計画の使い方とテンプレート
 
-3. **ストレージレイヤー** (`src/storage.ts`)
-   - `data/ideas.json`のファイルベースJSONストレージ
-   - エラーハンドリング付き非同期ファイル操作
-   - 必要に応じて自動的にディレクトリを作成
+### 技術スタック（生成されるプロジェクトの標準構成）
 
-4. **ユーティリティ** (`src/utils.ts`)
-   - 共通ヘルパー関数
-   - 日付フォーマット
-   - 文字列操作
+web_app_tempテンプレートに準拠した以下の技術スタックを使用：
 
-### データフォーマット
+- **Frontend**: Next.js 15.3.4 (App Router) + TypeScript
+- **UI Components**: shadcn/ui
+- **Styling**: Tailwind CSS v4
+- **Backend**: Hono + TypeScript
+- **Database**: PostgreSQL (Supabase)
+- **ORM**: Drizzle ORM
+- **Authentication**: Supabase Auth (Email or Google OAuth)
+- **Payment**: Stripe
+- **API Documentation**: OpenAPI + orval
+- **Queue/Job**: Cloud Tasks
+- **Container**: Cloud Run
+- **CI/CD**: Cloud Build
+- **Code Quality**: Biome
 
-アイデアは以下の構造でJSONとして保存されます：
-```json
-{
-  "id": "uuid-v4",
-  "title": "文字列",
-  "description": "文字列",
-  "category": "文字列",
-  "status": "New|In Progress|Completed|Archived",
-  "priority": "Low|Medium|High",
-  "tags": ["文字列"],
-  "createdAt": "ISO 8601形式の日付",
-  "updatedAt": "ISO 8601形式の日付"
-}
+## 開発ワークフロー
+
+### 1. アイデアの作成
+```bash
+npm run idea
+# タイトルと説明を入力
+# → ideas/[idea-name]/ディレクトリが生成される
 ```
 
-## 実装ガイドライン
+### 2. 設計の具体化
+1. `idea.md`を編集してビジネス要件を詳細化
+2. `system-design.md`を編集して技術設計を詳細化
+3. データベース設計はDrizzle ORMの形式で記述
 
-### 新機能の追加
-1. 厳密な型付けでTypeScriptのベストプラクティスに従う
-2. 既存のモジュラー構造を維持する
-3. 必要に応じて`package.json`のスクリプトに新しいコマンドを追加
-4. 新しいワークフローのために`src/index.ts`のCLIプロンプトを更新
+### 3. 実装計画の作成
+1. `implementation-plans/`ディレクトリに機能別の実装計画を作成
+2. ファイル名は`01-feature-name.md`形式で番号プレフィックスを付ける
+3. 各ファイルには実装範囲、手順、依存関係を明記
 
-### 一般的な変更
+### 4. AIと協働した実装
+1. 実装計画ファイルをAIに共有
+2. web_app_tempのディレクトリ構造に従って実装
+3. 生成されたコードは標準の技術スタックに準拠
 
-**アイデアに新しいフィールドを追加する場合：**
-1. `src/idea.ts`の`Idea`インターフェースを更新
-2. `src/index.ts`にプロンプトを追加
-3. 既存データのマイグレーションロジックを検討
+## 実装例：SecAI
 
-**新しいコマンドを追加する場合：**
-1. `src/index.ts`のメインメニューを拡張
-2. 新しい操作のためのハンドラー関数を作成
-3. 新しいデータ操作が必要な場合は`storage.ts`を更新
+`ideas/secai/`ディレクトリには、セキュリティ診断サービスの完全な設計例が含まれています：
 
-**ストレージフォーマットを変更する場合：**
-1. `src/storage.ts`にマイグレーションロジックを実装
-2. 破壊的変更の場合はデータフォーマットにバージョンを付ける
-3. 後方互換性を処理
+- **idea.md**: AIセキュリティ診断サービスのコンセプト
+- **system-design.md**: 
+  - プロジェクト管理、審査機能、セキュリティAI、GitHub連携の設計
+  - Drizzle ORMによるデータベーススキーマ
+  - Cloud Tasksを使用した非同期処理フロー
+- **implementation-plans/**: 実装計画のテンプレート
 
-### コードスタイル
-- TypeScriptのstrictモードを使用
-- すべてのファイル操作でasync/awaitを使用
-- try/catchで適切なエラーハンドリング
-- 明確で説明的な変数名
-- 複雑なロジックのみコメントを付ける
+## 今後の拡張予定
 
-## テストアプローチ
+- アイデアの検索・フィルタリング機能
+- アイデア間の関連付け
+- 実装進捗の追跡
+- GitHub連携による実装状況の同期
+- 複数の技術スタックテンプレートのサポート
 
-テストを実装する際：
-1. ユニットテストにJestを使用
-2. ファイルシステム操作をモック化
-3. ストレージ操作のエッジケースをテスト
-4. CLI入力処理を検証
+## コントリビューション
 
-## 依存関係
-
-コア依存関係：
-- `inquirer`: 対話型CLIプロンプト
-- `uuid`: ユニークID生成
-- `chalk`: ターミナル文字列スタイリング（必要な場合）
-- TypeScriptツールチェーン
-
-軽量なツールを維持するため、依存関係は最小限に保つ。
+このツールはweb_app_tempプロジェクトの一部として開発されています。改善提案やバグ報告は歓迎します。

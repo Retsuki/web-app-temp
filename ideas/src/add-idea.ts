@@ -120,6 +120,8 @@ ${description || '<!-- システム開発するときの世界観・ビジョン
 ## 技術スタック
 - TypeScript
 - Next.js(Frontend)
+- shadcn/ui
+- Tailwind CSS
 - orval
 - tanstack/react-query
 - zod
@@ -146,6 +148,8 @@ ${description || '<!-- システム開発するときの世界観・ビジョン
 
 ### 技術スタック
 - **Frontend**: Next.js 15.3.4 (App Router) + TypeScript
+- **UI Components**: shadcn/ui
+- **Styling**: Tailwind CSS v4
 - **Backend**: Hono + TypeScript
 - **Database**: PostgreSQL (Supabase)
 - **ORM**: Drizzle ORM
@@ -258,10 +262,70 @@ import { index, integer, jsonb, pgTable, text, timestamp, uuid, varchar, boolean
     const systemDesignPath = path.join(finalIdeaDir, 'system-design.md')
     fs.writeFileSync(systemDesignPath, systemDesignContent, 'utf-8')
 
+    // 実装計画ディレクトリを作成
+    const implementationPlanDir = path.join(finalIdeaDir, 'implementation-plans')
+    fs.mkdirSync(implementationPlanDir, { recursive: true })
+
+    // 実装計画ディレクトリのREADMEを作成
+    const implementationReadmeContent = `# 実装計画
+
+このディレクトリには、system-design.mdが完成した後に、機能毎の実装計画ファイルを配置します。
+
+## 使い方
+
+1. system-design.mdを完成させる
+2. 実装する機能毎に詳細な実装計画ファイルを作成
+3. 開発時は、該当する実装計画ファイルをAIに共有して実装を進める
+
+## ファイル命名規則
+
+- \`01-feature-name.md\` - 番号プレフィックスで実装順序を明確化
+- 機能名は分かりやすいケバブケースで記述
+
+## 実装計画ファイルの構成例
+
+\`\`\`markdown
+# [機能名] 実装計画
+
+## 概要
+この機能の概要と目的
+
+## 実装範囲
+- 実装する具体的な内容
+- 実装しない内容（スコープ外）
+
+## 技術的詳細
+- 使用する技術・ライブラリ
+- アーキテクチャ上の位置づけ
+
+## 実装手順
+1. ステップ1
+2. ステップ2
+3. ...
+
+## 依存関係
+- 事前に必要な実装
+- 影響を受ける既存機能
+
+## テスト方針
+- ユニットテスト
+- 統合テスト
+- 動作確認手順
+
+## 注意事項
+- セキュリティ考慮事項
+- パフォーマンス考慮事項
+\`\`\`
+`
+
+    const implementationReadmePath = path.join(implementationPlanDir, 'README.md')
+    fs.writeFileSync(implementationReadmePath, implementationReadmeContent, 'utf-8')
+
     console.log('\nアイディアを追加しました！')
     console.log(`場所: ${finalIdeaDir}`)
     console.log(`アイディアファイル: ${ideaPath}`)
     console.log(`システム設計書: ${systemDesignPath}`)
+    console.log(`実装計画ディレクトリ: ${implementationPlanDir}`)
 
     rl.close()
   } catch (error) {
