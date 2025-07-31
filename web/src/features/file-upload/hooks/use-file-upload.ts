@@ -66,7 +66,7 @@ export function useFileUpload(): UseFileUploadReturn {
 
       try {
         const totalFiles = files.length
-        let completedFiles = 0
+        const completedFiles = 0
 
         const { successful, failed } = await uploadFiles(files, user.id, options)
 
