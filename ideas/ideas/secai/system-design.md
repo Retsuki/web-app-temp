@@ -216,14 +216,41 @@ SecAIは、個人開発者やスタートアップ向けの自動セキュリテ
 import { relations, sql } from 'drizzle-orm'
 import { index, integer, jsonb, pgTable, text, timestamp, uuid, varchar, boolean, date } from 'drizzle-orm/pg-core'
 
-// 既存のprofilesテーブルに追加するカラム
-// 注: 実際の実装では既存のprofilesテーブル定義に以下のカラムを追加
-export const profilesExtension = {
-  // GitHub連携
-  githubConnected: boolean('github_connected').default(false),
-  githubUsername: varchar('github_username', { length: 255 }),
-  githubAccessToken: text('github_access_token'), // 暗号化して保存
-}
+// OAuth認証状態管理テーブル
+export const oauthStates = pgTable(
+  'oauth_states',
+  {
+    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+    
+    // ユーザー関連
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => profiles.userId),
+    
+    // OAuth情報
+    provider: varchar('provider', { length: 50 }).notNull(), // 'github', 'google', 'twitter', etc.
+    providerUserId: varchar('provider_user_id', { length: 255 }),
+    providerUsername: varchar('provider_username', { length: 255 }),
+    accessToken: text('access_token'), // 暗号化して保存
+    refreshToken: text('refresh_token'), // 暗号化して保存
+    tokenExpiresAt: timestamp('token_expires_at'),
+    
+    // 連携状態
+    isConnected: boolean('is_connected').default(true),
+    connectedAt: timestamp('connected_at').default(sql`now()`),
+    disconnectedAt: timestamp('disconnected_at'),
+    
+    // タイムスタンプ
+    createdAt: timestamp('created_at').default(sql`now()`).notNull(),
+    updatedAt: timestamp('updated_at').default(sql`now()`).notNull(),
+  },
+  (table) => {
+    return {
+      userProviderIdx: index('oauth_states_user_provider_idx').on(table.userId, table.provider).unique(),
+      providerIdx: index('oauth_states_provider_idx').on(table.provider),
+    }
+  }
+)
 
 // プロジェクトテーブル
 export const projects = pgTable(
@@ -361,6 +388,13 @@ export const auditQuotas = pgTable(
 )
 
 // リレーション定義
+export const oauthStatesRelations = relations(oauthStates, ({ one }) => ({
+  user: one(profiles, {
+    fields: [oauthStates.userId],
+    references: [profiles.userId],
+  }),
+}))
+
 export const projectsRelations = relations(projects, ({ one, many }) => ({
   user: one(profiles, {
     fields: [projects.userId],
@@ -392,6 +426,8 @@ export const auditQuotasRelations = relations(auditQuotas, ({ one }) => ({
 }))
 
 // 型定義のエクスポート
+export type OAuthState = typeof oauthStates.$inferSelect
+export type NewOAuthState = typeof oauthStates.$inferInsert
 export type Project = typeof projects.$inferSelect
 export type NewProject = typeof projects.$inferInsert
 export type Audit = typeof audits.$inferSelect
