@@ -214,7 +214,39 @@ SecAIは、個人開発者やスタートアップ向けの自動セキュリテ
 
 ```typescript
 import { relations, sql } from 'drizzle-orm'
-import { index, integer, jsonb, pgTable, text, timestamp, uuid, varchar, boolean, date } from 'drizzle-orm/pg-core'
+import { index, integer, jsonb, pgTable, text, timestamp, uuid, varchar, boolean, date, pgEnum } from 'drizzle-orm/pg-core'
+
+// 定数定義
+export const OAUTH_PROVIDERS = {
+  GITHUB: 'github',
+  GOOGLE: 'google',
+  TWITTER: 'twitter',
+} as const;
+
+export const AUDIT_TYPES = {
+  EXTERNAL: 'external',
+  CODE: 'code',
+} as const;
+
+export const AUDIT_STATUS = {
+  PENDING: 'pending',
+  PROCESSING: 'processing',
+  COMPLETED: 'completed',
+  FAILED: 'failed',
+} as const;
+
+export const SEVERITY_LEVELS = {
+  CRITICAL: 'critical',
+  HIGH: 'high',
+  MEDIUM: 'medium',
+  LOW: 'low',
+} as const;
+
+// Enum定義
+export const oauthProviderEnum = pgEnum('oauth_provider', Object.values(OAUTH_PROVIDERS) as [string, ...string[]]);
+export const auditTypeEnum = pgEnum('audit_type', Object.values(AUDIT_TYPES) as [string, ...string[]]);
+export const auditStatusEnum = pgEnum('audit_status', Object.values(AUDIT_STATUS) as [string, ...string[]]);
+export const severityLevelEnum = pgEnum('severity_level', Object.values(SEVERITY_LEVELS) as [string, ...string[]]);
 
 // OAuth認証状態管理テーブル
 export const oauthStates = pgTable(
@@ -228,7 +260,7 @@ export const oauthStates = pgTable(
       .references(() => profiles.userId),
     
     // OAuth情報
-    provider: varchar('provider', { length: 50 }).notNull(), // 'github', 'google', 'twitter', etc.
+    provider: oauthProviderEnum('provider').notNull(),
     providerUserId: varchar('provider_user_id', { length: 255 }),
     providerUsername: varchar('provider_username', { length: 255 }),
     accessToken: text('access_token'), // 暗号化して保存
@@ -292,12 +324,9 @@ export const audits = pgTable(
       .references(() => projects.id, { onDelete: 'cascade' }),
     
     // 審査情報
-    auditType: varchar('audit_type', { length: 50, enum: ['external', 'code'] }).notNull(),
+    auditType: auditTypeEnum('audit_type').notNull(),
     targetUrl: varchar('target_url', { length: 500 }),
-    status: varchar('status', { 
-      length: 50, 
-      enum: ['pending', 'processing', 'completed', 'failed'] 
-    }).notNull().default('pending'),
+    status: auditStatusEnum('status').notNull().default(AUDIT_STATUS.PENDING),
     
     // 結果サマリー
     severitySummary: jsonb('severity_summary').$type<{
@@ -336,10 +365,7 @@ export const auditResults = pgTable(
     
     // 脆弱性情報
     vulnerabilityType: varchar('vulnerability_type', { length: 100 }).notNull(),
-    severity: varchar('severity', { 
-      length: 20, 
-      enum: ['critical', 'high', 'medium', 'low'] 
-    }).notNull(),
+    severity: severityLevelEnum('severity').notNull(),
     title: varchar('title', { length: 500 }).notNull(),
     description: text('description').notNull(),
     
