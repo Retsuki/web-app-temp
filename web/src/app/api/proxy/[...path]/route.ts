@@ -2,27 +2,32 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { API_URL, getAuthHeaders } from '@/lib/auth-helpers'
 import { createClient } from '@/lib/supabase/server'
 
-export async function GET(request: NextRequest, { params }: { params: { path: string[] } }) {
-  return handleRequest(request, params, 'GET')
+export async function GET(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const { path } = await params
+  return handleRequest(request, path, 'GET')
 }
 
-export async function POST(request: NextRequest, { params }: { params: { path: string[] } }) {
-  return handleRequest(request, params, 'POST')
+export async function POST(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const { path } = await params
+  return handleRequest(request, path, 'POST')
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { path: string[] } }) {
-  return handleRequest(request, params, 'PUT')
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const { path } = await params
+  return handleRequest(request, path, 'PUT')
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { path: string[] } }) {
-  return handleRequest(request, params, 'DELETE')
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const { path } = await params
+  return handleRequest(request, path, 'DELETE')
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { path: string[] } }) {
-  return handleRequest(request, params, 'PATCH')
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+  const { path } = await params
+  return handleRequest(request, path, 'PATCH')
 }
 
-async function handleRequest(request: NextRequest, { path }: { path: string[] }, method: string) {
+async function handleRequest(request: NextRequest, path: string[], method: string) {
   try {
     // パスを構築
     const apiPath = path.join('/')

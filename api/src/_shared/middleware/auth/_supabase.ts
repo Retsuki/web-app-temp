@@ -13,17 +13,18 @@ export async function verifySupabaseToken(token: string): Promise<SupabaseJWTPay
   if (!jwtSecret) {
     throw new AppHTTPException(500, {
       code: ERROR_CODES.INTERNAL_SERVER_ERROR,
-      message: 'JWT secret is not configured'
+      message: 'JWT secret is not configured',
     })
   }
 
   try {
-    const payload = await verify(token, jwtSecret) as SupabaseJWTPayload
+    const payload = (await verify(token, jwtSecret)) as SupabaseJWTPayload
     return payload
   } catch (error) {
     throw new AppHTTPException(401, {
       code: ERROR_CODES.INVALID_TOKEN,
-      message: 'Invalid Supabase token'
+      message: 'Invalid Supabase token',
+      cause: JSON.stringify(error),
     })
   }
 }
@@ -40,6 +41,6 @@ export async function getSupabaseAuthInfo(token: string): Promise<{
   const payload = await verifySupabaseToken(token)
   return {
     userId: payload.sub,
-    payload
+    payload,
   }
 }
