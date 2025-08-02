@@ -5,9 +5,9 @@ import { logger } from 'hono/logger'
 import { poweredBy } from 'hono/powered-by'
 import { prettyJSON } from 'hono/pretty-json'
 import { requestId } from 'hono/request-id'
-import { authMiddleware } from '../middleware/auth.js'
+import { authMiddleware } from '../middleware/auth/index.js'
 import { corsMiddleware } from '../middleware/cors.js'
-import { edgeAuth } from '../middleware/edge-auth.js'
+// import { edgeAuth } from '../middleware/edge-auth.js'
 import { serviceContainerMiddleware } from '../middleware/service-container/index.js'
 import type { AppEnv } from '../types/context.js'
 import { handleError, handleZodError } from '../utils/error/index.js'
@@ -20,7 +20,7 @@ export const createApp = () => {
   // middleware
   app.onError(handleError)
   app.use(serviceContainerMiddleware)
-  app.use(edgeAuth)
+  // app.use(edgeAuth)
   app.use(prettyJSON(), poweredBy(), logger(), requestId())
   app.use(
     '/*',
