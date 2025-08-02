@@ -1,5 +1,15 @@
 import { relations, sql } from 'drizzle-orm'
-import { index, integer, jsonb, pgEnum, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
+import {
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  varchar,
+} from 'drizzle-orm/pg-core'
 
 // Enums定義
 export const PLAN_VALUES = ['free', 'indie', 'pro'] as const
@@ -10,90 +20,6 @@ export const PLAN = {
   FREE: 'free',
   INDIE: 'indie',
   PRO: 'pro',
-} as const
-
-export const SUBSCRIPTION_STATUS_VALUES = ['active', 'past_due', 'canceled', 'unpaid'] as const
-export const subscriptionStatusEnum = pgEnum('subscription_status', SUBSCRIPTION_STATUS_VALUES)
-export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUS_VALUES)[number]
-
-export const SUBSCRIPTION_STATUS = {
-  ACTIVE: 'active',
-  PAST_DUE: 'past_due',
-  CANCELED: 'canceled',
-  UNPAID: 'unpaid',
-} as const
-
-export const BILLING_CYCLE_VALUES = ['monthly', 'yearly'] as const
-export const billingCycleEnum = pgEnum('billing_cycle', BILLING_CYCLE_VALUES)
-export type BillingCycle = (typeof BILLING_CYCLE_VALUES)[number]
-
-export const BILLING_CYCLE = {
-  MONTHLY: 'monthly',
-  YEARLY: 'yearly',
-} as const
-
-export const PAYMENT_STATUS_VALUES = ['paid', 'failed', 'pending', 'refunded'] as const
-export const paymentStatusEnum = pgEnum('payment_status', PAYMENT_STATUS_VALUES)
-export type PaymentStatus = (typeof PAYMENT_STATUS_VALUES)[number]
-
-export const PAYMENT_STATUS = {
-  PAID: 'paid',
-  FAILED: 'failed',
-  PENDING: 'pending',
-  REFUNDED: 'refunded',
-} as const
-
-export const CURRENCY_VALUES = ['jpy', 'usd'] as const
-export const currencyEnum = pgEnum('currency', CURRENCY_VALUES)
-export type Currency = (typeof CURRENCY_VALUES)[number]
-
-export const CURRENCY = {
-  JPY: 'jpy',
-  USD: 'usd',
-} as const
-
-export const PAYMENT_METHOD_VALUES = ['card', 'bank_transfer'] as const
-export const paymentMethodEnum = pgEnum('payment_method', PAYMENT_METHOD_VALUES)
-export type PaymentMethod = (typeof PAYMENT_METHOD_VALUES)[number]
-
-export const PAYMENT_METHOD = {
-  CARD: 'card',
-  BANK_TRANSFER: 'bank_transfer',
-} as const
-
-export const CARD_BRAND_VALUES = ['visa', 'mastercard', 'amex', 'jcb', 'diners', 'discover'] as const
-export const cardBrandEnum = pgEnum('card_brand', CARD_BRAND_VALUES)
-export type CardBrand = (typeof CARD_BRAND_VALUES)[number]
-
-export const CARD_BRAND = {
-  VISA: 'visa',
-  MASTERCARD: 'mastercard',
-  AMEX: 'amex',
-  JCB: 'jcb',
-  DINERS: 'diners',
-  DISCOVER: 'discover',
-} as const
-
-export const WEBHOOK_EVENT_STATUS_VALUES = ['pending', 'processed', 'failed'] as const
-export const webhookEventStatusEnum = pgEnum('webhook_event_status', WEBHOOK_EVENT_STATUS_VALUES)
-export type WebhookEventStatus = (typeof WEBHOOK_EVENT_STATUS_VALUES)[number]
-
-export const WEBHOOK_EVENT_STATUS = {
-  PENDING: 'pending',
-  PROCESSED: 'processed',
-  FAILED: 'failed',
-} as const
-
-export const STRIPE_OBJECT_TYPE_VALUES = ['subscription', 'invoice', 'customer', 'payment_intent', 'charge'] as const
-export const stripeObjectTypeEnum = pgEnum('stripe_object_type', STRIPE_OBJECT_TYPE_VALUES)
-export type StripeObjectType = (typeof STRIPE_OBJECT_TYPE_VALUES)[number]
-
-export const STRIPE_OBJECT_TYPE = {
-  SUBSCRIPTION: 'subscription',
-  INVOICE: 'invoice',
-  CUSTOMER: 'customer',
-  PAYMENT_INTENT: 'payment_intent',
-  CHARGE: 'charge',
 } as const
 
 // ユーザープロフィールテーブル
@@ -144,8 +70,8 @@ export const subscriptions = pgTable(
 
     // プラン情報
     plan: planEnum('plan').notNull(),
-    status: subscriptionStatusEnum('status').notNull(),
-    billingCycle: billingCycleEnum('billing_cycle').notNull(),
+    status: varchar('status', { length: 50 }).notNull(), // active, past_due, canceled, unpaid
+    billingCycle: varchar('billing_cycle', { length: 20 }).notNull(), // monthly, yearly
 
     // 請求期間
     currentPeriodStart: timestamp('current_period_start').notNull(),
@@ -185,7 +111,9 @@ export const paymentHistory = pgTable(
       .references(() => profiles.userId, { onDelete: 'cascade' }),
 
     // サブスクリプション関連
-    subscriptionId: uuid('subscription_id').references(() => subscriptions.id, { onDelete: 'cascade' }),
+    subscriptionId: uuid('subscription_id').references(() => subscriptions.id, {
+      onDelete: 'cascade',
+    }),
 
     // Stripe関連
     stripeInvoiceId: varchar('stripe_invoice_id', { length: 255 }).notNull().unique(),
@@ -194,8 +122,8 @@ export const paymentHistory = pgTable(
 
     // 支払い情報
     amount: integer('amount').notNull(), // 金額（円）
-    currency: currencyEnum('currency').notNull().default(CURRENCY.JPY),
-    status: paymentStatusEnum('status').notNull(),
+    currency: varchar('currency', { length: 10 }).notNull().default('jpy'),
+    status: varchar('status', { length: 50 }).notNull(), // paid, failed, pending, refunded
     description: text('description'),
 
     // 請求期間
@@ -203,9 +131,9 @@ export const paymentHistory = pgTable(
     periodEnd: timestamp('period_end'),
 
     // 支払い方法
-    paymentMethod: paymentMethodEnum('payment_method'),
+    paymentMethod: varchar('payment_method', { length: 50 }), // card, bank_transfer
     last4: varchar('last4', { length: 4 }), // カード下4桁
-    brand: cardBrandEnum('brand'),
+    brand: varchar('brand', { length: 20 }), // visa, mastercard, amex等
 
     // 返金情報
     refundedAmount: integer('refunded_amount').default(0),
@@ -235,16 +163,16 @@ export const webhookEvents = pgTable(
 
     // Stripe Event情報
     stripeEventId: varchar('stripe_event_id', { length: 255 }).notNull().unique(),
-    eventType: varchar('event_type', { length: 100 }).notNull(),
+    eventType: varchar('event_type', { length: 100 }).notNull(), // customer.subscription.created等
     apiVersion: varchar('api_version', { length: 50 }),
 
     // ペイロード
     payload: jsonb('payload').notNull(),
-    objectId: varchar('object_id', { length: 255 }),
-    objectType: stripeObjectTypeEnum('object_type'),
+    objectId: varchar('object_id', { length: 255 }), // 関連オブジェクトID（sub_xxx, in_xxx等）
+    objectType: varchar('object_type', { length: 50 }), // subscription, invoice, customer等
 
     // 処理状態
-    status: webhookEventStatusEnum('status').notNull().default(WEBHOOK_EVENT_STATUS.PENDING),
+    status: varchar('status', { length: 20 }).notNull().default('pending'), // pending, processed, failed
     processedAt: timestamp('processed_at'),
     failureReason: text('failure_reason'),
     retryCount: integer('retry_count').default(0),
