@@ -8,6 +8,10 @@ const METADATA_SERVER_URL =
 
 export const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL
 
+if (!API_URL) {
+  console.error('API_URL is not defined. Please set API_URL or NEXT_PUBLIC_API_URL environment variable.')
+}
+
 /**
  * Google Cloud Run環境でIDトークンを取得
  */
@@ -68,8 +72,29 @@ export async function getAuthHeaders(
  */
 export async function parseResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'API request failed' }))
-    throw new Error(error.message || `API request failed: ${response.status}`)
+    let errorMessage = `API request failed: ${response.status} ${response.statusText}`
+    try {
+      const errorData = await response.json()
+      errorMessage = errorData.message || errorData.error || errorMessage
+    } catch {
+      // JSONパースに失敗した場合はテキストを取得
+      try {
+        const errorText = await response.text()
+        if (errorText) {
+          errorMessage = `${errorMessage} - ${errorText}`
+        }
+      } catch {
+        // テキスト取得も失敗した場合は元のエラーメッセージを使用
+      }
+    }
+    console.error('API Error Details:', {
+      status: response.status,
+      statusText: response.statusText,
+      url: response.url,
+      headers: Object.fromEntries(response.headers.entries()),
+      message: errorMessage,
+    })
+    throw new Error(errorMessage)
   }
 
   const text = await response.text()

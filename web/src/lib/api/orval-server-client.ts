@@ -36,7 +36,17 @@ export const orvalServerClient = async <T>({
   const requestHeaders = await getAuthHeaders(supabaseToken, headers)
 
   const searchParams = params ? `?${new URLSearchParams(params).toString()}` : ''
-  const response = await fetch(`${fullUrl}${searchParams}`, {
+  const finalUrl = `${fullUrl}${searchParams}`
+  
+  // デバッグ用ログ
+  console.log('API Request:', {
+    url: finalUrl,
+    method,
+    hasSupabaseToken: !!supabaseToken,
+    headers: Object.keys(requestHeaders),
+  })
+
+  const response = await fetch(finalUrl, {
     method,
     headers: requestHeaders,
     body: data ? JSON.stringify(data) : undefined,

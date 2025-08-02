@@ -53,7 +53,9 @@ export async function requireAuth() {
 
   try {
     // API経由でプロフィールを取得
+    console.log('Fetching user profile for:', user.id)
     const profile = await getApiV1UsersMeServer()
+    console.log('Profile fetched successfully:', profile?.data?.userId)
 
     return {
       user,
@@ -61,7 +63,11 @@ export async function requireAuth() {
       error: null,
     }
   } catch (error) {
-    console.error('プロフィール取得エラー:', error)
+    console.error('プロフィール取得エラー:', {
+      error,
+      userId: user.id,
+      email: user.email,
+    })
     return { user, profile: null, error }
   }
 }
