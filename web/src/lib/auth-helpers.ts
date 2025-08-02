@@ -6,10 +6,10 @@
 const METADATA_SERVER_URL =
   'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity'
 
-export const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL
+export const API_URL = process.env.API_URL
 
 if (!API_URL) {
-  console.error('API_URL is not defined. Please set API_URL or NEXT_PUBLIC_API_URL environment variable.')
+  console.error('API_URL is not defined. Please set API_URL environment variable.')
 }
 
 /**
@@ -24,14 +24,14 @@ export async function getGoogleCloudIdToken(targetAudience: string): Promise<str
   try {
     const metadataUrl = `${METADATA_SERVER_URL}?audience=${targetAudience}`
     console.log('Fetching ID token from:', metadataUrl)
-    
+
     const response = await fetch(metadataUrl, {
       headers: { 'Metadata-Flavor': 'Google' },
     })
 
     console.log('Metadata server response:', {
       status: response.status,
-      statusText: response.statusText
+      statusText: response.statusText,
     })
 
     if (!response.ok) {
@@ -66,7 +66,7 @@ export async function getAuthHeaders(
     K_SERVICE: process.env.K_SERVICE,
     API_URL: API_URL,
     hasSupabaseToken: !!supabaseToken,
-    isCloudRunEnv: !!process.env.K_SERVICE
+    isCloudRunEnv: !!process.env.K_SERVICE,
   })
 
   if (process.env.K_SERVICE && API_URL) {

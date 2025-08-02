@@ -51,7 +51,7 @@
 
 ```bash
 # コンテナビルド & デプロイ
-gcloud run deploy web-frontend \
+gcloud run deploy web-app-web \
   --source=. \
   --region=asia-northeast1 \
   --allow-unauthenticated \
@@ -62,16 +62,18 @@ gcloud run deploy web-frontend \
 ### 3.3 Cloud Run (API / Hono) デプロイ
 
 ```bash
-# API は非公開
-gcloud run deploy api \
+# API は認証必須
+gcloud run deploy web-app-api \
   --source=./api \
   --region=asia-northeast1 \
   --no-allow-unauthenticated \
   --service-account=api-sa@PROJECT_ID.iam.gserviceaccount.com \
-  --ingress=internal-and-cloud-load-balancing
+  --ingress=all
 ```
 
-> **ポイント**: `--no-allow-unauthenticated` により IAM トークン必須。
+> **ポイント**: 
+> - `--no-allow-unauthenticated` により IAM トークン必須
+> - `--ingress=all` に設定（`internal-and-cloud-load-balancing`だと外部からアクセスできないため）
 
 ### 3.4 サービスアカウント & IAM
 
@@ -107,7 +109,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
   --role="roles/secretmanager.secretAccessor"
 
 # 3. Web → API 呼び出し権限
-gcloud run services add-iam-policy-binding api \
+gcloud run services add-iam-policy-binding web-app-api \
   --member="serviceAccount:web-sa@PROJECT_ID.iam.gserviceaccount.com" \
   --role="roles/run.invoker"
 ```
@@ -187,25 +189,24 @@ export async function callApi(path: string, init: RequestInit = {}) {
 
 | 症状                 | 原因候補                     | 対策                                           |
 | ------------------ | ------------------------ | -------------------------------------------- |
-| Cloud Run が 403    | IAM 認証失敗                 | `gcloud run services get-iam-policy api` を確認 |
+| Cloud Run が 403    | IAM 認証失敗                 | `gcloud run services get-iam-policy web-app-api` を確認 |
 | ブラウザで API CORS エラー | 直叩きしている                  | Next.js server 経由で呼び出す                       |
 | Cloudflare 502     | Origin health check fail | Cloud Run URL をブラウザで直接確認                     |
+| API が 404         | ingress 設定が internal     | `--ingress=all` に変更する                         |
 
 ---
 
 ## 9. よくある質問 (FAQ)
 
-### Q1: `--ingress internal-and-cloud-load-balancing` は Google Cloud Load Balancer を使うという意味ですか？
+### Q1: なぜ API の `--ingress` を `all` に設定する必要があるのですか？
 
-**A**: いいえ、違います。この設定は Google Cloud Load Balancer を新たに作成・使用するという意味ではありません。
+**A**: Cloud Run 間の通信でも、以下の理由により `--ingress all` が必要になることがあります：
 
-- Cloud Run には元々内蔵のロードバランサーがあり、それを指しています
-- 追加料金は発生しません
-- 外部の Google Cloud Load Balancer（L7 LB など）を別途作成する必要はありません
+1. **IDトークンの検証**: Google IDトークンを使った認証では、トークンの発行者と検証者が異なるサービスになります
+2. **外部エンドポイント経由の通信**: Cloud Run サービス間でも、パブリックURLを使った通信の場合は外部経路とみなされます
+3. **開発・デバッグの容易性**: 問題が発生した際に、直接APIにアクセスして確認できます
 
-この設定は、Cloud Run サービスへのアクセス経路を以下に制限するものです：
-1. **internal** - Google Cloud 内部からのアクセス（同じプロジェクト内の Cloud Run など）
-2. **cloud-load-balancing** - Cloud Run が内部的に使用するロードバランサー経由のアクセス
+セキュリティは `--no-allow-unauthenticated` 設定により、IAM認証で保護されているため問題ありません。
 
 ### Q2: なぜ API を `--no-allow-unauthenticated` にする必要があるのですか？
 

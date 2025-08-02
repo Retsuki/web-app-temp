@@ -65,8 +65,8 @@ export function isCloudRunEnvironment(): boolean {
  * 期待されるaudienceを取得する
  */
 function getExpectedAudience(): string {
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL
+  if (process.env.API_URL) {
+    return process.env.API_URL
   }
 
   const service = process.env.K_SERVICE
