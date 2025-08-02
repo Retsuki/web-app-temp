@@ -8,42 +8,28 @@ const METADATA_SERVER_URL =
 
 export const API_URL = process.env.API_URL
 
-if (!API_URL) {
-  console.error('API_URL is not defined. Please set API_URL environment variable.')
-}
-
 /**
  * Google Cloud Run環境でIDトークンを取得
  */
 export async function getGoogleCloudIdToken(targetAudience: string): Promise<string | null> {
   if (!process.env.K_SERVICE) {
-    console.log('Not in Cloud Run environment (K_SERVICE not set)')
     return null
   }
 
   try {
     const metadataUrl = `${METADATA_SERVER_URL}?audience=${targetAudience}`
-    console.log('Fetching ID token from:', metadataUrl)
 
     const response = await fetch(metadataUrl, {
       headers: { 'Metadata-Flavor': 'Google' },
     })
 
-    console.log('Metadata server response:', {
-      status: response.status,
-      statusText: response.statusText,
-    })
-
     if (!response.ok) {
-      console.error('Failed to get ID token from metadata server:', await response.text())
       return null
     }
 
     const token = await response.text()
-    console.log('ID token obtained, length:', token.length)
     return token
-  } catch (error) {
-    console.error('Error getting ID token:', error)
+  } catch {
     return null
   }
 }
@@ -61,17 +47,8 @@ export async function getAuthHeaders(
     ...(additionalHeaders as Record<string, string>),
   }
 
-  // デバッグログ
-  console.log('Auth headers debug:', {
-    K_SERVICE: process.env.K_SERVICE,
-    API_URL: API_URL,
-    hasSupabaseToken: !!supabaseToken,
-    isCloudRunEnv: !!process.env.K_SERVICE,
-  })
-
   if (process.env.K_SERVICE && API_URL) {
     const idToken = await getGoogleCloudIdToken(API_URL)
-    console.log('ID Token fetched:', !!idToken)
     if (idToken) {
       requestHeaders.Authorization = `Bearer ${idToken}`
       if (supabaseToken) {
@@ -107,13 +84,6 @@ export async function parseResponse<T>(response: Response): Promise<T> {
         // テキスト取得も失敗した場合は元のエラーメッセージを使用
       }
     }
-    console.error('API Error Details:', {
-      status: response.status,
-      statusText: response.statusText,
-      url: response.url,
-      headers: Object.fromEntries(response.headers.entries()),
-      message: errorMessage,
-    })
     throw new Error(errorMessage)
   }
 

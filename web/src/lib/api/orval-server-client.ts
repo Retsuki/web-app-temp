@@ -37,37 +37,6 @@ export const orvalServerClient = async <T>({
 
   const searchParams = params ? `?${new URLSearchParams(params).toString()}` : ''
   const finalUrl = `${fullUrl}${searchParams}`
-  
-  // デバッグ用ログ
-  console.log('API Request:', {
-    url: finalUrl,
-    method,
-    hasSupabaseToken: !!supabaseToken,
-    headers: Object.keys(requestHeaders),
-    API_URL,
-  })
-
-  // APIヘルスチェック（デバッグ用）
-  if (url === '/api/v1/users/me') {
-    try {
-      const healthUrl = `${API_URL}/api/v1/health`
-      console.log('Checking API health at:', healthUrl)
-      const healthCheck = await fetch(healthUrl)
-      console.log('Health check response:', {
-        status: healthCheck.status,
-        statusText: healthCheck.statusText,
-        headers: Object.fromEntries(healthCheck.headers.entries()),
-      })
-      if (healthCheck.ok) {
-        const healthData = await healthCheck.json()
-        console.log('Health check data:', healthData)
-      } else {
-        console.log('Health check body:', await healthCheck.text())
-      }
-    } catch (error) {
-      console.error('Health check failed:', error)
-    }
-  }
 
   const response = await fetch(finalUrl, {
     method,
