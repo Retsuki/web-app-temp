@@ -239,7 +239,6 @@ const response = await fetch(`${API_URL}/api/v1/users`, {
 **A**: `--ingress` 設定を変更してもコストは増えません：
 
 - Cloud Run の料金体系は変わりません
-- 内蔵ロードバランサーは無料で含まれています
 - IAM 認証も追加料金なし
 
 ### Q5: サービスアカウントはなぜ必要ですか？
