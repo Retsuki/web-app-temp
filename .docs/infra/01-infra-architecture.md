@@ -163,9 +163,60 @@ export async function callApi(path: string, init: RequestInit = {}) {
 
 ---
 
-## 9. 参考リンク
+## 9. よくある質問 (FAQ)
+
+### Q1: `--ingress internal-and-cloud-load-balancing` は Google Cloud Load Balancer を使うという意味ですか？
+
+**A**: いいえ、違います。この設定は Google Cloud Load Balancer を新たに作成・使用するという意味ではありません。
+
+- Cloud Run には元々内蔵のロードバランサーがあり、それを指しています
+- 追加料金は発生しません
+- 外部の Google Cloud Load Balancer（L7 LB など）を別途作成する必要はありません
+
+この設定は、Cloud Run サービスへのアクセス経路を以下に制限するものです：
+1. **internal** - Google Cloud 内部からのアクセス（同じプロジェクト内の Cloud Run など）
+2. **cloud-load-balancing** - Cloud Run が内部的に使用するロードバランサー経由のアクセス
+
+### Q2: なぜ API を `--no-allow-unauthenticated` にする必要があるのですか？
+
+**A**: セキュリティを強化するためです：
+
+1. **公開アクセスの禁止** - インターネットから直接 API にアクセスできなくなります
+2. **IAM 認証の必須化** - 認証されたサービスアカウントからのみアクセス可能
+3. **CORS 設定が不要** - ブラウザから直接アクセスしないため
+4. **DDoS 攻撃のリスク軽減** - 直接アクセスが不可能なため
+
+### Q3: フロントエンドから API を呼び出すにはどうすればいいですか？
+
+**A**: Next.js のサーバーサイド（SSR/Route Handler）から ID トークンを使って呼び出します：
+
+```typescript
+// ブラウザから直接呼び出すのは NG
+// Next.js のサーバーサイドで実行する
+const idToken = await fetch(
+  `http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience=${API_URL}`,
+  { headers: { 'Metadata-Flavor': 'Google' } }
+).then(r => r.text());
+
+const response = await fetch(`${API_URL}/api/v1/users`, {
+  headers: { Authorization: `Bearer ${idToken}` }
+});
+```
+
+### Q4: この構成でコストはどのくらい増えますか？
+
+**A**: `--ingress` 設定を変更してもコストは増えません：
+
+- Cloud Run の料金体系は変わりません
+- 内蔵ロードバランサーは無料で含まれています
+- IAM 認証も追加料金なし
+
+---
+
+## 10. 参考リンク
 
 * Cloud Run IAM Auth: [https://cloud.google.com/run/docs/authenticating](https://cloud.google.com/run/docs/authenticating)
+* Cloud Run Ingress 設定: [https://cloud.google.com/run/docs/securing/ingress](https://cloud.google.com/run/docs/securing/ingress)
 * Cloudflare Free プラン機能表: [https://developers.cloudflare.com](https://developers.cloudflare.com)
 * Supabase Pricing: [https://supabase.com/pricing](https://supabase.com/pricing)
 
