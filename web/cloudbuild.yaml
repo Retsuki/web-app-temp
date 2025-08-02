@@ -57,6 +57,7 @@ steps:
           --region ${_REGION} \
           --platform managed \
           --allow-unauthenticated \
+          --service-account web-sa@${PROJECT_ID}.iam.gserviceaccount.com \
           --port 8080 \
           --memory 512Mi \
           --cpu 1 \
