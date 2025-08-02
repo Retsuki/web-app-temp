@@ -48,6 +48,8 @@ steps:
       - '80'
       - '--timeout'
       - '300'
+      - '--service-account'
+      - 'api-sa@${PROJECT_ID}.iam.gserviceaccount.com'
       - '--set-env-vars'
       - 'NODE_ENV=production'
       - '--set-secrets'
