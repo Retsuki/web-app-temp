@@ -75,8 +75,38 @@ gcloud run deploy api \
 
 ### 3.4 サービスアカウント & IAM
 
+#### サービスアカウントの作成
+
 ```bash
-# Web → API 呼び出し権限
+# API用サービスアカウント
+gcloud iam service-accounts create api-sa \
+  --display-name="API Service Account" \
+  --project=$PROJECT_ID
+
+# Web用サービスアカウント  
+gcloud iam service-accounts create web-sa \
+  --display-name="Web Frontend Service Account" \
+  --project=$PROJECT_ID
+```
+
+#### 権限の付与
+
+```bash
+# 1. Cloud BuildがCloud Runにデプロイする権限
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:$PROJECT_ID@cloudbuild.gserviceaccount.com" \
+  --role="roles/run.admin"
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:$PROJECT_ID@cloudbuild.gserviceaccount.com" \
+  --role="roles/iam.serviceAccountUser"
+
+# 2. API用サービスアカウントにSecret Manager読み取り権限
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:api-sa@$PROJECT_ID.iam.gserviceaccount.com" \
+  --role="roles/secretmanager.secretAccessor"
+
+# 3. Web → API 呼び出し権限
 gcloud run services add-iam-policy-binding api \
   --member="serviceAccount:web-sa@PROJECT_ID.iam.gserviceaccount.com" \
   --role="roles/run.invoker"
@@ -210,6 +240,30 @@ const response = await fetch(`${API_URL}/api/v1/users`, {
 - Cloud Run の料金体系は変わりません
 - 内蔵ロードバランサーは無料で含まれています
 - IAM 認証も追加料金なし
+
+### Q5: サービスアカウントはなぜ必要ですか？
+
+**A**: サービスアカウントは、アプリケーションが Google Cloud リソースにアクセスする際の身分証明書として機能します：
+
+1. **最小権限の原則** - 各サービスに必要最小限の権限のみを付与
+2. **セキュリティの分離** - サービスごとに異なる権限を設定
+3. **監査性の向上** - どのサービスが何にアクセスしたかを追跡可能
+4. **デフォルトサービスアカウントの危険性回避** - Editor権限を持つデフォルトアカウントは使用しない
+
+### Q6: 各サービスアカウントにはどのような権限が必要ですか？
+
+**A**: 以下の権限構成が必要です：
+
+| サービスアカウント | 必要な権限 | 理由 |
+|---|---|---|
+| **api-sa** | `roles/secretmanager.secretAccessor` | Secret Manager から環境変数を読み取るため |
+| **web-sa** | APIサービスへの `roles/run.invoker` | APIを呼び出すため（APIサービスレベルで設定） |
+| **Cloud Build** | `roles/run.admin`<br>`roles/iam.serviceAccountUser` | Cloud Run へのデプロイと<br>サービスアカウントの使用権限 |
+
+権限の流れ：
+```
+ユーザー → Web (web-sa) → [IDトークン] → API (api-sa) → Secret Manager
+```
 
 ---
 
