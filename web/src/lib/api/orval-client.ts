@@ -21,11 +21,8 @@ export const orvalClient = async <T>({
   } = await supabase.auth.getSession()
   const token = session?.access_token
 
-  // APIプロキシを使用するか直接アクセスするかを判定
-  // 本番環境（Cloud Run）ではプロキシ経由、開発環境では直接アクセス
-  const apiUrl = process.env.NODE_ENV === 'production' 
-    ? `/api/proxy${url}` 
-    : `${process.env.NEXT_PUBLIC_API_URL}${url}`
+  // APIプロキシを使用（ローカル・本番環境共通）
+  const apiUrl = `/api/proxy${url}`
 
   const response = await fetch(apiUrl, {
     method,

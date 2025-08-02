@@ -8,16 +8,16 @@ const locales = ['ja', 'en']
 const defaultLocale = 'ja'
 
 function getLocale(request: NextRequest): string {
-  // Get Accept-Language header
+  // Accept-Languageヘッダーを取得
   const negotiatorHeaders: Record<string, string> = {}
   request.headers.forEach((value, key) => {
     negotiatorHeaders[key] = value
   })
 
-  // Create language array from headers
+  // ヘッダーから言語配列を作成
   const languages = new Negotiator({ headers: negotiatorHeaders }).languages()
 
-  // Match with supported locales
+  // サポートされているロケールとマッチング
   const locale = match(languages, locales, defaultLocale)
   return locale
 }
@@ -25,21 +25,26 @@ function getLocale(request: NextRequest): string {
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // Check if there is any supported locale in the pathname
+  // APIプロキシパスは言語リダイレクトをスキップ
+  if (pathname.startsWith('/api/')) {
+    return await updateSession(request, NextResponse.next())
+  }
+
+  // パス名にサポートされているロケールが含まれているかチェック
   const pathnameHasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   )
 
-  // If pathname already has locale, proceed with session update
+  // パス名にロケールが既に含まれている場合は、セッション更新のみ実行
   if (pathnameHasLocale) {
     return await updateSession(request, NextResponse.next())
   }
 
-  // Redirect if there is no locale
+  // ロケールがない場合はリダイレクト
   const locale = getLocale(request)
   request.nextUrl.pathname = `/${locale}${pathname}`
 
-  // Create redirect response and update session
+  // リダイレクトレスポンスを作成してセッションを更新
   const response = NextResponse.redirect(request.nextUrl)
   return await updateSession(request, response)
 }
@@ -47,12 +52,12 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
-     * Feel free to modify this pattern to include more paths.
+     * 以下を除くすべてのリクエストパスにマッチ:
+     * - _next/static (静的ファイル)
+     * - _next/image (画像最適化ファイル)
+     * - favicon.ico (ファビコンファイル)
+     * - 画像ファイル - .svg, .png, .jpg, .jpeg, .gif, .webp
+     * 必要に応じてこのパターンを変更してください。
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
