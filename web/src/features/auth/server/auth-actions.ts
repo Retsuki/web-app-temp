@@ -62,10 +62,6 @@ export async function signInWithGoogle(lang = 'ja') {
   // 環境変数が設定されている場合はそちらを優先、なければ動的に生成
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
 
-  console.log('🐛 [DEBUG] NEXT_PUBLIC_SITE_URL: ', process.env.NEXT_PUBLIC_SITE_URL)
-  console.log('🐛 [DEBUG] siteUrl: ', siteUrl)
-  console.log('🐛 [DEBUG] redirectTo: ', `${siteUrl}/${lang}/auth/callback`)
-
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
