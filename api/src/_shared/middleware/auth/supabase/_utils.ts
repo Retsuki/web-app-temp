@@ -1,6 +1,6 @@
 import { verify } from 'hono/jwt'
-import type { SupabaseJWTPayload } from '../../types/context.js'
-import { AppHTTPException, ERROR_CODES } from '../../utils/error/index.js'
+import type { SupabaseJWTPayload } from '../../../types/context.js'
+import { AppHTTPException, ERROR_CODES } from '../../../utils/error/index.js'
 
 /**
  * Supabaseトークンを検証する
