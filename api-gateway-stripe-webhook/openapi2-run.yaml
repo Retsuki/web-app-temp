@@ -1,0 +1,32 @@
+swagger: "2.0"
+info:
+  title: stripe-webhook-gateway
+  description: API Gateway for Stripe Webhook
+  version: 1.0.0
+
+schemes: 
+  - "https"
+  
+produces: 
+  - "application/json"
+
+# バックエンド設定
+x-google-backend:
+  address: https://pmt-api-550308675836.asia-northeast1.run.app        # ← Cloud Run の URL
+  jwt_audience: https://pmt-api-550308675836.asia-northeast1.run.app   # ← 必ず同じ値にする
+
+# API エンドポイント定義
+paths:
+  /api/v1/stripe/webhook:
+    post:
+      summary: Stripe Webhook エンドポイント
+      operationId: stripeWebhook
+      consumes:
+        - "text/plain"  # Stripe webhookはraw bodyを送信
+      responses:
+        "200":
+          description: Webhook 処理成功
+        "400":
+          description: 不正なwebhook署名
+        "500":
+          description: サーバーエラー
