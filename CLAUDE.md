@@ -60,7 +60,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### 全体
 ```bash
 # ルートディレクトリで
-npm run dev         # Supabase + API + Web を一括起動
+npm run dev         # API + Web を一括起動（デフォルトポート: Web=3000, API=8080）
+npm run dev:all     # Supabase + API + Web を一括起動
+npm run dev:api     # APIサーバーのみ起動
+npm run dev:web     # Webアプリのみ起動
 npm run lint        # Biomeでリント
 npm run format      # Biomeでフォーマット
 npm run check       # Biomeでチェック
@@ -68,13 +71,14 @@ npm run check:apply # Biomeでチェックと修正
 
 # APIスキーマ生成
 npm run gen:api     # OpenAPIスキーマからTypeScript型定義を生成
-npm run api:schema  # OpenAPIドキュメント取得と型生成を一括実行
-npm run fetch:openapi # OpenAPIドキュメントを取得のみ
+
+# Supabase
+npm run supabase:start # Supabaseローカル起動
+npm run supabase:stop  # Supabaseローカル停止
 
 # セットアップ・デプロイ
 npm run setup       # 初期プロジェクトセットアップ
 npm run setup:gcp   # Google Cloud Platform セットアップ
-npm run deploy:gcp  # GCPへデプロイ
 ```
 
 ### Frontend
@@ -223,6 +227,10 @@ web_app_temp/
 
 ### Environment Variables
 ```bash
+# 開発環境用ポート設定（オプション）
+# DEV_WEB_PORT=3001  # デフォルト: 3000
+# DEV_API_PORT=8081  # デフォルト: 8080
+
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
@@ -231,9 +239,9 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 # Database
 DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
 
-# API
-API_URL=http://localhost:3001
+# API URLs（ポート変更時は要更新）
 NEXT_PUBLIC_API_URL=http://localhost:8080
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 # JWT
 SUPABASE_JWT_SECRET=your_supabase_jwt_secret
@@ -241,9 +249,6 @@ SUPABASE_JWT_SECRET=your_supabase_jwt_secret
 # Google OAuth
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
-
-# Site URL
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 # Stripe
 STRIPE_SECRET_KEY=sk_test_...
@@ -332,14 +337,49 @@ cp .env.example .env
 
 # 2. 依存関係インストール
 npm install
+cd web && npm install
+cd ../api && npm install
+cd ..
 
 # 3. 開発環境起動
-npm run dev  # Supabase, API, Webを一括起動
+npm run dev  # API, Webを一括起動
+
+# または全サービス起動（Supabaseも含む）
+npm run dev:all
 ```
 
+### ポート設定
+
+#### デフォルトポート
+- **本番環境**: 固定ポート使用
+  - Web: 3000
+  - API: 8080
+
+#### 開発環境でのポート変更
+開発環境では環境変数でポートを変更可能です：
+
+```bash
+# .envファイルに追加
+DEV_WEB_PORT=3001  # Webアプリのポート変更
+DEV_API_PORT=8081  # APIサーバーのポート変更
+
+# 起動
+npm run dev  # 設定したポートで起動
+```
+
+複数プロジェクトを並行開発する場合に便利です。
+
 ### Port Usage
+
+#### 本番環境（固定）
 - 3000: Frontend (Next.js)
 - 8080: API Server (Hono)
+
+#### 開発環境（カスタマイズ可能）
+- 3000: Frontend (Next.js) - `DEV_WEB_PORT`で変更可能
+- 8080: API Server (Hono) - `DEV_API_PORT`で変更可能
+
+#### Supabase Local
 - 54321: Supabase Studio
 - 54322: Supabase DB
 - 54323: Supabase Auth

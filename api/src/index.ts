@@ -23,7 +23,8 @@ healthApi(app)
 billingApi(app)
 stripeWebhookApi(app)
 
-const port = Number(process.env.PORT) || 8080
+// 開発環境ではDEV_API_PORTを優先、本番環境ではPORTを使用（デフォルト: 8080）
+const port = Number(process.env.DEV_API_PORT || process.env.PORT) || 8080
 serve(
   {
     fetch: app.fetch,

@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "./scripts/dev-all.sh",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "cd api && PORT=${DEV_API_PORT:-8080} npm run dev",
+    "dev:web": "cd web && PORT=${DEV_WEB_PORT:-3000} npm run dev",
+    "dev:all": "concurrently \"npm run supabase:start\" \"npm run dev:api\" \"npm run dev:web\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "biome lint .",
     "format": "biome format --write .",
@@ -36,6 +39,7 @@
   "homepage": "https://github.com/Retsuki/web-app-temp#readme",
   "description": "",
   "devDependencies": {
-    "@biomejs/biome": "^2.0.5"
+    "@biomejs/biome": "^2.0.5",
+    "concurrently": "^9.2.0"
   }
 }
