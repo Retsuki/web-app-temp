@@ -28,13 +28,26 @@ yarn-error.log*
 .env
 .env.local
 .env.development.local
-
-# Pulumi secrets - NEVER commit these
-infra/pulumi/stacks/Pulumi.*.yaml
-!infra/pulumi/stacks/Pulumi.*.example.yaml
 .env.test.local
 .env.production.local
 .env.dev
+.env.prod
+
+# API environment files
+api/.env.dev
+api/.env.prod
+api/.env.local
+
+# Web environment files
+web/.env.dev
+web/.env.prod
+web/.env.local
+
+# Pulumi secrets - NEVER commit these
+pulumi/Pulumi.*.yaml
+!pulumi/Pulumi.yaml
+infra/pulumi/stacks/Pulumi.*.yaml
+!infra/pulumi/stacks/Pulumi.*.example.yaml
 
 # vercel
 .vercel

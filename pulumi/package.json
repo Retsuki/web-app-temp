@@ -1,0 +1,23 @@
+{
+  "name": "web-app-temp-infra",
+  "version": "1.0.0",
+  "description": "Infrastructure as Code for Web App Template using Pulumi",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "check:apply": "biome check --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.5",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@pulumi/gcp": "^7.0.0",
+    "@pulumi/pulumi": "^3.0.0",
+    "dotenv": "^16.3.1"
+  }
+}
