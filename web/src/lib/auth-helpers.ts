@@ -6,7 +6,7 @@
 const METADATA_SERVER_URL =
   'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity'
 
-export const API_URL = process.env.API_URL
+export const API_URL = process.env.API_URL || process.env.API_AUDIENCE
 
 /**
  * Google Cloud Run環境でIDトークンを取得

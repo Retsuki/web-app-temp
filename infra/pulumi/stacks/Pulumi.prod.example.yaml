@@ -1,0 +1,33 @@
+config:
+  web-app-template:project: YOUR_PROJECT_ID
+  web-app-template:region: asia-northeast1
+  
+  # Web環境変数（実際の値に置き換えてください）
+  web-app-template:nextPublicSupabaseUrl:
+    secure: https://YOUR_PROJECT.supabase.co
+  web-app-template:nextPublicSupabaseAnonKey:
+    secure: YOUR_SUPABASE_ANON_KEY
+  web-app-template:nextPublicSiteUrl:
+    secure: https://your-domain.com
+  web-app-template:nextPublicStripePublishableKey:
+    secure: pk_live_YOUR_STRIPE_PUBLISHABLE_KEY
+  
+  # API環境変数（実際の値に置き換えてください）
+  web-app-template:databaseUrl:
+    secure: postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres
+  web-app-template:supabaseServiceRoleKey:
+    secure: YOUR_SUPABASE_SERVICE_ROLE_KEY
+  web-app-template:supabaseJwtSecret:
+    secure: YOUR_JWT_SECRET_AT_LEAST_32_CHARACTERS
+  web-app-template:stripeSecretKey:
+    secure: sk_live_YOUR_STRIPE_SECRET_KEY
+  web-app-template:stripeWebhookSecret:
+    secure: whsec_YOUR_STRIPE_WEBHOOK_SECRET
+  web-app-template:stripePriceIdIndieMonthly:
+    secure: price_YOUR_INDIE_MONTHLY_PRICE_ID
+  web-app-template:stripePriceIdIndieYearly:
+    secure: price_YOUR_INDIE_YEARLY_PRICE_ID
+  web-app-template:stripePriceIdProMonthly:
+    secure: price_YOUR_PRO_MONTHLY_PRICE_ID
+  web-app-template:stripePriceIdProYearly:
+    secure: price_YOUR_PRO_YEARLY_PRICE_ID

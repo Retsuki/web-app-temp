@@ -55,14 +55,19 @@
 
   // スペルチェッカー
   "cSpell.words": [
-    "Supabase",
-    "Hono",
-    "openapi",
-    "drizzle",
-    "shadcn",
-    "clsx",
-    "tailwindcss",
+    "artifactregistry",
     "biomejs",
-    "Mindaro"
+    "cloudrunv",
+    "clsx",
+    "drizzle",
+    "Hono",
+    "iamcredentials",
+    "Mindaro",
+    "openapi",
+    "secretmanager",
+    "serviceaccount",
+    "shadcn",
+    "Supabase",
+    "tailwindcss"
   ]
 }

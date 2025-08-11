@@ -1,0 +1,17 @@
+{
+  "name": "infra",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "up": "pulumi up --yes",
+    "preview": "pulumi preview",
+    "destroy": "pulumi destroy --yes"
+  },
+  "dependencies": {
+    "@pulumi/pulumi": "^3.0.0",
+    "@pulumi/gcp": "^7.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}
