@@ -1,3 +1,0 @@
-name: web-app-template
-runtime: nodejs
-description: GCP infra for web/api + Stripe webhook
