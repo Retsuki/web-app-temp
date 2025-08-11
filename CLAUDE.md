@@ -74,10 +74,6 @@
 - **Auth**: Supabase Auth
 - **Payment**: Stripe (Checkout, Webhooks, Customer Portal)
 - **Storage**: Supabase Storage
-- **CDN/Security**: Cloudflare (Free Plan)
-  - DNS管理、SSL/TLS暗号化
-  - DDoS保護、WAF（基本）
-  - レート制限（100 req/min per IP）
 - **Deployment**: Google Cloud Platform
   - Frontend: Cloud Run (public, 認証不要)
   - Backend: Cloud Run (private, IAM認証必須)
@@ -357,7 +353,6 @@ SITE_URL=https://web-PROJECT_ID.run.app
 APIは複数の認証プロバイダーに対応：
 - **Supabase Auth** (デフォルト)
 - **Firebase Auth** (オプション)
-- **Cloudflare Workers** (エッジ環境用)
 - **Cloud Run** (GCP環境用)
 
 ### API Client Architecture
@@ -411,11 +406,7 @@ APIは複数の認証プロバイダーに対応：
 
 ### デプロイアーキテクチャ
 ```
-┌───────────────┐  DNS / TLS / DDoS / WAF (Free)
-│   Cloudflare   │  example.com / api.example.com
-└───────┬────────┘
-        │ HTTPS
-┌───────▼────────┐        ┌──────────────────────────┐
+┌───────────────┐        ┌──────────────────────────┐
 │  Cloud Run      │  IAM   │  Cloud Run (API / Hono)  │
 │  (Next.js 15)   │◀───────│  --no-allow-unauth       │
 │  public URL     │ ID tok │  api-<env>-<project>     │
@@ -436,7 +427,6 @@ APIは複数の認証プロバイダーに対応：
 ```
 
 ### セキュリティアーキテクチャ
-- **Cloudflare CDN**: DDoS保護、基本WAF、レート制限
 - **Cloud Run IAM**: API は IAM 認証必須（`--no-allow-unauthenticated`）
 - **API Gateway**: Stripe Webhook受信用のセキュアな公開エンドポイント
   - 外部からのWebhookを受信し、認証付きでCloud Runへ転送
@@ -472,7 +462,6 @@ PROJECT_NUMBER-compute@developer.gserviceaccount.com
 - **月額コスト目安**:
   - Cloud Run: 無料枠内（~2M req, 360k GiB-s）
   - Supabase: Free Plan (500MB DB)
-  - Cloudflare: Free Plan
   - **合計**: $0〜25/月（トラフィック次第）
 
 ### モニタリング戦略
@@ -530,13 +519,6 @@ gcloud run deploy web-app-web \
   --service-account=web-sa@PROJECT_ID.iam.gserviceaccount.com \
   --update-env-vars="API_URL=https://web-app-api-xxx.run.app"
 ```
-
-### Cloudflare 設定
-
-1. **DNS設定**: Cloud RunのURLをCNAMEで登録
-2. **SSL/TLS**: Fullモードを選択
-3. **WAF設定**: Security → WAF → DDoS を「High」に設定
-4. **レート制限**: 100 req/min per IP を設定
 
 ### Secret Manager 設定
 
