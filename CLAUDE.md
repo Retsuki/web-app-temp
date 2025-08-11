@@ -1,15 +1,27 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+このファイルは、Claude Code (claude.ai/code) がこのリポジトリのコードを扱う際のガイダンスを提供します。
+
+## 目次
+
+1. [Project Goal](#project-goal) - プロジェクトの目的
+2. [Project Overview](#project-overview) - 技術スタック
+3. [Development Commands](#development-commands) - 開発コマンド
+4. [Architecture](#architecture) - アーキテクチャ詳細
+5. [Infrastructure Architecture](#infrastructure-architecture) - インフラ構成
+6. [Best Practices](#best-practices) - ベストプラクティス
+7. [Deployment Guide](#deployment-guide) - デプロイ手順
+8. [Development Notes](#development-notes) - 開発メモ
+9. [Future Enhancements](#future-enhancements) - 今後の拡張予定
 
 ## Project Goal
 
 このプロジェクトは、新規アプリ開発を爆速化するためのテンプレートアプリケーションです。
 
-### 存在意義
+### プロジェクトの目的
 新規アプリ開発時に必要となる基本機能を事前に実装しておくことで、開発者がメイン機能の開発に集中できる環境を提供します。
 
-### 実装済みの基本機能
+### ✅ 実装済みの基本機能
 - ✅ 認証システム（メールアドレス認証・Google OAuth認証）
 - ✅ ユーザープロフィール管理
 - ✅ Supabase連携（認証・データベース・ストレージ）
@@ -25,11 +37,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
+### アプリケーション構成
 モノレポ構成で以下のアプリケーションを含みます：
-- `/web/` - Next.js 15.3.4 フロントエンドアプリケーション
-- `/api/` - Hono ベースのAPIバックエンド
+- **`/web/`** - Next.js 15.3.4 フロントエンドアプリケーション
+- **`/api/`** - Hono ベースのAPIバックエンド
+- **`/api-gateway-stripe-webhook/`** - Stripe Webhook受信用APIゲートウェイ
 
-### Tech Stack
+### Tech Stack（技術スタック）
 
 #### Frontend (`/web/`)
 - **Framework**: Next.js 15.3.4 (App Router)
@@ -74,7 +88,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-### 全体
+以下のコマンドをプロジェクトルートで実行できます。
+
+### 🚀 全体コマンド
 ```bash
 # ルートディレクトリで
 npm run dev         # API + Web を一括起動（デフォルトポート: Web=3000, API=8080）
@@ -98,7 +114,7 @@ npm run setup       # 初期プロジェクトセットアップ
 npm run setup:gcp   # Google Cloud Platform セットアップ
 ```
 
-### Frontend
+### 💻 Frontend
 ```bash
 cd web
 npm run dev         # 開発サーバー起動 (http://localhost:3000)
@@ -113,7 +129,7 @@ npm run orval       # OpenAPIからクライアント生成
 npm run gen:api     # orval のエイリアス
 ```
 
-### Backend
+### ⚙️ Backend
 ```bash
 cd api
 npm run dev         # 開発サーバー起動 (http://localhost:8080)
@@ -124,7 +140,7 @@ npm run db:push     # データベースへマイグレーション適用
 npm run db:seed     # シードデータ投入
 ```
 
-### Supabase Local
+### 🗄️ Supabase Local
 ```bash
 supabase start      # ローカルSupabase起動
 supabase stop       # ローカルSupabase停止
@@ -235,15 +251,15 @@ web_app_temp/
 └── .gitignore                      # Git除外設定
 ```
 
-### Key Features
+### 🔑 Key Features（主要機能）
 
-#### 認証システム
+#### 🔐 認証システム
 - **メールアドレス認証**: サインアップ/サインイン
 - **Google OAuth**: ワンクリックでGoogleアカウント連携
 - **セッション管理**: Supabase Authによる安全なセッション管理
 - **保護されたルート**: ミドルウェアによる認証チェック
 
-#### データベース設計
+#### 🗄️ データベース設計
 - **profiles**: ユーザープロフィール情報
   - user_id (Supabase AuthのユーザーID)
   - email
@@ -260,13 +276,13 @@ web_app_temp/
 - **plan_limits**: プラン別機能制限
   - plan_id, feature, limit_value
 
-#### UIコンポーネント
+#### 🎨 UIコンポーネント
 - **FormInput**: React Hook Form対応の入力コンポーネント
 - **PrimaryButton**: プライマリーアクションボタン
 - **OutlineButton**: セカンダリーアクションボタン
 - **GoogleButton**: Google認証専用ボタン
 
-#### 決済システム（Stripe）
+#### 💳 決済システム（Stripe）
 - **サブスクリプション管理**: Free/Indie/Proの3プラン構成
 - **料金プラン**: 月額・年額の選択が可能
 - **チェックアウトフロー**: Stripe Checkoutによる安全な決済
@@ -278,7 +294,7 @@ web_app_temp/
   - 支払い履歴の確認
 - **カスタマーポータル**: Stripeカスタマーポータルへのアクセス
 
-#### ファイルアップロードシステム
+#### 📁 ファイルアップロードシステム
 - **Supabase Storage統合**: セキュアなファイル管理
 - **画像処理**: 自動リサイズ、フォーマット変換
 - **進捗表示**: リアルタイムアップロード進捗
@@ -286,7 +302,7 @@ web_app_temp/
 - **ドラッグ&ドロップ**: 直感的なファイル選択
 - **バリデーション**: ファイルサイズ・タイプの検証
 
-#### カラーシステム
+#### 🎨 カラーシステム
 - **Primary Color**: Mindaro系の緑黄色 (#90d80a)
 - **Secondary Color**: 深緑色 (#44670d)
 - **ダークモード対応**: 自動切り替え対応
@@ -467,19 +483,19 @@ PROJECT_NUMBER-compute@developer.gserviceaccount.com
 
 ## Best Practices
 
-### コーディング規約
+### 📝 コーディング規約
 - TypeScriptを使用し、型安全性を保つ
 - React Hook FormとZodでフォームバリデーション
 - Server ComponentsとClient Componentsを適切に使い分ける
 - エラーハンドリングを適切に実装する
 - APIはOpenAPI仕様に準拠
 
-### セキュリティ
+### 🔒 セキュリティ
 - 環境変数でシークレット情報を管理
 - Row Level Security (RLS)でデータアクセスを制御
 - Server Actionsで安全なサーバーサイド処理
 
-### パフォーマンス
+### ⚡ パフォーマンス
 - Next.js App Routerの最適化機能を活用
 - 画像最適化（next/image）
 - コード分割とレイジーローディング
@@ -563,7 +579,7 @@ gcloud api-gateway api-configs create stripe-webhook-config \
 
 ## Development Notes
 
-### Quick Start
+### 🚀 Quick Start
 ```bash
 # 1. 環境変数設定
 cp .env.example .env
