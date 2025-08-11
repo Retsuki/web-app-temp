@@ -60,10 +60,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Auth**: Supabase Auth
 - **Payment**: Stripe (Checkout, Webhooks, Customer Portal)
 - **Storage**: Supabase Storage
-- **Deployment**: 
-  - Frontend: Vercel/Cloud Run（予定）
-  - Backend: Cloud Run（予定）
+- **CDN/Security**: Cloudflare (Free Plan)
+  - DNS管理、SSL/TLS暗号化
+  - DDoS保護、WAF（基本）
+  - レート制限（100 req/min per IP）
+- **Deployment**: Google Cloud Platform
+  - Frontend: Cloud Run (public, 認証不要)
+  - Backend: Cloud Run (private, IAM認証必須)
+  - Region: asia-northeast1
 - **CI/CD**: GitHub Actions + Cloud Build
+- **Secret Management**: Google Secret Manager
+- **Monitoring**: Cloud Logging, Error Reporting
 
 ## Development Commands
 
@@ -316,6 +323,11 @@ STRIPE_PRICE_ID_PRO_YEARLY=price_...
 
 # Google Cloud (for deployment)
 GOOGLE_CLOUD_PROJECT_ID=your_project_id
+GOOGLE_CLOUD_REGION=asia-northeast1
+
+# Cloud Run URLs (Production)
+API_URL=https://api-PROJECT_ID.run.app
+SITE_URL=https://web-PROJECT_ID.run.app
 ```
 
 ### Import Aliases
@@ -375,6 +387,66 @@ APIは複数の認証プロバイダーに対応：
 - **API Validation**: ミドルウェアでJWTトークンを検証
 - **User Context**: 検証済みユーザー情報をコンテキストに格納
 
+## Infrastructure Architecture
+
+### デプロイアーキテクチャ
+```
+┌───────────────┐  DNS / TLS / DDoS / WAF (Free)
+│   Cloudflare   │  example.com / api.example.com
+└───────┬────────┘
+        │ HTTPS
+┌───────▼────────┐        ┌──────────────────────────┐
+│  Cloud Run      │  IAM   │  Cloud Run (API / Hono)  │
+│  (Next.js 15)   │◀───────│  --no-allow-unauth       │
+│  public URL     │ ID tok │  api-<env>-<project>     │
+└───────┬─────────┘        └──────────┬───────────────┘
+        │ SSR / Route Handler          │
+        │ fetch + ID token             │
+        ▼                              ▼
+┌───────────────────┐           ┌────────────────┐
+│  Supabase (Auth)  │           │    Stripe      │
+│  PostgreSQL DB    │           └────────────────┘
+└───────────────────┘
+```
+
+### セキュリティアーキテクチャ
+- **Cloudflare CDN**: DDoS保護、基本WAF、レート制限
+- **Cloud Run IAM**: API は IAM 認証必須（`--no-allow-unauthenticated`）
+- **サービスアカウント**: 最小権限の原則で分離
+  - `web-sa`: WebフロントエンドからAPIへの呼び出し権限のみ
+  - `api-sa`: Secret Manager読み取り権限
+- **Secret Manager**: 機密情報の暗号化保存
+- **ID Token**: Web → API 間の認証にGoogle IDトークンを使用
+
+### サービスアカウント構成
+```bash
+# API用サービスアカウント
+api-sa@PROJECT_ID.iam.gserviceaccount.com
+└── roles/secretmanager.secretAccessor
+
+# Web用サービスアカウント  
+web-sa@PROJECT_ID.iam.gserviceaccount.com
+└── roles/run.invoker (APIサービスに対して)
+
+# Cloud Build用権限
+PROJECT_NUMBER-compute@developer.gserviceaccount.com
+├── roles/run.admin
+└── roles/iam.serviceAccountUser
+```
+
+### コスト最適化
+- **月額コスト目安**:
+  - Cloud Run: 無料枠内（~2M req, 360k GiB-s）
+  - Supabase: Free Plan (500MB DB)
+  - Cloudflare: Free Plan
+  - **合計**: $0〜25/月（トラフィック次第）
+
+### モニタリング戦略
+- **Cloud Logging**: 構造化ログ出力
+- **Error Reporting**: 5xx エラー自動集計
+- **Alert Policies**: エラー率 > 5% でメール通知
+- **Supabase Logs**: Auth失敗の監視
+
 ## Best Practices
 
 ### コーディング規約
@@ -393,6 +465,55 @@ APIは複数の認証プロバイダーに対応：
 - Next.js App Routerの最適化機能を活用
 - 画像最適化（next/image）
 - コード分割とレイジーローディング
+
+## Deployment Guide
+
+### Google Cloud Run デプロイ
+
+#### 前提条件
+- Google Cloud SDK インストール済み
+- プロジェクトの課金有効化
+- 必要なAPI有効化（Cloud Run, Cloud Build, Secret Manager）
+
+#### デプロイコマンド
+
+```bash
+# 1. サービスアカウント作成
+npm run setup:gcp  # 自動セットアップスクリプト
+
+# 2. APIサービスのデプロイ（認証必須）
+gcloud run deploy web-app-api \
+  --source=./api \
+  --region=asia-northeast1 \
+  --no-allow-unauthenticated \
+  --service-account=api-sa@PROJECT_ID.iam.gserviceaccount.com
+
+# 3. Webサービスのデプロイ（公開）
+gcloud run deploy web-app-web \
+  --source=./web \
+  --region=asia-northeast1 \
+  --allow-unauthenticated \
+  --service-account=web-sa@PROJECT_ID.iam.gserviceaccount.com \
+  --update-env-vars="API_URL=https://web-app-api-xxx.run.app"
+```
+
+### Cloudflare 設定
+
+1. **DNS設定**: Cloud RunのURLをCNAMEで登録
+2. **SSL/TLS**: Fullモードを選択
+3. **WAF設定**: Security → WAF → DDoS を「High」に設定
+4. **レート制限**: 100 req/min per IP を設定
+
+### Secret Manager 設定
+
+```bash
+# シークレット作成
+echo -n "your-secret-value" | gcloud secrets create STRIPE_SECRET_KEY --data-file=-
+
+# Cloud Runサービスにシークレットを設定
+gcloud run services update web-app-api \
+  --update-secrets=STRIPE_SECRET_KEY=STRIPE_SECRET_KEY:latest
+```
 
 ## Development Notes
 
