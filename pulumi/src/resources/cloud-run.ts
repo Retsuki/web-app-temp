@@ -1,8 +1,8 @@
 import * as gcp from '@pulumi/gcp'
 import * as pulumi from '@pulumi/pulumi'
-import { gcpConfig, naming, cloudRunConfig } from '../config'
-import type { ServiceAccounts } from './service-accounts'
+import { cloudRunConfig, gcpConfig, naming } from '../config'
 import type { Secrets } from './secrets'
+import type { ServiceAccounts } from './service-accounts'
 import { grantCloudRunInvokePermission } from './service-accounts'
 
 export interface CloudRunServices {
@@ -24,42 +24,46 @@ export function createCloudRunServices(
     name: naming.apiServiceName,
     project: gcpConfig.project,
     location: gcpConfig.region,
-    
+
     template: {
       spec: {
         serviceAccountName: serviceAccounts.apiServiceAccount.email,
         timeoutSeconds: cloudRunConfig.timeout,
-        containers: [{
-          image: pulumi.interpolate`gcr.io/${gcpConfig.project}/${naming.apiServiceName}:latest`,
-          ports: [{ containerPort: 8080 }],
-          resources: {
-            limits: {
-              memory: cloudRunConfig.memory,
-              cpu: cloudRunConfig.cpu,
+        containers: [
+          {
+            image: pulumi.interpolate`gcr.io/${gcpConfig.project}/${naming.apiServiceName}:latest`,
+            ports: [{ containerPort: 8080 }],
+            resources: {
+              limits: {
+                memory: cloudRunConfig.memory,
+                cpu: cloudRunConfig.cpu,
+              },
             },
+            envs: [
+              // PORT is automatically set by Cloud Run, don't set it manually
+            ],
+            volumeMounts: [
+              {
+                name: 'env-secret',
+                mountPath: '/secrets',
+              },
+            ],
           },
-          envs: [
-            // Mount all environment variables from Secret Manager
-            {
-              name: 'PORT',
-              value: '8080',
-            },
-          ],
-          volumeMounts: [{
+        ],
+        volumes: [
+          {
             name: 'env-secret',
-            mountPath: '/secrets',
-          }],
-        }],
-        volumes: [{
-          name: 'env-secret',
-          secret: {
-            secretName: secrets.apiSecret.secretId,
-            items: [{
-              key: 'latest',
-              path: '.env',
-            }],
+            secret: {
+              secretName: secrets.apiSecret.secretId,
+              items: [
+                {
+                  key: 'latest',
+                  path: '.env',
+                },
+              ],
+            },
           },
-        }],
+        ],
       },
       metadata: {
         annotations: {
@@ -68,12 +72,14 @@ export function createCloudRunServices(
         },
       },
     },
-    
-    traffics: [{
-      percent: 100,
-      latestRevision: true,
-    }],
-    
+
+    traffics: [
+      {
+        percent: 100,
+        latestRevision: true,
+      },
+    ],
+
     autogenerateRevisionName: true,
   })
 
@@ -82,37 +88,35 @@ export function createCloudRunServices(
     name: naming.webServiceName,
     project: gcpConfig.project,
     location: gcpConfig.region,
-    
+
     template: {
       spec: {
         serviceAccountName: serviceAccounts.webServiceAccount.email,
         timeoutSeconds: cloudRunConfig.timeout,
-        containers: [{
-          image: pulumi.interpolate`gcr.io/${gcpConfig.project}/${naming.webServiceName}:latest`,
-          ports: [{ containerPort: 3000 }],
-          resources: {
-            limits: {
-              memory: cloudRunConfig.memory,
-              cpu: cloudRunConfig.cpu,
+        containers: [
+          {
+            image: pulumi.interpolate`gcr.io/${gcpConfig.project}/${naming.webServiceName}:latest`,
+            ports: [{ containerPort: 3000 }],
+            resources: {
+              limits: {
+                memory: cloudRunConfig.memory,
+                cpu: cloudRunConfig.cpu,
+              },
             },
+            envs: [
+              // PORT is automatically set by Cloud Run, don't set it manually
+              {
+                name: 'NODE_ENV',
+                value: 'production',
+              },
+              // API URL will be set after API service is deployed
+              {
+                name: 'API_URL',
+                value: apiService.statuses[0].url,
+              },
+            ],
           },
-          envs: [
-            // Environment variables for Next.js (will be set during Cloud Build)
-            {
-              name: 'PORT',
-              value: '3000',
-            },
-            {
-              name: 'NODE_ENV',
-              value: 'production',
-            },
-            // API URL will be set after API service is deployed
-            {
-              name: 'API_URL',
-              value: apiService.statuses[0].url,
-            },
-          ],
-        }],
+        ],
       },
       metadata: {
         annotations: {
@@ -121,22 +125,20 @@ export function createCloudRunServices(
         },
       },
     },
-    
-    traffics: [{
-      percent: 100,
-      latestRevision: true,
-    }],
-    
+
+    traffics: [
+      {
+        percent: 100,
+        latestRevision: true,
+      },
+    ],
+
     autogenerateRevisionName: true,
   })
 
   // Grant permissions for service-to-service communication
   // Allow Web service to invoke API service
-  grantCloudRunInvokePermission(
-    'web-to-api',
-    serviceAccounts.webServiceAccount,
-    apiService
-  )
+  grantCloudRunInvokePermission('web-to-api', serviceAccounts.webServiceAccount, apiService)
 
   // Allow Stripe Gateway service account to invoke API service (for webhooks)
   grantCloudRunInvokePermission(

@@ -4,7 +4,7 @@ import * as pulumi from '@pulumi/pulumi'
 import { environment as env, gcpConfig, naming } from './src/config'
 import { createApiGateway } from './src/resources/api-gateway'
 import { createArtifactRegistry } from './src/resources/artifact-registry'
-import { createCloudBuildTriggers } from './src/resources/cloud-build'
+// import { createCloudBuildTriggers } from './src/resources/cloud-build'
 import { createCloudRunServices } from './src/resources/cloud-run'
 // Import resource modules
 import { enableAPIs } from './src/resources/project'
@@ -60,8 +60,9 @@ async function main(): Promise<DeploymentResult> {
   const apiGateway = createApiGateway(serviceAccounts, cloudRunServices)
 
   // Step 7: Create Cloud Build triggers
-  pulumi.log.info('Creating Cloud Build triggers...')
-  createCloudBuildTriggers()
+  // TODO: Cloud Buildトリガーは手動で設定（GitHub連携が必要）
+  pulumi.log.info('Skipping Cloud Build triggers (manual setup required)...')
+  // createCloudBuildTriggers()
 
   // Export important values
   return {

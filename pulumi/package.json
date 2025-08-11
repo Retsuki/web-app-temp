@@ -5,6 +5,10 @@
   "main": "index.ts",
   "scripts": {
     "build": "tsc",
+    "pulumi:dev": "pulumi stack select dev && pulumi up",
+    "pulumi:prod": "pulumi stack select prod && pulumi up",
+    "pulumi:preview:dev": "pulumi stack select dev && pulumi preview",
+    "pulumi:preview:prod": "pulumi stack select prod && pulumi preview",
     "lint": "biome lint .",
     "format": "biome format --write .",
     "check": "biome check .",

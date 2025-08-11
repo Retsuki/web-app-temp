@@ -17,7 +17,6 @@ export function createCloudBuildTriggers(): CloudBuildTriggers {
   const apiTrigger = new gcp.cloudbuild.Trigger('api-build-trigger', {
     name: `${naming.apiServiceName}-trigger`,
     project: gcpConfig.project,
-    location: gcpConfig.region,
     
     github: {
       owner: githubConfig.owner,
@@ -47,7 +46,6 @@ export function createCloudBuildTriggers(): CloudBuildTriggers {
   const webTrigger = new gcp.cloudbuild.Trigger('web-build-trigger', {
     name: `${naming.webServiceName}-trigger`,
     project: gcpConfig.project,
-    location: gcpConfig.region,
     
     github: {
       owner: githubConfig.owner,
