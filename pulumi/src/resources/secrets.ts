@@ -24,7 +24,7 @@ export function createSecrets(serviceAccounts: ServiceAccounts): Secrets {
     secretId: naming.apiSecretName,
     project: gcpConfig.project,
     replication: {
-      automatic: {},
+      auto: {},
     },
   })
 
@@ -47,7 +47,7 @@ export function createSecrets(serviceAccounts: ServiceAccounts): Secrets {
     secretId: naming.webSecretName,
     project: gcpConfig.project,
     replication: {
-      automatic: {},
+      auto: {},
     },
   })
 

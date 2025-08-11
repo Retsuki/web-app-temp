@@ -1,6 +1,6 @@
 import * as gcp from '@pulumi/gcp'
 import * as pulumi from '@pulumi/pulumi'
-import { gcpConfig, naming, cloudRunConfig, environment } from '../config'
+import { gcpConfig, naming, cloudRunConfig } from '../config'
 import type { ServiceAccounts } from './service-accounts'
 import type { Secrets } from './secrets'
 import { grantCloudRunInvokePermission } from './service-accounts'
@@ -146,7 +146,7 @@ export function createCloudRunServices(
   )
 
   // Allow unauthenticated access to Web service (public website)
-  new gcp.cloudrun.ServiceIamMember('web-public-access', {
+  new gcp.cloudrun.IamMember('web-public-access', {
     project: gcpConfig.project,
     location: gcpConfig.region,
     service: webService.name,

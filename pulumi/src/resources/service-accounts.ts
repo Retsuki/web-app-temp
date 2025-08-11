@@ -90,7 +90,7 @@ export function grantCloudRunInvokePermission(
   serviceAccount: gcp.serviceaccount.Account,
   cloudRunService: gcp.cloudrun.Service
 ) {
-  return new gcp.cloudrun.ServiceIamMember(`${serviceName}-invoker`, {
+  return new gcp.cloudrun.IamMember(`${serviceName}-invoker`, {
     project: gcpConfig.project,
     location: gcpConfig.region,
     service: cloudRunService.name,

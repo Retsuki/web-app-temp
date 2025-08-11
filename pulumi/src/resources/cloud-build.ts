@@ -1,6 +1,5 @@
 import * as gcp from '@pulumi/gcp'
-import * as pulumi from '@pulumi/pulumi'
-import { gcpConfig, naming, githubConfig, environment } from '../config'
+import { gcpConfig, naming, githubConfig } from '../config'
 
 export interface CloudBuildTriggers {
   apiTrigger: gcp.cloudbuild.Trigger

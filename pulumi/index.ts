@@ -1,7 +1,7 @@
 import * as pulumi from '@pulumi/pulumi'
 
 // Import configuration
-import { environment, gcpConfig, naming } from './src/config'
+import { environment as env, gcpConfig, naming } from './src/config'
 import { createApiGateway } from './src/resources/api-gateway'
 import { createArtifactRegistry } from './src/resources/artifact-registry'
 import { createCloudBuildTriggers } from './src/resources/cloud-build'
@@ -11,15 +11,33 @@ import { enableAPIs } from './src/resources/project'
 import { createSecrets } from './src/resources/secrets'
 import { createServiceAccounts } from './src/resources/service-accounts'
 
+interface DeploymentResult {
+  environment: string
+  project: string
+  region: string
+  apiServiceUrl: pulumi.Output<string>
+  webServiceUrl: pulumi.Output<string>
+  stripeWebhookUrl: pulumi.Output<string>
+  apiServiceName: string
+  webServiceName: string
+  apiServiceAccount: pulumi.Output<string>
+  webServiceAccount: pulumi.Output<string>
+  stripeGatewayServiceAccount: pulumi.Output<string>
+  apiSecretName: string
+  webSecretName: string
+  artifactRegistryUrl: pulumi.Output<string>
+  instructions: pulumi.Output<string>
+}
+
 // Main deployment function
-async function main() {
-  pulumi.log.info(`Deploying infrastructure for environment: ${environment}`)
+async function main(): Promise<DeploymentResult> {
+  pulumi.log.info(`Deploying infrastructure for environment: ${env}`)
   pulumi.log.info(`GCP Project: ${gcpConfig.project}`)
   pulumi.log.info(`Region: ${gcpConfig.region}`)
 
   // Step 1: Enable required GCP APIs
   pulumi.log.info('Enabling GCP APIs...')
-  const apis = enableAPIs()
+  enableAPIs()
 
   // Step 2: Create service accounts
   pulumi.log.info('Creating service accounts...')
@@ -31,7 +49,7 @@ async function main() {
 
   // Step 4: Create Artifact Registry
   pulumi.log.info('Creating Artifact Registry...')
-  const artifactRegistry = createArtifactRegistry()
+  createArtifactRegistry()
 
   // Step 5: Create Cloud Run services
   pulumi.log.info('Creating Cloud Run services...')
@@ -43,12 +61,12 @@ async function main() {
 
   // Step 7: Create Cloud Build triggers
   pulumi.log.info('Creating Cloud Build triggers...')
-  const cloudBuildTriggers = createCloudBuildTriggers()
+  createCloudBuildTriggers()
 
   // Export important values
   return {
     // Environment
-    environment,
+    environment: env,
     project: gcpConfig.project,
     region: gcpConfig.region,
 
@@ -79,7 +97,7 @@ async function main() {
 Deployment Complete!
 ==========================================================
 
-Environment: ${environment}
+Environment: ${env}
 Project: ${gcpConfig.project}
 Region: ${gcpConfig.region}
 
@@ -97,7 +115,7 @@ ${gcpConfig.region}-docker.pkg.dev/${gcpConfig.project}/${naming.artifactRegistr
 
 📝 Next Steps:
 1. Configure Stripe webhook URL in Stripe Dashboard
-2. Push to ${environment === 'prod' ? 'main' : 'develop'} branch to trigger Cloud Build
+2. Push to ${env === 'prod' ? 'main' : 'develop'} branch to trigger Cloud Build
 3. Monitor deployments in Cloud Console
 
 ==========================================================
@@ -108,11 +126,11 @@ ${gcpConfig.region}-docker.pkg.dev/${gcpConfig.project}/${naming.artifactRegistr
 // Execute main function and export results
 const deployment = main()
 
-export const environment = deployment.then((d) => d.environment)
-export const project = deployment.then((d) => d.project)
-export const region = deployment.then((d) => d.region)
-export const apiServiceUrl = deployment.then((d) => d.apiServiceUrl)
-export const webServiceUrl = deployment.then((d) => d.webServiceUrl)
-export const stripeWebhookUrl = deployment.then((d) => d.stripeWebhookUrl)
-export const artifactRegistryUrl = deployment.then((d) => d.artifactRegistryUrl)
-export const instructions = deployment.then((d) => d.instructions)
+export const environment = deployment.then((d: DeploymentResult) => d.environment)
+export const project = deployment.then((d: DeploymentResult) => d.project)
+export const region = deployment.then((d: DeploymentResult) => d.region)
+export const apiServiceUrl = deployment.then((d: DeploymentResult) => d.apiServiceUrl)
+export const webServiceUrl = deployment.then((d: DeploymentResult) => d.webServiceUrl)
+export const stripeWebhookUrl = deployment.then((d: DeploymentResult) => d.stripeWebhookUrl)
+export const artifactRegistryUrl = deployment.then((d: DeploymentResult) => d.artifactRegistryUrl)
+export const instructions = deployment.then((d: DeploymentResult) => d.instructions)
