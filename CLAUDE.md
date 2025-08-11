@@ -136,6 +136,10 @@ supabase status     # 状態確認
 ### Directory Structure
 ```
 web_app_temp/
+├── /api-gateway-stripe-webhook/    # Stripe Webhook受信用APIゲートウェイ
+│   ├── docs.md                     # セットアップガイド
+│   └── openapi2-run.yaml           # OpenAPI定義（ルーティング設定）
+│
 ├── /web/                           # フロントエンドアプリケーション
 │   ├── /src/
 │   │   ├── /app/                   # Next.js App Router
@@ -400,9 +404,15 @@ APIは複数の認証プロバイダーに対応：
 │  (Next.js 15)   │◀───────│  --no-allow-unauth       │
 │  public URL     │ ID tok │  api-<env>-<project>     │
 └───────┬─────────┘        └──────────┬───────────────┘
-        │ SSR / Route Handler          │
-        │ fetch + ID token             │
-        ▼                              ▼
+        │                              │
+        │                              ▲ IAM認証
+        │                              │
+        │                    ┌─────────┴──────────┐
+        │                    │   API Gateway      │
+        │                    │ Stripe Webhook用   │◀── Webhook
+        │                    └────────────────────┘     (Stripe)
+        │
+        ▼
 ┌───────────────────┐           ┌────────────────┐
 │  Supabase (Auth)  │           │    Stripe      │
 │  PostgreSQL DB    │           └────────────────┘
@@ -412,9 +422,13 @@ APIは複数の認証プロバイダーに対応：
 ### セキュリティアーキテクチャ
 - **Cloudflare CDN**: DDoS保護、基本WAF、レート制限
 - **Cloud Run IAM**: API は IAM 認証必須（`--no-allow-unauthenticated`）
+- **API Gateway**: Stripe Webhook受信用のセキュアな公開エンドポイント
+  - 外部からのWebhookを受信し、認証付きでCloud Runへ転送
+  - Stripeからの直接アクセスを可能にしつつセキュリティを維持
 - **サービスアカウント**: 最小権限の原則で分離
   - `web-sa`: WebフロントエンドからAPIへの呼び出し権限のみ
   - `api-sa`: Secret Manager読み取り権限
+  - `web-app-stripe-gw-sa`: API Gateway用、Cloud Run呼び出し権限のみ
 - **Secret Manager**: 機密情報の暗号化保存
 - **ID Token**: Web → API 間の認証にGoogle IDトークンを使用
 
@@ -426,6 +440,10 @@ api-sa@PROJECT_ID.iam.gserviceaccount.com
 
 # Web用サービスアカウント  
 web-sa@PROJECT_ID.iam.gserviceaccount.com
+└── roles/run.invoker (APIサービスに対して)
+
+# Stripe Webhook Gateway用サービスアカウント
+web-app-stripe-gw-sa@PROJECT_ID.iam.gserviceaccount.com
 └── roles/run.invoker (APIサービスに対して)
 
 # Cloud Build用権限
@@ -514,6 +532,34 @@ echo -n "your-secret-value" | gcloud secrets create STRIPE_SECRET_KEY --data-fil
 gcloud run services update web-app-api \
   --update-secrets=STRIPE_SECRET_KEY=STRIPE_SECRET_KEY:latest
 ```
+
+### API Gateway 設定（Stripe Webhook用）
+
+Cloud Runの`--no-allow-unauthenticated`設定を維持しながら、Stripeからのwebhookを受信するために必須の構成です。
+
+```bash
+# 1. API Gateway用サービスアカウント作成
+gcloud iam service-accounts create web-app-stripe-gw-sa \
+  --display-name="Stripe Webhook Gateway Service Account"
+
+# 2. Cloud Runへのアクセス権限付与
+gcloud run services add-iam-policy-binding web-app-api \
+  --member="serviceAccount:web-app-stripe-gw-sa@PROJECT_ID.iam.gserviceaccount.com" \
+  --role="roles/run.invoker" \
+  --region=asia-northeast1
+
+# 3. API Gatewayデプロイ
+gcloud api-gateway api-configs create stripe-webhook-config \
+  --api=stripe-webhook-api \
+  --openapi-spec=api-gateway-stripe-webhook/openapi2-run.yaml \
+  --project=PROJECT_ID \
+  --backend-auth-service-account=web-app-stripe-gw-sa@PROJECT_ID.iam.gserviceaccount.com
+```
+
+**なぜ必要か：**
+- Cloud RunのAPIは外部からの直接アクセスを拒否（セキュリティ）
+- Stripeはwebhookを送信する際、Google認証トークンを付与できない
+- API Gatewayが公開エンドポイントとして機能し、認証を代行
 
 ## Development Notes
 
