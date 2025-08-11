@@ -2,15 +2,14 @@ import * as pulumi from '@pulumi/pulumi'
 
 // Import configuration
 import { environment, gcpConfig, naming } from './src/config'
-
+import { createApiGateway } from './src/resources/api-gateway'
+import { createArtifactRegistry } from './src/resources/artifact-registry'
+import { createCloudBuildTriggers } from './src/resources/cloud-build'
+import { createCloudRunServices } from './src/resources/cloud-run'
 // Import resource modules
 import { enableAPIs } from './src/resources/project'
-import { createServiceAccounts } from './src/resources/service-accounts'
 import { createSecrets } from './src/resources/secrets'
-import { createArtifactRegistry } from './src/resources/artifact-registry'
-import { createCloudRunServices } from './src/resources/cloud-run'
-import { createApiGateway } from './src/resources/api-gateway'
-import { createCloudBuildTriggers } from './src/resources/cloud-build'
+import { createServiceAccounts } from './src/resources/service-accounts'
 
 // Main deployment function
 async function main() {
@@ -56,9 +55,7 @@ async function main() {
     // Service URLs
     apiServiceUrl: cloudRunServices.apiServiceUrl,
     webServiceUrl: cloudRunServices.webServiceUrl,
-    stripeWebhookUrl: apiGateway.gatewayUrl.apply(
-      (url) => `${url}/api/v1/stripe/webhook`
-    ),
+    stripeWebhookUrl: apiGateway.gatewayUrl.apply((url) => `${url}/api/v1/stripe/webhook`),
 
     // Service names
     apiServiceName: naming.apiServiceName,

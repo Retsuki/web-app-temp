@@ -31,7 +31,10 @@
     "pulumi:preview:dev": "cd pulumi && pulumi stack select dev && pulumi preview",
     "pulumi:preview:prod": "cd pulumi && pulumi stack select prod && pulumi preview",
     "pulumi:destroy:dev": "cd pulumi && pulumi stack select dev && pulumi destroy",
-    "pulumi:destroy:prod": "cd pulumi && pulumi stack select prod && pulumi destroy"
+    "pulumi:destroy:prod": "cd pulumi && pulumi stack select prod && pulumi destroy",
+    "pulumi:typecheck": "cd pulumi && npm run typecheck",
+    "pulumi:lint": "cd pulumi && npm run lint",
+    "pulumi:check": "cd pulumi && npm run check"
   },
   "repository": {
     "type": "git",
