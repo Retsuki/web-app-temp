@@ -196,8 +196,10 @@ web_app_temp/
 │   │   │   │   └── server-api.ts   # サーバーAPIユーティリティ
 │   │   │   └── /supabase/          # Supabaseクライアント
 │   │   └── middleware.ts           # 認証・i18nミドルウェア
+│   └── cloudbuild.yaml             # Cloud Buildデプロイ設定
 │
 ├── /api/                           # バックエンドAPIサーバー
+│   ├── cloudbuild.yaml             # Cloud Buildデプロイ設定
 │   ├── /src/
 │   │   ├── /_shared/               # 共通モジュール
 │   │   │   ├── /middleware/        # ミドルウェア
@@ -404,6 +406,39 @@ APIは複数の認証プロバイダーに対応：
 
 ## Infrastructure Architecture
 
+### CI/CD Pipeline (Cloud Build)
+
+#### 📦 Web Application (`/web/cloudbuild.yaml`)
+Webアプリケーションの自動デプロイパイプライン：
+
+1. **Secret Manager統合** - 環境変数を安全に取得
+2. **Docker イメージビルド** - Next.jsアプリをコンテナ化
+3. **Container Registry プッシュ** - GCRへイメージ保存
+4. **Cloud Run デプロイ** - 本番環境へ自動デプロイ
+
+**設定詳細:**
+- サービス名: `web-app-web`
+- リージョン: `asia-northeast1`
+- メモリ: 512Mi / CPU: 1
+- 認証: 公開アクセス許可（`--allow-unauthenticated`）
+- サービスアカウント: `web-sa@PROJECT_ID.iam.gserviceaccount.com`
+- 環境変数: Secret Manager経由で注入
+
+#### ⚙️ API Server (`/api/cloudbuild.yaml`)
+APIサーバーの自動デプロイパイプライン：
+
+1. **Docker イメージビルド** - Honoアプリをコンテナ化
+2. **Container Registry プッシュ** - GCRへイメージ保存
+3. **Cloud Run デプロイ** - セキュアな本番環境へデプロイ
+
+**設定詳細:**
+- サービス名: `web-app-api`
+- リージョン: `asia-northeast1`
+- メモリ: 512Mi / CPU: 1
+- 認証: IAM認証必須（`--no-allow-unauthenticated`）
+- サービスアカウント: `api-sa@PROJECT_ID.iam.gserviceaccount.com`
+- シークレット: `api-env-production`として一括マウント
+
 ### デプロイアーキテクチャ
 ```
 ┌───────────────┐        ┌──────────────────────────┐
@@ -491,7 +526,31 @@ PROJECT_NUMBER-compute@developer.gserviceaccount.com
 
 ## Deployment Guide
 
-### Google Cloud Run デプロイ
+### 🚀 自動デプロイ（推奨）
+
+Cloud Buildを使用した自動デプロイ：
+
+```bash
+# GitHub リポジトリと Cloud Build の連携設定
+gcloud builds triggers create github \
+  --repo-name=web-app-temp \
+  --repo-owner=YOUR_GITHUB_USERNAME \
+  --branch-pattern="^main$" \
+  --build-config=web/cloudbuild.yaml \
+  --name=web-app-web-trigger
+
+# API用のトリガー作成
+gcloud builds triggers create github \
+  --repo-name=web-app-temp \
+  --repo-owner=YOUR_GITHUB_USERNAME \
+  --branch-pattern="^main$" \
+  --build-config=api/cloudbuild.yaml \
+  --name=web-app-api-trigger
+```
+
+mainブランチへのプッシュで自動デプロイが実行されます。
+
+### Google Cloud Run デプロイ（手動）
 
 #### 前提条件
 - Google Cloud SDK インストール済み
