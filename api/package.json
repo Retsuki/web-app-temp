@@ -16,7 +16,8 @@
     "lint:fix": "biome lint --write .",
     "format": "biome format --write .",
     "check": "biome check .",
-    "check:apply": "biome check --write ."
+    "check:apply": "biome check --write .",
+    "kill": "sh -c 'lsof -ti:$0 | xargs kill -9 2>/dev/null || echo \"No process running on port $0\"'"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",

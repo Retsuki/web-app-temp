@@ -34,7 +34,8 @@
     "pulumi:destroy:prod": "cd pulumi && pulumi stack select prod && pulumi destroy",
     "pulumi:typecheck": "cd pulumi && npm run typecheck",
     "pulumi:lint": "cd pulumi && npm run lint",
-    "pulumi:check": "cd pulumi && npm run check"
+    "pulumi:check": "cd pulumi && npm run check",
+    "kill": "sh -c 'lsof -ti:$0 | xargs kill -9 2>/dev/null || echo \"No process running on port $0\"'"
   },
   "repository": {
     "type": "git",

@@ -13,7 +13,8 @@
     "check:apply": "biome check --write .",
     "orval": "orval --config ./orval.config.ts",
     "orval:watch": "orval --config ./orval.config.ts --watch",
-    "gen:api": "orval --config ./orval.config.ts"
+    "gen:api": "orval --config ./orval.config.ts",
+    "kill": "sh -c 'lsof -ti:$0 | xargs kill -9 2>/dev/null || echo \"No process running on port $0\"'"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.1",
