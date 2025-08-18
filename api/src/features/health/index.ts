@@ -4,6 +4,7 @@ import type { App } from '../../_shared/factory/create-app.js'
 const healthRoute = createRoute({
   method: 'get',
   path: '/health',
+  operationId: 'getHealth',
   tags: ['system'],
   summary: 'ヘルスチェック',
   description: 'APIサーバーの稼働状況を確認します',

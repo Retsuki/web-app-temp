@@ -5,6 +5,7 @@ import { getPaymentHistorySchema } from './dto.js'
 export const getPaymentHistoryRoute = createRoute({
   method: 'get',
   path: '/billing/history',
+  operationId: 'getPaymentHistory',
   tags: ['billing'],
   summary: 'Get payment history',
   description: 'Get user payment history',

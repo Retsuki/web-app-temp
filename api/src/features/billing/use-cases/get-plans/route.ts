@@ -19,6 +19,7 @@ const planSchema = z.object({
 export const getPlansRoute = createRoute({
   method: 'get',
   path: '/plans',
+  operationId: 'getPlans',
   tags: ['billing'],
   summary: 'Get available plans',
   description: 'Get list of available subscription plans',

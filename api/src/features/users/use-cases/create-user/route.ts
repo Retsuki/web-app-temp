@@ -5,6 +5,7 @@ import { createUserRequestSchema, createUserResponseSchema } from './dto.js'
 export const createUserRoute = createRoute({
   method: 'post',
   path: '/users',
+  operationId: 'createUser',
   tags: ['users'],
   summary: 'ユーザープロフィールを作成',
   description: '新規ユーザーのプロフィールを作成します',
