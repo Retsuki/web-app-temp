@@ -1,5 +1,5 @@
 import type Stripe from 'stripe'
-import type { App } from '../../_shared/factory/create-app.js'
+import type { App } from '../../_shared/factory/index.js'
 import { logger } from '../../_shared/utils/logger.js'
 import { STRIPE_CONFIG, stripe } from '../../lib/stripe.js'
 import { stripeWebhookRoute } from './route.js'

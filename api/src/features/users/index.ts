@@ -1,4 +1,4 @@
-import type { App } from '../../_shared/factory/create-app.js'
+import type { App } from '../../_shared/factory/index.js'
 import { validateUserId } from '../../_shared/utils/auth/index.js'
 import { createUserRoute } from './use-cases/create-user/route.js'
 import { deleteAccountRoute } from './use-cases/delete-account/route.js'

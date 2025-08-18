@@ -9,7 +9,7 @@ if (existsSync('/etc/secrets/.env')) {
 }
 
 import { serve } from '@hono/node-server'
-import { createApp } from './_shared/factory/create-app.js'
+import { createApp } from './_shared/factory/index.js'
 import { billingApi } from './features/billing/index.js'
 import { healthApi } from './features/health/index.js'
 import { stripeWebhookApi } from './features/stripe-webhook/index.js'
