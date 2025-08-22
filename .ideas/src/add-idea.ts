@@ -3,7 +3,7 @@ import * as path from 'node:path'
 import * as readline from 'node:readline'
 
 // アイディアディレクトリのパス
-const IDEAS_DIR = '../ideas'
+const IDEAS_DIR = '../.ideas'
 
 // readlineインターフェースを作成
 const rl = readline.createInterface({

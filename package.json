@@ -24,7 +24,7 @@
     "web:env:update": "./scripts/web/env-update.sh",
     "web:env:download": "./scripts/web/env-download.sh",
     "env-switch": "./scripts/env-switch.sh",
-    "idea": "cd ideas && npm run idea",
+    "idea": "cd .ideas && npm run idea",
     "pulumi:init": "cd pulumi && npm install",
     "pulumi:dev": "cd pulumi && pulumi stack select dev && pulumi up",
     "pulumi:prod": "cd pulumi && pulumi stack select prod && pulumi up",
