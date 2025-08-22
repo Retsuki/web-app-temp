@@ -10,6 +10,7 @@
     "pulumi:preview:dev": "pulumi stack select dev && pulumi preview",
     "pulumi:preview:prod": "pulumi stack select prod && pulumi preview",
     "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
     "format": "biome format --write .",
     "check": "biome check .",
     "check:apply": "biome check --write .",

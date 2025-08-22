@@ -7,6 +7,10 @@
   },
   "files": {
     "includes": [
+      "!**/.claude",
+      "!**/.docs",
+      "!**/.ideas",
+      "!**/.vscode",
       "**/*.js",
       "**/*.jsx",
       "**/*.ts",
@@ -17,8 +21,10 @@
       "!**/dist",
       "!**/build",
       "!**/.next",
+      "!**/scripts",
       "!**/coverage",
-      "!**/web/src/lib/api/generated/**"
+      "!**/migrations",
+      "!**/generated"
     ]
   },
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
