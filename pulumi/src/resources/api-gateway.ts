@@ -75,7 +75,7 @@ paths:
   // Replace the backend URL in the OpenAPI spec
   const apiConfigSpec = pulumi.interpolate`${cloudRunServices.apiServiceUrl}`.apply(
     (apiUrl) => {
-      return openApiSpec.replace(/BACKEND_URL|https:\/\/[^\/\s]+\.run\.app/g, apiUrl)
+      return openApiSpec.replace(/BACKEND_URL|https:\/\/[^/\s]+\.run\.app/g, apiUrl)
     }
   )
 
