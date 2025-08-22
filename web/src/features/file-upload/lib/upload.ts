@@ -17,7 +17,7 @@ export async function uploadFile(
   userId: string,
   options: UploadOptions
 ): Promise<UploadedFile> {
-  const { bucket, folder, maxFileSize, allowedMimeTypes, resizeOptions, onProgress } = options
+  const { bucket, folder, maxFileSize, allowedMimeTypes, resizeOptions } = options
 
   // ファイルタイプ検証
   if (!validateFileType(file, allowedMimeTypes)) {
@@ -32,7 +32,7 @@ export async function uploadFile(
   // ファイルサイズ検証
   if (!validateFileSize(file, maxFileSize)) {
     const error: FileUploadError = {
-      message: `ファイルサイズが大きすぎます（最大: ${maxFileSize! / 1024 / 1024}MB）`,
+      message: `ファイルサイズが大きすぎます（最大: ${maxFileSize ? maxFileSize / 1024 / 1024 : 'N/A'}MB）`,
       code: 'FILE_TOO_LARGE',
       file,
     }

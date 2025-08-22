@@ -65,9 +65,6 @@ export function useFileUpload(): UseFileUploadReturn {
       setErrors([])
 
       try {
-        const totalFiles = files.length
-        const completedFiles = 0
-
         const { successful, failed } = await uploadFiles(files, user.id, options)
 
         setUploadedFiles((prev) => [...prev, ...successful])

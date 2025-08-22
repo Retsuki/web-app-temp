@@ -1,5 +1,3 @@
-/** biome-ignore-all lint/complexity/noStaticOnlyClass: <explanation> */
-
 import * as fs from 'node:fs'
 import * as os from 'node:os'
 import * as path from 'node:path'
@@ -11,6 +9,7 @@ import * as path from 'node:path'
  * 注意: 環境変数はgetterで遅延評価されるため、
  * dotenvの初期化後に正しく値が取得されます
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: Configuration requires encapsulation and static methods
 export class AppConfig {
   // 一時ファイルパスのキャッシュ
   private static _tempCredentialsPath: string | undefined
