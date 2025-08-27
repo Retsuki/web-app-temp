@@ -40,8 +40,8 @@ import {
 } from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
-import { usePatchApiV1ProjectsProjectId } from '@/lib/api/generated/projects/projects'
-import type { ProjectsListProjectsResponseItem } from '@/lib/api/generated/schemas'
+import { usePutApiV1ProjectsId } from '@/lib/api/generated/projects/projects'
+import type { GetApiV1Projects200ProjectsItem } from '@/lib/api/generated/schemas'
 import { cn } from '@/lib/utils'
 
 const formSchema = z.object({
@@ -58,7 +58,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>
 
 interface DialogEditProjectProps {
-  project: ProjectsListProjectsResponseItem
+  project: GetApiV1Projects200ProjectsItem
 }
 
 export function DialogEditProject({ project }: DialogEditProjectProps) {
@@ -80,13 +80,13 @@ export function DialogEditProject({ project }: DialogEditProjectProps) {
     },
   })
 
-  const updateProjectMutation = usePatchApiV1ProjectsProjectId()
+  const updateProjectMutation = usePutApiV1ProjectsId()
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true)
     try {
       await updateProjectMutation.mutateAsync({
-        projectId: project.id,
+        id: project.id,
         data: {
           name: values.name,
           description: values.description || undefined,
