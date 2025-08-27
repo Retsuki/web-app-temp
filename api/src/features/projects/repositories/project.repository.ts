@@ -1,6 +1,6 @@
+import { and, desc, eq, isNull, sql } from 'drizzle-orm'
 import type { Database } from '../../../drizzle/db/database.js'
 import { projects } from '../../../drizzle/db/schema.js'
-import { and, desc, eq, isNull, sql } from 'drizzle-orm'
 
 export interface CreateProjectParams {
   userId: string
@@ -42,13 +42,7 @@ export class ProjectRepository {
     const results = await this.db
       .select()
       .from(projects)
-      .where(
-        and(
-          eq(projects.id, id),
-          eq(projects.userId, userId),
-          isNull(projects.deletedAt)
-        )
-      )
+      .where(and(eq(projects.id, id), eq(projects.userId, userId), isNull(projects.deletedAt)))
       .limit(1)
 
     return results[0] || null
@@ -81,13 +75,7 @@ export class ProjectRepository {
         ...params,
         updatedAt: sql`now()`,
       })
-      .where(
-        and(
-          eq(projects.id, id),
-          eq(projects.userId, userId),
-          isNull(projects.deletedAt)
-        )
-      )
+      .where(and(eq(projects.id, id), eq(projects.userId, userId), isNull(projects.deletedAt)))
       .returning()
 
     return results[0] || null
@@ -100,13 +88,7 @@ export class ProjectRepository {
         deletedAt: sql`now()`,
         updatedAt: sql`now()`,
       })
-      .where(
-        and(
-          eq(projects.id, id),
-          eq(projects.userId, userId),
-          isNull(projects.deletedAt)
-        )
-      )
+      .where(and(eq(projects.id, id), eq(projects.userId, userId), isNull(projects.deletedAt)))
       .returning()
 
     return results[0] || null
