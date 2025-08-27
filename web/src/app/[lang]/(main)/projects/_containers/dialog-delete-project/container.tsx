@@ -25,16 +25,16 @@ interface DialogDeleteProjectProps {
   onSuccess: () => void
 }
 
-export function DialogDeleteProject({ 
-  projectId, 
-  projectName, 
-  trigger, 
-  open, 
-  onOpenChange, 
-  onSuccess 
+export function DialogDeleteProject({
+  projectId,
+  projectName,
+  trigger,
+  open,
+  onOpenChange,
+  onSuccess,
 }: DialogDeleteProjectProps) {
   const { toast } = useToast()
-  
+
   const deleteProjectMutation = useDeleteApiV1ProjectsId({
     mutation: {
       onSuccess: () => {

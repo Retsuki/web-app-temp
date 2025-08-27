@@ -6,16 +6,10 @@ import { ja } from 'date-fns/locale'
 import { CalendarIcon, Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { AppDialog } from '@/components/app/dialog/app-dialog'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { DialogFooter } from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -98,15 +92,15 @@ export function DialogCreateProject({ open, onOpenChange, onSuccess }: DialogCre
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>新規プロジェクト</DialogTitle>
-          <DialogDescription>新しいプロジェクトを作成します</DialogDescription>
-        </DialogHeader>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+    <AppDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="新規プロジェクト"
+      description="新しいプロジェクトを作成します"
+      className="sm:max-w-[500px]"
+    >
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
@@ -223,7 +217,6 @@ export function DialogCreateProject({ open, onOpenChange, onSuccess }: DialogCre
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          initialFocus
                         />
                       </PopoverContent>
                     </Popover>
@@ -262,7 +255,6 @@ export function DialogCreateProject({ open, onOpenChange, onSuccess }: DialogCre
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          initialFocus
                         />
                       </PopoverContent>
                     </Popover>
@@ -290,7 +282,6 @@ export function DialogCreateProject({ open, onOpenChange, onSuccess }: DialogCre
             </DialogFooter>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+    </AppDialog>
   )
 }

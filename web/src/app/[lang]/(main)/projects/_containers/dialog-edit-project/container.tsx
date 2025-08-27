@@ -6,16 +6,10 @@ import { ja } from 'date-fns/locale'
 import { CalendarIcon, Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { AppDialog } from '@/components/app/dialog/app-dialog'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { DialogFooter } from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -121,23 +115,67 @@ export function DialogEditProject({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>プロジェクトを編集</DialogTitle>
-          <DialogDescription>プロジェクトの詳細を更新します</DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <AppDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title="プロジェクトを編集"
+      description="プロジェクトの詳細を更新します"
+      className="max-w-2xl max-h-[90vh] overflow-y-auto"
+    >
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>プロジェクト名</FormLabel>
+                <FormControl>
+                  <Input placeholder="例: Webサイトリニューアル" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>説明</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="プロジェクトの概要を入力..."
+                    className="resize-none"
+                    rows={3}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="name"
+              name="status"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>プロジェクト名</FormLabel>
-                  <FormControl>
-                    <Input placeholder="例: Webサイトリニューアル" {...field} />
-                  </FormControl>
+                  <FormLabel>ステータス</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="ステータスを選択" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="active">アクティブ</SelectItem>
+                      <SelectItem value="archived">アーカイブ</SelectItem>
+                      <SelectItem value="completed">完了</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -145,208 +183,156 @@ export function DialogEditProject({
 
             <FormField
               control={form.control}
-              name="description"
+              name="priority"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>説明</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="プロジェクトの概要を入力..."
-                      className="resize-none"
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
+                  <FormLabel>優先度</FormLabel>
+                  <Select
+                    onValueChange={(value) => field.onChange(Number(value))}
+                    defaultValue={String(field.value)}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="優先度を選択" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="0">低</SelectItem>
+                      <SelectItem value="1">中</SelectItem>
+                      <SelectItem value="2">高</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
+          </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>ステータス</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <FormField
+            control={form.control}
+            name="progress"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>進捗率: {field.value}%</FormLabel>
+                <FormControl>
+                  <Slider
+                    value={[field.value]}
+                    onValueChange={([value]) => field.onChange(value)}
+                    max={100}
+                    step={1}
+                  />
+                </FormControl>
+                <FormDescription>プロジェクトの進捗状況を設定します</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="startDate"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>開始日</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="ステータスを選択" />
-                        </SelectTrigger>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            'w-full pl-3 text-left font-normal',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, 'PPP', { locale: ja })
+                          ) : (
+                            <span>日付を選択</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="active">アクティブ</SelectItem>
-                        <SelectItem value="archived">アーカイブ</SelectItem>
-                        <SelectItem value="completed">完了</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>優先度</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      defaultValue={String(field.value)}
-                    >
+            <FormField
+              control={form.control}
+              name="endDate"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>終了日</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="優先度を選択" />
-                        </SelectTrigger>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            'w-full pl-3 text-left font-normal',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, 'PPP', { locale: ja })
+                          ) : (
+                            <span>日付を選択</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="0">低</SelectItem>
-                        <SelectItem value="1">中</SelectItem>
-                        <SelectItem value="2">高</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="progress"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>進捗率: {field.value}%</FormLabel>
-                  <FormControl>
-                    <Slider
-                      value={[field.value]}
-                      onValueChange={([value]) => field.onChange(value)}
-                      max={100}
-                      step={1}
-                    />
-                  </FormControl>
-                  <FormDescription>プロジェクトの進捗状況を設定します</FormDescription>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar mode="single" selected={field.value} onSelect={field.onChange} />
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
             />
+          </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="startDate"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>開始日</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              'w-full pl-3 text-left font-normal',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, 'PPP', { locale: ja })
-                            ) : (
-                              <span>日付を選択</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <FormField
+            control={form.control}
+            name="tags"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>タグ</FormLabel>
+                <FormControl>
+                  <Input placeholder="例: Web, モバイル, デザイン (カンマ区切り)" {...field} />
+                </FormControl>
+                <FormDescription>カンマで区切ってタグを入力してください</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-              <FormField
-                control={form.control}
-                name="endDate"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>終了日</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              'w-full pl-3 text-left font-normal',
-                              !field.value && 'text-muted-foreground'
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, 'PPP', { locale: ja })
-                            ) : (
-                              <span>日付を選択</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="tags"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>タグ</FormLabel>
-                  <FormControl>
-                    <Input placeholder="例: Web, モバイル, デザイン (カンマ区切り)" {...field} />
-                  </FormControl>
-                  <FormDescription>カンマで区切ってタグを入力してください</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={updateProjectMutation.isPending}
-              >
-                キャンセル
-              </Button>
-              <Button type="submit" disabled={updateProjectMutation.isPending}>
-                {updateProjectMutation.isPending && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                変更を保存
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={updateProjectMutation.isPending}
+            >
+              キャンセル
+            </Button>
+            <Button type="submit" disabled={updateProjectMutation.isPending}>
+              {updateProjectMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              変更を保存
+            </Button>
+          </DialogFooter>
+        </form>
+      </Form>
+    </AppDialog>
   )
 }
