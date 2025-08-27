@@ -3,11 +3,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { CalendarIcon, Edit, Loader2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { CalendarIcon, Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
@@ -18,7 +15,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import {
   Form,
@@ -40,6 +36,7 @@ import {
 } from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/features/toast/use-toast'
 import { usePutApiV1ProjectsId } from '@/lib/api/generated/projects/projects'
 import type { GetApiV1Projects200ProjectsItem } from '@/lib/api/generated/schemas'
 import { cn } from '@/lib/utils'
@@ -61,10 +58,19 @@ interface DialogEditProjectProps {
   project: GetApiV1Projects200ProjectsItem
 }
 
-export function DialogEditProject({ project }: DialogEditProjectProps) {
-  const [open, setOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const router = useRouter()
+interface ExtendedDialogEditProjectProps extends DialogEditProjectProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSuccess: () => void
+}
+
+export function DialogEditProject({
+  project,
+  open,
+  onOpenChange,
+  onSuccess,
+}: ExtendedDialogEditProjectProps) {
+  const { toast } = useToast()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -80,50 +86,42 @@ export function DialogEditProject({ project }: DialogEditProjectProps) {
     },
   })
 
-  const updateProjectMutation = usePutApiV1ProjectsId()
+  const updateProjectMutation = usePutApiV1ProjectsId({
+    mutation: {
+      onSuccess: () => {
+        toast.success('プロジェクトを更新しました')
+        onSuccess()
+      },
+      onError: () => {
+        toast.error('プロジェクトの更新に失敗しました')
+      },
+    },
+  })
 
   const onSubmit = async (values: FormValues) => {
-    setIsSubmitting(true)
-    try {
-      await updateProjectMutation.mutateAsync({
-        id: project.id,
-        data: {
-          name: values.name,
-          description: values.description || undefined,
-          status: values.status,
-          priority: values.priority,
-          progress: values.progress,
-          startDate: values.startDate?.toISOString(),
-          endDate: values.endDate?.toISOString(),
-          tags: values.tags
-            ? values.tags
-                .split(',')
-                .map((tag) => tag.trim())
-                .filter(Boolean)
-            : [],
-          metadata: project.metadata || {},
-        },
-      })
-
-      toast.success('プロジェクトを更新しました')
-      setOpen(false)
-      router.refresh()
-    } catch (error) {
-      console.error('Failed to update project:', error)
-      toast.error('プロジェクトの更新に失敗しました')
-    } finally {
-      setIsSubmitting(false)
-    }
+    updateProjectMutation.mutate({
+      id: project.id,
+      data: {
+        name: values.name,
+        description: values.description || undefined,
+        status: values.status,
+        priority: values.priority,
+        progress: values.progress,
+        startDate: values.startDate?.toISOString(),
+        endDate: values.endDate?.toISOString(),
+        tags: values.tags
+          ? values.tags
+              .split(',')
+              .map((tag) => tag.trim())
+              .filter(Boolean)
+          : [],
+        metadata: project.metadata || {},
+      },
+    })
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Edit className="w-4 h-4 mr-2" />
-          編集
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>プロジェクトを編集</DialogTitle>
@@ -334,13 +332,15 @@ export function DialogEditProject({ project }: DialogEditProjectProps) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setOpen(false)}
-                disabled={isSubmitting}
+                onClick={() => onOpenChange(false)}
+                disabled={updateProjectMutation.isPending}
               >
                 キャンセル
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" disabled={updateProjectMutation.isPending}>
+                {updateProjectMutation.isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 変更を保存
               </Button>
             </DialogFooter>
