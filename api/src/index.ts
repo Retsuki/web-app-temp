@@ -10,15 +10,17 @@ if (existsSync('/etc/secrets/.env')) {
 
 import { serve } from '@hono/node-server'
 import { createApp } from './_shared/factory/index.js'
+import { authApi } from './features/auth/index.js'
 import { billingApi } from './features/billing/index.js'
 import { healthApi } from './features/health/index.js'
+import { projectsApi } from './features/projects/index.js'
 import { stripeWebhookApi } from './features/stripe-webhook/index.js'
 import { usersApi } from './features/users/index.js'
-import { projectsApi } from './features/projects/index.js'
 
 const app = createApp()
 
 // API routes
+authApi(app)
 usersApi(app)
 healthApi(app)
 billingApi(app)
