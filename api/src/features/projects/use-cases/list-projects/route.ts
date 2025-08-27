@@ -1,6 +1,6 @@
 import { createRoute } from '@hono/zod-openapi'
-import { listProjectsResponseSchema } from './dto.js'
 import { errorResponses } from '../../../../_shared/utils/error/index.js'
+import { listProjectsResponseSchema } from './dto.js'
 
 export const listProjectsRoute = createRoute({
   method: 'get',

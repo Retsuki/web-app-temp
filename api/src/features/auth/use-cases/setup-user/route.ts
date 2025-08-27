@@ -7,7 +7,8 @@ export const setupUserRoute = createRoute({
   path: '/auth/setup',
   tags: ['auth'],
   summary: '新規ユーザーのセットアップ',
-  description: 'Supabase Auth でユーザー作成後、プロフィールと初期プロジェクトを作成します。エラー時はユーザーを削除します。',
+  description:
+    'Supabase Auth でユーザー作成後、プロフィールと初期プロジェクトを作成します。エラー時はユーザーを削除します。',
   request: {
     body: {
       content: {

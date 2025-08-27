@@ -21,7 +21,7 @@ export interface AuthConfig {
    * 使用する認証プラットフォーム
    */
   platform?: AuthPlatform
-  
+
   /**
    * Cloud Run環境での自動検出を有効にするか
    */

@@ -95,19 +95,19 @@ export const projects = pgTable(
     name: varchar('name', { length: 255 }).notNull(),
     description: text('description'),
     status: varchar('status', { length: 50 }).notNull().default('active'), // active, archived, completed
-    
+
     // プロジェクト詳細
     tags: jsonb('tags').notNull().default(sql`'[]'::jsonb`), // タグ配列
     metadata: jsonb('metadata').notNull().default(sql`'{}'::jsonb`), // カスタムメタデータ
-    
+
     // 日付関連
     startDate: timestamp('start_date'),
     endDate: timestamp('end_date'),
-    
+
     // 優先度と進捗
     priority: integer('priority').notNull().default(0), // 0=低, 1=中, 2=高
     progress: integer('progress').notNull().default(0), // 0-100%
-    
+
     // タイムスタンプ
     createdAt: timestamp('created_at').default(sql`now()`).notNull(),
     updatedAt: timestamp('updated_at').default(sql`now()`).notNull(),

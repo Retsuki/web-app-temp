@@ -1,6 +1,6 @@
 import { createRoute } from '@hono/zod-openapi'
-import { deleteProjectParamsSchema, deleteProjectResponseSchema } from './dto.js'
 import { errorResponses } from '../../../../_shared/utils/error/index.js'
+import { deleteProjectParamsSchema, deleteProjectResponseSchema } from './dto.js'
 
 export const deleteProjectRoute = createRoute({
   method: 'delete',

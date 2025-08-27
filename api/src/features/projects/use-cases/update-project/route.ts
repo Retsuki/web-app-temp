@@ -1,10 +1,10 @@
 import { createRoute } from '@hono/zod-openapi'
+import { errorResponses } from '../../../../_shared/utils/error/index.js'
 import {
   updateProjectParamsSchema,
   updateProjectRequestSchema,
   updateProjectResponseSchema,
 } from './dto.js'
-import { errorResponses } from '../../../../_shared/utils/error/index.js'
 
 export const updateProjectRoute = createRoute({
   method: 'put',
