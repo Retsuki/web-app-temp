@@ -43,8 +43,8 @@ import { cn } from '@/lib/utils'
 const createProjectSchema = z.object({
   name: z.string().min(1, 'プロジェクト名は必須です').max(255),
   description: z.string().optional(),
-  status: z.enum(['active', 'archived', 'completed']).default('active'),
-  priority: z.number().min(0).max(2).default(0),
+  status: z.enum(['active', 'archived', 'completed']),
+  priority: z.number().min(0).max(2),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
 })
