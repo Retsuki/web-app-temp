@@ -5,6 +5,7 @@ import { userProfileResSchema } from './dto.js'
 export const getProfileRoute = createRoute({
   method: 'get',
   path: '/users/me',
+  operationId: 'getProfile',
   tags: ['users'],
   summary: '自分のプロフィール取得',
   description: '認証済みユーザーの自分のプロフィール情報を取得します',

@@ -1,9 +1,10 @@
 import { createRoute, z } from '@hono/zod-openapi'
-import type { App } from '../../_shared/factory/create-app.js'
+import type { App } from '../../_shared/factory/index.js'
 
 const healthRoute = createRoute({
   method: 'get',
   path: '/health',
+  operationId: 'getHealth',
   tags: ['system'],
   summary: 'ヘルスチェック',
   description: 'APIサーバーの稼働状況を確認します',

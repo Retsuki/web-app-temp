@@ -8,7 +8,7 @@ import type { ErrorCode } from './error-code.js'
 interface AppHTTPExceptionOptions {
   message?: string
   code?: ErrorCode
-  cause?: string
+  cause?: any
 }
 
 export class AppHTTPException extends HTTPException {

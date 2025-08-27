@@ -1,10 +1,10 @@
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import * as gcp from '@pulumi/gcp'
 import * as pulumi from '@pulumi/pulumi'
-import * as fs from 'fs'
-import * as path from 'path'
 import { gcpConfig, naming } from '../config'
-import type { ServiceAccounts } from './service-accounts'
 import type { CloudRunServices } from './cloud-run'
+import type { ServiceAccounts } from './service-accounts'
 
 export interface ApiGateway {
   api: gcp.apigateway.Api
@@ -31,7 +31,7 @@ export function createApiGateway(
     __dirname,
     '../../../api-gateway-stripe-webhook/openapi2-run.yaml'
   )
-  
+
   let openApiSpec = ''
   if (fs.existsSync(openApiSpecPath)) {
     openApiSpec = fs.readFileSync(openApiSpecPath, 'utf-8')
@@ -73,25 +73,25 @@ paths:
   }
 
   // Replace the backend URL in the OpenAPI spec
-  const apiConfigSpec = pulumi.interpolate`${cloudRunServices.apiServiceUrl}`.apply(
-    (apiUrl) => {
-      return openApiSpec.replace(/BACKEND_URL|https:\/\/[^\/\s]+\.run\.app/g, apiUrl)
-    }
-  )
+  const apiConfigSpec = pulumi.interpolate`${cloudRunServices.apiServiceUrl}`.apply((apiUrl) => {
+    return openApiSpec.replace(/BACKEND_URL|https:\/\/[^/\s]+\.run\.app/g, apiUrl)
+  })
 
   // Create API Config
   const apiConfig = new gcp.apigateway.ApiConfig('stripe-webhook-config', {
     api: api.apiId,
     apiConfigId: `${naming.apiGatewayConfigName}-${Date.now()}`,
     project: gcpConfig.project,
-    
-    openapiDocuments: [{
-      document: {
-        path: 'openapi.yaml',
-        contents: apiConfigSpec.apply((spec) => Buffer.from(spec).toString('base64')),
+
+    openapiDocuments: [
+      {
+        document: {
+          path: 'openapi.yaml',
+          contents: apiConfigSpec.apply((spec) => Buffer.from(spec).toString('base64')),
+        },
       },
-    }],
-    
+    ],
+
     gatewayConfig: {
       backendConfig: {
         googleServiceAccount: serviceAccounts.stripeGatewayServiceAccount.email,

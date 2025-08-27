@@ -14,7 +14,8 @@
     "orval": "orval --config ./orval.config.ts",
     "orval:watch": "orval --config ./orval.config.ts --watch",
     "gen:api": "orval --config ./orval.config.ts",
-    "kill": "sh -c 'lsof -ti:$0 | xargs kill -9 2>/dev/null || echo \"No process running on port $0\"'"
+    "kill": "sh -c 'lsof -ti:$0 | xargs kill -9 2>/dev/null || echo \"No process running on port $0\"'",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.6.1",
@@ -53,6 +54,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
     "@tailwindcss/postcss": "^4",
     "@types/negotiator": "^0.6.4",
     "@types/node": "^20",

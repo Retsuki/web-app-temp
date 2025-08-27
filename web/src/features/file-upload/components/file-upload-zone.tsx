@@ -128,7 +128,7 @@ export function FileUploadZone({
         <div className="mt-4 space-y-2">
           {errors.map((error, index) => (
             <div
-              key={index}
+              key={`error-${error.file.name}-${index}`}
               className="flex items-center justify-between rounded-md bg-destructive/10 p-3 text-sm text-destructive"
             >
               <span>
@@ -139,7 +139,7 @@ export function FileUploadZone({
           ))}
           {fileRejections.map(({ file, errors: rejectionErrors }, index) => (
             <div
-              key={index}
+              key={`rejection-${file.name}-${index}`}
               className="flex items-center justify-between rounded-md bg-destructive/10 p-3 text-sm text-destructive"
             >
               <span>

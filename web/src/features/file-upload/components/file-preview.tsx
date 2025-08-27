@@ -1,6 +1,7 @@
 'use client'
 
 import { FileText, Image as ImageIcon, X } from 'lucide-react'
+import Image from 'next/image'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { formatFileSize, isImageFile } from '../lib'
@@ -18,12 +19,13 @@ export function FilePreview({ file, onRemove, className }: FilePreviewProps) {
 
   return (
     <div className={cn('group relative overflow-hidden rounded-lg border bg-card', className)}>
-      <div className="aspect-square">
+      <div className="aspect-square relative">
         {isImage && file.publicUrl && !imageError ? (
-          <img
+          <Image
             src={file.publicUrl}
             alt={file.fileName}
-            className="h-full w-full object-cover"
+            fill
+            className="object-cover"
             onError={() => setImageError(true)}
           />
         ) : (

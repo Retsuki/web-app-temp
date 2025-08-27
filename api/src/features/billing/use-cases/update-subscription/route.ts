@@ -5,6 +5,7 @@ import { updateSubscriptionSchema } from './dto.js'
 export const updateSubscriptionRoute = createRoute({
   method: 'patch',
   path: '/billing/subscription',
+  operationId: 'updateSubscription',
   tags: ['billing'],
   summary: 'Update subscription',
   description: 'Update subscription plan or billing cycle',

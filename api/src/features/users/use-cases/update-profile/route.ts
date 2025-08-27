@@ -5,6 +5,7 @@ import { updateProfileReqSchema, userProfileResSchema } from './dto.js'
 export const updateProfileRoute = createRoute({
   method: 'put',
   path: '/users/me',
+  operationId: 'updateProfile',
   tags: ['users'],
   summary: 'プロフィール更新',
   description: '認証済みユーザーの自分のプロフィール情報を更新します',

@@ -10,13 +10,14 @@
     "pulumi:preview:dev": "pulumi stack select dev && pulumi preview",
     "pulumi:preview:prod": "pulumi stack select prod && pulumi preview",
     "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
     "format": "biome format --write .",
     "check": "biome check .",
     "check:apply": "biome check --write .",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.0.5",
+    "@biomejs/biome": "^2.2.0",
     "@types/node": "^20.11.0",
     "typescript": "^5.3.3"
   },

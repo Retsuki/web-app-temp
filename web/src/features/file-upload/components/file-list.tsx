@@ -26,6 +26,7 @@ export function FileList({ files, isLoading, onDownload, onDelete }: FileListPro
     return (
       <div className="space-y-3">
         {[...Array(3)].map((_, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton elements
           <div key={i} className="flex items-center space-x-3">
             <Skeleton className="h-10 w-10 rounded" />
             <div className="flex-1 space-y-2">
