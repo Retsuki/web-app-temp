@@ -1,7 +1,7 @@
 import * as gcp from '@pulumi/gcp'
 import * as pulumi from '@pulumi/pulumi'
 import { environment, gcpConfig, naming } from '../config'
-import { loadApiEnv, loadWebEnv, envToSecretData } from '../utils/env-loader'
+import { envToSecretData, loadApiEnv, loadWebEnv } from '../utils/env-loader'
 import type { ServiceAccounts } from './service-accounts'
 
 export interface Secrets {

@@ -1,20 +1,12 @@
 {
   "openapi": "3.0.0",
-  "info": { "title": "API", "version": "1.0.0" },
+  "info": {
+    "title": "Perfect Marketing Tool API",
+    "version": "1.0.0",
+    "description": "AI駆動型マーケティングコンテンツ自動生成ツールのAPI"
+  },
   "components": {
     "schemas": {
-      "CreateUserResponse": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string", "format": "uuid", "description": "プロフィールID" },
-          "userId": { "type": "string", "format": "uuid", "description": "ユーザーID" },
-          "email": { "type": "string", "format": "email", "description": "メールアドレス" },
-          "nickname": { "type": "string", "description": "ニックネーム" },
-          "createdAt": { "type": "string", "format": "date-time", "description": "作成日時" },
-          "updatedAt": { "type": "string", "format": "date-time", "description": "更新日時" }
-        },
-        "required": ["id", "userId", "email", "nickname", "createdAt", "updatedAt"]
-      },
       "ErrBadRequest": {
         "type": "object",
         "properties": {
@@ -32,7 +24,20 @@
                   "INVALID_REQUEST",
                   "UNKNOWN_ERROR",
                   "CONFLICT",
-                  "PROFILE_NOT_FOUND"
+                  "PROFILE_NOT_FOUND",
+                  "RESOURCE_NOT_FOUND",
+                  "FORBIDDEN",
+                  "INTERNAL_SERVER_ERROR",
+                  "VALIDATION_ERROR",
+                  "INTERNAL_ERROR",
+                  "EXTERNAL_API_ERROR",
+                  "TIMEOUT",
+                  "BAD_REQUEST",
+                  "POST_NOT_FOUND",
+                  "INSUFFICIENT_CREDITS",
+                  "INSUFFICIENT_PERMISSIONS",
+                  "TOKEN_EXPIRED",
+                  "RATE_LIMIT_EXCEEDED"
                 ],
                 "description": "エラーコード",
                 "example": "INVALID_TOKEN"
@@ -71,7 +76,20 @@
                   "INVALID_REQUEST",
                   "UNKNOWN_ERROR",
                   "CONFLICT",
-                  "PROFILE_NOT_FOUND"
+                  "PROFILE_NOT_FOUND",
+                  "RESOURCE_NOT_FOUND",
+                  "FORBIDDEN",
+                  "INTERNAL_SERVER_ERROR",
+                  "VALIDATION_ERROR",
+                  "INTERNAL_ERROR",
+                  "EXTERNAL_API_ERROR",
+                  "TIMEOUT",
+                  "BAD_REQUEST",
+                  "POST_NOT_FOUND",
+                  "INSUFFICIENT_CREDITS",
+                  "INSUFFICIENT_PERMISSIONS",
+                  "TOKEN_EXPIRED",
+                  "RATE_LIMIT_EXCEEDED"
                 ],
                 "description": "エラーコード",
                 "example": "UNAUTHORIZED"
@@ -110,7 +128,20 @@
                   "INVALID_REQUEST",
                   "UNKNOWN_ERROR",
                   "CONFLICT",
-                  "PROFILE_NOT_FOUND"
+                  "PROFILE_NOT_FOUND",
+                  "RESOURCE_NOT_FOUND",
+                  "FORBIDDEN",
+                  "INTERNAL_SERVER_ERROR",
+                  "VALIDATION_ERROR",
+                  "INTERNAL_ERROR",
+                  "EXTERNAL_API_ERROR",
+                  "TIMEOUT",
+                  "BAD_REQUEST",
+                  "POST_NOT_FOUND",
+                  "INSUFFICIENT_CREDITS",
+                  "INSUFFICIENT_PERMISSIONS",
+                  "TOKEN_EXPIRED",
+                  "RATE_LIMIT_EXCEEDED"
                 ],
                 "description": "エラーコード",
                 "example": "FORBIDDEN_OPERATION"
@@ -149,7 +180,20 @@
                   "INVALID_REQUEST",
                   "UNKNOWN_ERROR",
                   "CONFLICT",
-                  "PROFILE_NOT_FOUND"
+                  "PROFILE_NOT_FOUND",
+                  "RESOURCE_NOT_FOUND",
+                  "FORBIDDEN",
+                  "INTERNAL_SERVER_ERROR",
+                  "VALIDATION_ERROR",
+                  "INTERNAL_ERROR",
+                  "EXTERNAL_API_ERROR",
+                  "TIMEOUT",
+                  "BAD_REQUEST",
+                  "POST_NOT_FOUND",
+                  "INSUFFICIENT_CREDITS",
+                  "INSUFFICIENT_PERMISSIONS",
+                  "TOKEN_EXPIRED",
+                  "RATE_LIMIT_EXCEEDED"
                 ],
                 "description": "エラーコード",
                 "example": "NOT_FOUND"
@@ -188,7 +232,20 @@
                   "INVALID_REQUEST",
                   "UNKNOWN_ERROR",
                   "CONFLICT",
-                  "PROFILE_NOT_FOUND"
+                  "PROFILE_NOT_FOUND",
+                  "RESOURCE_NOT_FOUND",
+                  "FORBIDDEN",
+                  "INTERNAL_SERVER_ERROR",
+                  "VALIDATION_ERROR",
+                  "INTERNAL_ERROR",
+                  "EXTERNAL_API_ERROR",
+                  "TIMEOUT",
+                  "BAD_REQUEST",
+                  "POST_NOT_FOUND",
+                  "INSUFFICIENT_CREDITS",
+                  "INSUFFICIENT_PERMISSIONS",
+                  "TOKEN_EXPIRED",
+                  "RATE_LIMIT_EXCEEDED"
                 ],
                 "description": "エラーコード",
                 "example": "CONFLICT"
@@ -227,7 +284,20 @@
                   "INVALID_REQUEST",
                   "UNKNOWN_ERROR",
                   "CONFLICT",
-                  "PROFILE_NOT_FOUND"
+                  "PROFILE_NOT_FOUND",
+                  "RESOURCE_NOT_FOUND",
+                  "FORBIDDEN",
+                  "INTERNAL_SERVER_ERROR",
+                  "VALIDATION_ERROR",
+                  "INTERNAL_ERROR",
+                  "EXTERNAL_API_ERROR",
+                  "TIMEOUT",
+                  "BAD_REQUEST",
+                  "POST_NOT_FOUND",
+                  "INSUFFICIENT_CREDITS",
+                  "INSUFFICIENT_PERMISSIONS",
+                  "TOKEN_EXPIRED",
+                  "RATE_LIMIT_EXCEEDED"
                 ],
                 "description": "エラーコード",
                 "example": "UNKNOWN_ERROR"
@@ -248,6 +318,18 @@
           }
         },
         "required": ["error"]
+      },
+      "CreateUserResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "description": "プロフィールID" },
+          "userId": { "type": "string", "format": "uuid", "description": "ユーザーID" },
+          "email": { "type": "string", "format": "email", "description": "メールアドレス" },
+          "nickname": { "type": "string", "description": "ニックネーム" },
+          "createdAt": { "type": "string", "format": "date-time", "description": "作成日時" },
+          "updatedAt": { "type": "string", "format": "date-time", "description": "更新日時" }
+        },
+        "required": ["id", "userId", "email", "nickname", "createdAt", "updatedAt"]
       },
       "CreateUserRequest": {
         "type": "object",
@@ -289,6 +371,7 @@
             "example": "user@example.com"
           },
           "nickname": { "type": "string", "description": "ニックネーム", "example": "たろう" },
+          "language": { "type": "string", "description": "言語設定", "example": "ja" },
           "createdAt": {
             "type": "string",
             "format": "date-time",
@@ -302,7 +385,7 @@
             "example": "2024-01-01T00:00:00Z"
           }
         },
-        "required": ["id", "userId", "email", "nickname", "createdAt", "updatedAt"]
+        "required": ["id", "userId", "email", "nickname", "language", "createdAt", "updatedAt"]
       },
       "UpdateProfileRequest": {
         "type": "object",
@@ -332,8 +415,111 @@
     "parameters": {}
   },
   "paths": {
+    "/api/v1/auth/setup": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "新規ユーザーのセットアップ",
+        "description": "Supabase Auth でユーザー作成後、プロフィールと初期プロジェクトを作成します。エラー時はユーザーを削除します。",
+        "security": [{ "Bearer": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Supabase Auth のユーザーID"
+                  },
+                  "email": { "type": "string", "format": "email", "description": "メールアドレス" },
+                  "nickname": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 50,
+                    "description": "ニックネーム"
+                  },
+                  "language": { "type": "string", "default": "ja", "description": "言語設定" }
+                },
+                "required": ["userId", "email", "nickname"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "セットアップ成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "profileId": { "type": "string", "format": "uuid" },
+                        "projectId": { "type": "string", "format": "uuid" },
+                        "redirectTo": { "type": "string", "description": "リダイレクト先URL" }
+                      },
+                      "required": ["profileId", "projectId", "redirectTo"]
+                    },
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "timestamp": { "type": "string" },
+                        "version": { "type": "string" }
+                      },
+                      "required": ["timestamp", "version"]
+                    }
+                  },
+                  "required": ["success", "data", "metadata"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントからのリクエストに問題があり、サーバーが処理を完了できませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrBadRequest" } }
+            }
+          },
+          "401": {
+            "description": "認証が必要です。アクセストークンが無効か期限切れの可能性があります。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrUnauthorized" } }
+            }
+          },
+          "403": {
+            "description": "この操作を実行する権限がありません。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrForbidden" } }
+            }
+          },
+          "404": {
+            "description": "リクエストされたリソースが見つかりませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrNotFound" } }
+            }
+          },
+          "409": {
+            "description": "リソースの競合が発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrConflict" } }
+            }
+          },
+          "500": {
+            "description": "サーバー内部でエラーが発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrInternalServer" } }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/users": {
       "post": {
+        "operationId": "createUser",
         "tags": ["users"],
         "summary": "ユーザープロフィールを作成",
         "description": "新規ユーザーのプロフィールを作成します",
@@ -392,6 +578,7 @@
     },
     "/api/v1/users/me": {
       "get": {
+        "operationId": "getProfile",
         "tags": ["users"],
         "summary": "自分のプロフィール取得",
         "description": "認証済みユーザーの自分のプロフィール情報を取得します",
@@ -459,6 +646,7 @@
         }
       },
       "put": {
+        "operationId": "updateProfile",
         "tags": ["users"],
         "summary": "プロフィール更新",
         "description": "認証済みユーザーの自分のプロフィール情報を更新します",
@@ -533,6 +721,7 @@
         }
       },
       "delete": {
+        "operationId": "deleteAccount",
         "tags": ["users"],
         "summary": "アカウント削除",
         "description": "認証済みユーザーのアカウントを論理削除します。この操作は取り消せません。",
@@ -587,6 +776,7 @@
     },
     "/api/v1/health": {
       "get": {
+        "operationId": "getHealth",
         "tags": ["system"],
         "summary": "ヘルスチェック",
         "description": "APIサーバーの稼働状況を確認します",
@@ -613,6 +803,7 @@
     },
     "/api/v1/plans": {
       "get": {
+        "operationId": "getPlans",
         "tags": ["billing"],
         "summary": "Get available plans",
         "description": "Get list of available subscription plans",
@@ -676,6 +867,7 @@
     },
     "/api/v1/billing/subscription": {
       "get": {
+        "operationId": "getSubscription",
         "tags": ["billing"],
         "summary": "Get current subscription",
         "description": "Get current user subscription details",
@@ -730,6 +922,7 @@
         }
       },
       "patch": {
+        "operationId": "updateSubscription",
         "tags": ["billing"],
         "summary": "Update subscription",
         "description": "Update subscription plan or billing cycle",
@@ -806,6 +999,7 @@
         }
       },
       "delete": {
+        "operationId": "cancelSubscription",
         "tags": ["billing"],
         "summary": "Cancel subscription",
         "description": "Cancel subscription immediately or at period end",
@@ -866,6 +1060,7 @@
     },
     "/api/v1/billing/history": {
       "get": {
+        "operationId": "getPaymentHistory",
         "tags": ["billing"],
         "summary": "Get payment history",
         "description": "Get user payment history",
@@ -937,6 +1132,7 @@
     },
     "/api/v1/billing/checkout": {
       "post": {
+        "operationId": "createCheckout",
         "tags": ["billing"],
         "summary": "Create checkout session",
         "description": "Create a Stripe checkout session for subscription",
@@ -1011,9 +1207,10 @@
         }
       }
     },
-    "/api/v1/api/v1/stripe/webhook": {
+    "/api/v1/stripe/webhook": {
       "post": {
-        "tags": ["webhook"],
+        "operationId": "handleStripeWebhook",
+        "tags": ["stripe-webhook"],
         "summary": "Stripe webhook endpoint",
         "description": "Endpoint to receive Stripe webhook events",
         "parameters": [
@@ -1048,6 +1245,475 @@
                   "required": ["error"]
                 }
               }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects": {
+      "get": {
+        "tags": ["Projects"],
+        "summary": "プロジェクト一覧取得",
+        "description": "ログインユーザーのプロジェクト一覧を取得します",
+        "responses": {
+          "200": {
+            "description": "プロジェクト一覧",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "projects": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "format": "uuid" },
+                          "userId": { "type": "string", "format": "uuid" },
+                          "name": { "type": "string" },
+                          "description": { "type": "string", "nullable": true },
+                          "status": { "type": "string" },
+                          "tags": { "type": "array", "items": { "nullable": true } },
+                          "metadata": {
+                            "type": "object",
+                            "additionalProperties": { "nullable": true }
+                          },
+                          "startDate": { "type": "string", "nullable": true },
+                          "endDate": { "type": "string", "nullable": true },
+                          "priority": { "type": "number" },
+                          "progress": { "type": "number" },
+                          "createdAt": { "type": "string" },
+                          "updatedAt": { "type": "string" }
+                        },
+                        "required": [
+                          "id",
+                          "userId",
+                          "name",
+                          "description",
+                          "status",
+                          "tags",
+                          "metadata",
+                          "startDate",
+                          "endDate",
+                          "priority",
+                          "progress",
+                          "createdAt",
+                          "updatedAt"
+                        ]
+                      }
+                    },
+                    "total": { "type": "number" }
+                  },
+                  "required": ["projects", "total"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントからのリクエストに問題があり、サーバーが処理を完了できませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrBadRequest" } }
+            }
+          },
+          "401": {
+            "description": "認証が必要です。アクセストークンが無効か期限切れの可能性があります。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrUnauthorized" } }
+            }
+          },
+          "403": {
+            "description": "この操作を実行する権限がありません。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrForbidden" } }
+            }
+          },
+          "404": {
+            "description": "リクエストされたリソースが見つかりませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrNotFound" } }
+            }
+          },
+          "409": {
+            "description": "リソースの競合が発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrConflict" } }
+            }
+          },
+          "500": {
+            "description": "サーバー内部でエラーが発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrInternalServer" } }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Projects"],
+        "summary": "プロジェクト作成",
+        "description": "新しいプロジェクトを作成します",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "minLength": 1, "maxLength": 255 },
+                  "description": { "type": "string" },
+                  "status": { "type": "string", "enum": ["active", "archived", "completed"] },
+                  "tags": { "type": "array", "items": { "type": "string" } },
+                  "metadata": { "type": "object", "additionalProperties": { "nullable": true } },
+                  "startDate": { "type": "string", "format": "date-time" },
+                  "endDate": { "type": "string", "format": "date-time" },
+                  "priority": { "type": "number", "minimum": 0, "maximum": 2 },
+                  "progress": { "type": "number", "minimum": 0, "maximum": 100 }
+                },
+                "required": ["name"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "作成されたプロジェクト",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "format": "uuid" },
+                    "userId": { "type": "string", "format": "uuid" },
+                    "name": { "type": "string" },
+                    "description": { "type": "string", "nullable": true },
+                    "status": { "type": "string" },
+                    "tags": { "type": "array", "items": { "nullable": true } },
+                    "metadata": { "type": "object", "additionalProperties": { "nullable": true } },
+                    "startDate": { "type": "string", "nullable": true },
+                    "endDate": { "type": "string", "nullable": true },
+                    "priority": { "type": "number" },
+                    "progress": { "type": "number" },
+                    "createdAt": { "type": "string" },
+                    "updatedAt": { "type": "string" }
+                  },
+                  "required": [
+                    "id",
+                    "userId",
+                    "name",
+                    "description",
+                    "status",
+                    "tags",
+                    "metadata",
+                    "startDate",
+                    "endDate",
+                    "priority",
+                    "progress",
+                    "createdAt",
+                    "updatedAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントからのリクエストに問題があり、サーバーが処理を完了できませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrBadRequest" } }
+            }
+          },
+          "401": {
+            "description": "認証が必要です。アクセストークンが無効か期限切れの可能性があります。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrUnauthorized" } }
+            }
+          },
+          "403": {
+            "description": "この操作を実行する権限がありません。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrForbidden" } }
+            }
+          },
+          "404": {
+            "description": "リクエストされたリソースが見つかりませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrNotFound" } }
+            }
+          },
+          "409": {
+            "description": "リソースの競合が発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrConflict" } }
+            }
+          },
+          "500": {
+            "description": "サーバー内部でエラーが発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrInternalServer" } }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{id}": {
+      "get": {
+        "tags": ["Projects"],
+        "summary": "プロジェクト詳細取得",
+        "description": "指定されたIDのプロジェクト詳細を取得します",
+        "parameters": [
+          {
+            "schema": { "type": "string", "format": "uuid" },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "プロジェクト詳細",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "format": "uuid" },
+                    "userId": { "type": "string", "format": "uuid" },
+                    "name": { "type": "string" },
+                    "description": { "type": "string", "nullable": true },
+                    "status": { "type": "string" },
+                    "tags": { "type": "array", "items": { "nullable": true } },
+                    "metadata": { "type": "object", "additionalProperties": { "nullable": true } },
+                    "startDate": { "type": "string", "nullable": true },
+                    "endDate": { "type": "string", "nullable": true },
+                    "priority": { "type": "number" },
+                    "progress": { "type": "number" },
+                    "createdAt": { "type": "string" },
+                    "updatedAt": { "type": "string" }
+                  },
+                  "required": [
+                    "id",
+                    "userId",
+                    "name",
+                    "description",
+                    "status",
+                    "tags",
+                    "metadata",
+                    "startDate",
+                    "endDate",
+                    "priority",
+                    "progress",
+                    "createdAt",
+                    "updatedAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントからのリクエストに問題があり、サーバーが処理を完了できませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrBadRequest" } }
+            }
+          },
+          "401": {
+            "description": "認証が必要です。アクセストークンが無効か期限切れの可能性があります。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrUnauthorized" } }
+            }
+          },
+          "403": {
+            "description": "この操作を実行する権限がありません。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrForbidden" } }
+            }
+          },
+          "404": {
+            "description": "リクエストされたリソースが見つかりませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrNotFound" } }
+            }
+          },
+          "409": {
+            "description": "リソースの競合が発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrConflict" } }
+            }
+          },
+          "500": {
+            "description": "サーバー内部でエラーが発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrInternalServer" } }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Projects"],
+        "summary": "プロジェクト更新",
+        "description": "指定されたIDのプロジェクトを更新します",
+        "parameters": [
+          {
+            "schema": { "type": "string", "format": "uuid" },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "minLength": 1, "maxLength": 255 },
+                  "description": { "type": "string", "nullable": true },
+                  "status": { "type": "string", "enum": ["active", "archived", "completed"] },
+                  "tags": { "type": "array", "items": { "type": "string" } },
+                  "metadata": { "type": "object", "additionalProperties": { "nullable": true } },
+                  "startDate": { "type": "string", "nullable": true, "format": "date-time" },
+                  "endDate": { "type": "string", "nullable": true, "format": "date-time" },
+                  "priority": { "type": "number", "minimum": 0, "maximum": 2 },
+                  "progress": { "type": "number", "minimum": 0, "maximum": 100 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新されたプロジェクト",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "format": "uuid" },
+                    "userId": { "type": "string", "format": "uuid" },
+                    "name": { "type": "string" },
+                    "description": { "type": "string", "nullable": true },
+                    "status": { "type": "string" },
+                    "tags": { "type": "array", "items": { "nullable": true } },
+                    "metadata": { "type": "object", "additionalProperties": { "nullable": true } },
+                    "startDate": { "type": "string", "nullable": true },
+                    "endDate": { "type": "string", "nullable": true },
+                    "priority": { "type": "number" },
+                    "progress": { "type": "number" },
+                    "createdAt": { "type": "string" },
+                    "updatedAt": { "type": "string" }
+                  },
+                  "required": [
+                    "id",
+                    "userId",
+                    "name",
+                    "description",
+                    "status",
+                    "tags",
+                    "metadata",
+                    "startDate",
+                    "endDate",
+                    "priority",
+                    "progress",
+                    "createdAt",
+                    "updatedAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントからのリクエストに問題があり、サーバーが処理を完了できませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrBadRequest" } }
+            }
+          },
+          "401": {
+            "description": "認証が必要です。アクセストークンが無効か期限切れの可能性があります。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrUnauthorized" } }
+            }
+          },
+          "403": {
+            "description": "この操作を実行する権限がありません。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrForbidden" } }
+            }
+          },
+          "404": {
+            "description": "リクエストされたリソースが見つかりませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrNotFound" } }
+            }
+          },
+          "409": {
+            "description": "リソースの競合が発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrConflict" } }
+            }
+          },
+          "500": {
+            "description": "サーバー内部でエラーが発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrInternalServer" } }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Projects"],
+        "summary": "プロジェクト削除",
+        "description": "指定されたIDのプロジェクトを削除します（論理削除）",
+        "parameters": [
+          {
+            "schema": { "type": "string", "format": "uuid" },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "削除完了",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "message": { "type": "string" } },
+                  "required": ["message"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントからのリクエストに問題があり、サーバーが処理を完了できませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrBadRequest" } }
+            }
+          },
+          "401": {
+            "description": "認証が必要です。アクセストークンが無効か期限切れの可能性があります。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrUnauthorized" } }
+            }
+          },
+          "403": {
+            "description": "この操作を実行する権限がありません。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrForbidden" } }
+            }
+          },
+          "404": {
+            "description": "リクエストされたリソースが見つかりませんでした。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrNotFound" } }
+            }
+          },
+          "409": {
+            "description": "リソースの競合が発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrConflict" } }
+            }
+          },
+          "500": {
+            "description": "サーバー内部でエラーが発生しました。",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/ErrInternalServer" } }
             }
           }
         }

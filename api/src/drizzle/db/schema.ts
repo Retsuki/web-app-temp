@@ -36,6 +36,9 @@ export const profiles = pgTable('profiles', {
   // メールアドレス
   email: varchar('email', { length: 255 }).notNull().unique(),
 
+  // 言語設定 (ja, en など)
+  language: varchar('language', { length: 10 }).default('ja'),
+
   // 作成日時
   createdAt: timestamp('created_at').default(sql`now()`),
 
@@ -47,10 +50,77 @@ export const profiles = pgTable('profiles', {
 
   // Stripe関連
   stripeCustomerId: varchar('stripe_customer_id', { length: 255 }).unique(),
-  plan: planEnum('plan').notNull().default(PLAN.FREE),
-  monthlyUsageCount: integer('monthly_usage_count').notNull().default(0), // 月間使用回数
-  usageResetAt: timestamp('usage_reset_at'), // 使用回数リセット日時
+  plan: varchar('plan', { length: 50 }).notNull().default('free'), // free, standard, pro
+  remainedCredits: integer('remained_credits').notNull().default(500), // 残りクレジット数
 })
+
+// プロジェクトテーブル（開発者のプロジェクト）
+export const omProjects = pgTable(
+  'om_projects',
+  {
+    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+
+    // 開発者情報（profilesテーブルのidを参照）
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => profiles.id),
+
+    // プロジェクト情報
+    name: varchar('name', { length: 255 }).notNull(),
+    description: text('description'),
+
+    // タイムスタンプ
+    createdAt: timestamp('created_at').default(sql`now()`).notNull(),
+    updatedAt: timestamp('updated_at').default(sql`now()`).notNull(),
+  },
+  (table) => {
+    return {
+      userIdIdx: index('om_projects_user_id_idx').on(table.userId),
+    }
+  }
+)
+
+// 汎用プロジェクトテーブル
+export const projects = pgTable(
+  'projects',
+  {
+    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+
+    // ユーザー関連（Supabase AuthのユーザーIDで紐付け）
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => profiles.userId, { onDelete: 'cascade' }),
+
+    // プロジェクト基本情報
+    name: varchar('name', { length: 255 }).notNull(),
+    description: text('description'),
+    status: varchar('status', { length: 50 }).notNull().default('active'), // active, archived, completed
+
+    // プロジェクト詳細
+    tags: jsonb('tags').notNull().default(sql`'[]'::jsonb`), // タグ配列
+    metadata: jsonb('metadata').notNull().default(sql`'{}'::jsonb`), // カスタムメタデータ
+
+    // 日付関連
+    startDate: timestamp('start_date'),
+    endDate: timestamp('end_date'),
+
+    // 優先度と進捗
+    priority: integer('priority').notNull().default(0), // 0=低, 1=中, 2=高
+    progress: integer('progress').notNull().default(0), // 0-100%
+
+    // タイムスタンプ
+    createdAt: timestamp('created_at').default(sql`now()`).notNull(),
+    updatedAt: timestamp('updated_at').default(sql`now()`).notNull(),
+    deletedAt: timestamp('deleted_at'), // 論理削除
+  },
+  (table) => {
+    return {
+      userIdIdx: index('projects_user_id_idx').on(table.userId),
+      statusIdx: index('projects_status_idx').on(table.status),
+      createdAtIdx: index('projects_created_at_idx').on(table.createdAt),
+    }
+  }
+)
 
 // サブスクリプションテーブル
 export const subscriptions = pgTable(
@@ -219,6 +289,7 @@ export const planLimits = pgTable('plan_limits', {
 export const profilesRelations = relations(profiles, ({ many }) => ({
   subscriptions: many(subscriptions),
   paymentHistory: many(paymentHistory),
+  projects: many(projects),
 }))
 
 export const subscriptionsRelations = relations(subscriptions, ({ one, many }) => ({
@@ -237,5 +308,12 @@ export const paymentHistoryRelations = relations(paymentHistory, ({ one }) => ({
   subscription: one(subscriptions, {
     fields: [paymentHistory.subscriptionId],
     references: [subscriptions.id],
+  }),
+}))
+
+export const projectsRelations = relations(projects, ({ one }) => ({
+  profile: one(profiles, {
+    fields: [projects.userId],
+    references: [profiles.userId],
   }),
 }))

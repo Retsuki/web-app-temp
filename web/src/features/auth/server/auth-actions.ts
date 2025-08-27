@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { SignInData, SignUpData } from '../types'
+import { authActionError, createUserProfileAndProject, deleteUserOnError } from './auth-helpers'
 
 export async function signUp(data: SignUpData) {
   const supabase = await createClient()
@@ -14,40 +15,44 @@ export async function signUp(data: SignUpData) {
   })
 
   if (authError) {
-    return { error: authError.message }
+    return authActionError(authError.message)
   }
 
   if (!authData.user) {
-    return { error: 'ユーザーの作成に失敗しました' }
+    return authActionError('ユーザーの作成に失敗しました')
   }
 
-  // 2. プロフィールを作成
-  const { error: profileError } = await supabase.from('profiles').insert({
-    user_id: authData.user.id,
-    email: data.email,
-    nickname: data.nickname,
-  })
+  // 2. プロフィールとプロジェクトを作成
+  const language = data.lang || 'ja'
+  const setupResult = await createUserProfileAndProject(authData.user, data.nickname, language)
 
-  if (profileError) {
-    return { error: 'プロフィールの作成に失敗しました' }
+  // エラーの場合はユーザーを削除
+  if (!setupResult.success && setupResult.error) {
+    await deleteUserOnError(authData.user.id)
   }
 
-  redirect('/dashboard')
+  // 3. 作成したプロジェクトのページへリダイレクト
+  redirect(`/projects/${setupResult.projectId}`)
 }
 
 export async function signIn(data: SignInData) {
   const supabase = await createClient()
 
-  const { error } = await supabase.auth.signInWithPassword({
+  // 1. 認証
+  const { data: authData, error } = await supabase.auth.signInWithPassword({
     email: data.email,
     password: data.password,
   })
 
   if (error) {
-    return { error: error.message }
+    return authActionError(error.message)
   }
 
-  redirect('/dashboard')
+  if (!authData.session) {
+    return authActionError('セッションの作成に失敗しました')
+  }
+
+  redirect('/projects')
 }
 
 export async function signInWithGoogle(lang = 'ja') {
@@ -74,7 +79,7 @@ export async function signInWithGoogle(lang = 'ja') {
   })
 
   if (error) {
-    return { error: error.message }
+    return authActionError(error.message)
   }
 
   if (data.url) {

@@ -2,27 +2,42 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { API_URL, getAuthHeaders } from '@/lib/auth-helpers'
 import { createClient } from '@/lib/supabase/server'
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
   const { path } = await params
   return handleRequest(request, path, 'GET')
 }
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
   const { path } = await params
   return handleRequest(request, path, 'POST')
 }
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
   const { path } = await params
   return handleRequest(request, path, 'PUT')
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
   const { path } = await params
   return handleRequest(request, path, 'DELETE')
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
   const { path } = await params
   return handleRequest(request, path, 'PATCH')
 }

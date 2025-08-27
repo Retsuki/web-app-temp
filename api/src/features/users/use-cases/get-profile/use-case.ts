@@ -22,6 +22,7 @@ export class GetUserProfileUseCase {
       userId: profile.userId,
       email: profile.email,
       nickname: profile.nickname,
+      language: profile.language || 'ja',
       createdAt: profile.createdAt?.toISOString() || new Date().toISOString(),
       updatedAt: profile.updatedAt?.toISOString() || new Date().toISOString(),
     }

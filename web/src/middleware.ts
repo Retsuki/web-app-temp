@@ -15,11 +15,22 @@ function getLocale(request: NextRequest): string {
   })
 
   // ヘッダーから言語配列を作成
-  const languages = new Negotiator({ headers: negotiatorHeaders }).languages()
+  let languages: string[]
+  try {
+    languages = new Negotiator({ headers: negotiatorHeaders }).languages()
+  } catch {
+    // エラーが発生した場合はデフォルトロケールを返す
+    return defaultLocale
+  }
 
   // サポートされているロケールとマッチング
-  const locale = match(languages, locales, defaultLocale)
-  return locale
+  try {
+    const locale = match(languages, locales, defaultLocale)
+    return locale
+  } catch {
+    // マッチングに失敗した場合はデフォルトロケールを返す
+    return defaultLocale
+  }
 }
 
 export async function middleware(request: NextRequest) {

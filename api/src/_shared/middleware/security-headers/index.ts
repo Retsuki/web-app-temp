@@ -59,7 +59,7 @@ export const securityHeadersMiddleware = (): MiddlewareHandler => {
 
     // カスタマイズが必要なヘッダーのみ設定
     referrerPolicy: 'strict-origin-when-cross-origin', // デフォルト: 'no-referrer' → より適切な設定に変更
-    strictTransportSecurity: isProduction 
+    strictTransportSecurity: isProduction
       ? 'max-age=31536000; includeSubDomains; preload' // より長い期間とpreloadを追加
       : false, // 開発環境ではHTSを無効化
     xFrameOptions: 'DENY', // デフォルト: 'SAMEORIGIN' → より厳格に
@@ -88,7 +88,7 @@ export const securityHeadersMiddleware = (): MiddlewareHandler => {
   return async (c, next) => {
     // secureHeadersミドルウェアを実行
     await secureHeadersHandler(c, next)
-    
+
     // Cache-Controlヘッダーを追加
     c.header('Cache-Control', 'no-store, no-cache, must-revalidate, private')
   }

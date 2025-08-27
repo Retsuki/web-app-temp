@@ -1,17 +1,18 @@
-import { toast } from 'sonner'
+import { toast as sonnerToast } from 'sonner'
 
 export function useToast() {
   return {
-    toast: (props: { title?: string; description?: string; variant?: 'success' | 'error' }) => {
-      if (props.variant === 'error') {
-        toast.error(props.title, {
-          description: props.description,
+    toast: {
+      success: (title?: string, description?: string) => {
+        sonnerToast.success(title, {
+          description,
         })
-      } else {
-        toast.success(props.title, {
-          description: props.description,
+      },
+      error: (title?: string, description?: string) => {
+        sonnerToast.error(title, {
+          description,
         })
-      }
+      },
     },
   }
 }

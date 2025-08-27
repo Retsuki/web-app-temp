@@ -21,6 +21,10 @@ export const userProfileResSchema = z
       description: 'ニックネーム',
       example: 'たろう',
     }),
+    language: z.string().openapi({
+      description: '言語設定',
+      example: 'ja',
+    }),
     createdAt: z.string().datetime().openapi({
       description: '作成日時',
       example: '2024-01-01T00:00:00Z',
