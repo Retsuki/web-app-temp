@@ -36,6 +36,9 @@ export const profiles = pgTable('profiles', {
   // メールアドレス
   email: varchar('email', { length: 255 }).notNull().unique(),
 
+  // 言語設定 (ja, en など)
+  language: varchar('language', { length: 10 }).default('ja'),
+
   // 作成日時
   createdAt: timestamp('created_at').default(sql`now()`),
 
@@ -47,9 +50,8 @@ export const profiles = pgTable('profiles', {
 
   // Stripe関連
   stripeCustomerId: varchar('stripe_customer_id', { length: 255 }).unique(),
-  plan: planEnum('plan').notNull().default(PLAN.FREE),
-  monthlyUsageCount: integer('monthly_usage_count').notNull().default(0), // 月間使用回数
-  usageResetAt: timestamp('usage_reset_at'), // 使用回数リセット日時
+  plan: varchar('plan', { length: 50 }).notNull().default('free'), // free, standard, pro
+  remainedCredits: integer('remained_credits').notNull().default(500), // 残りクレジット数
 })
 
 // プロジェクトテーブル（開発者のプロジェクト）

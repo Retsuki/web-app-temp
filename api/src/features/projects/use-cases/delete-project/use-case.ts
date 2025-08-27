@@ -1,5 +1,5 @@
 import { AppHTTPException } from '../../../../_shared/utils/error/index.js'
-import { ERROR_CODES } from '../../../../_shared/utils/error/codes.js'
+import { ERROR_CODES } from '../../../../_shared/utils/error/error-code.js'
 import type { ProjectRepository } from '../../repositories/project.repository.js'
 import type { DeleteProjectResponse } from './dto.js'
 

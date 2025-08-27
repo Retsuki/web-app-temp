@@ -24,6 +24,8 @@ export async function GET(request: Request) {
       } = await supabase.auth.getUser()
 
       if (user) {
+        let isNewUser = false
+        
         try {
           // APIを使用してユーザープロフィールを作成
           // サーバーサイド用のAPIクライアントを使用（自動的に認証ヘッダーが付与される）
@@ -32,13 +34,36 @@ export async function GET(request: Request) {
             email: user.email || '',
             nickname: user.user_metadata.full_name || user.email?.split('@')[0] || 'User',
           })
+          isNewUser = true
         } catch (error) {
           // ユーザーが既に存在する場合はエラーを無視
           console.log('User profile creation skipped:', error)
         }
+
+        // 新規ユーザーの場合、デフォルトプロジェクトを作成
+        if (isNewUser) {
+          const { data: projectData, error: projectError } = await supabase
+            .from('projects')
+            .insert({
+              user_id: user.id,
+              name: 'My First Project',
+              description: 'Welcome to your first project! You can edit or delete this project anytime.',
+              status: 'active',
+              tags: ['getting-started'],
+              metadata: {},
+              priority: 0,
+              progress: 0,
+            })
+            .select('id')
+            .single()
+
+          if (!projectError && projectData) {
+            return NextResponse.redirect(`${siteUrl}/${lang}/projects/${projectData.id}`)
+          }
+        }
       }
 
-      return NextResponse.redirect(`${siteUrl}/${lang}/dashboard`)
+      return NextResponse.redirect(`${siteUrl}/${lang}/projects`)
     }
   }
 

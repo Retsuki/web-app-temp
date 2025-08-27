@@ -32,7 +32,29 @@ export async function signUp(data: SignUpData) {
     return { error: 'プロフィールの作成に失敗しました' }
   }
 
-  redirect('/dashboard')
+  // 3. デフォルトプロジェクトを作成
+  const { data: projectData, error: projectError } = await supabase
+    .from('projects')
+    .insert({
+      user_id: authData.user.id,
+      name: 'My First Project',
+      description: 'Welcome to your first project! You can edit or delete this project anytime.',
+      status: 'active',
+      tags: ['getting-started'],
+      metadata: {},
+      priority: 0,
+      progress: 0,
+    })
+    .select('id')
+    .single()
+
+  if (projectError || !projectData) {
+    // プロジェクト作成に失敗してもユーザー登録は成功しているので、プロジェクト一覧へ
+    redirect('/projects')
+  }
+
+  // 4. 作成したプロジェクトのページへリダイレクト
+  redirect(`/projects/${projectData.id}`)
 }
 
 export async function signIn(data: SignInData) {
@@ -47,7 +69,7 @@ export async function signIn(data: SignInData) {
     return { error: error.message }
   }
 
-  redirect('/dashboard')
+  redirect('/projects')
 }
 
 export async function signInWithGoogle(lang = 'ja') {
