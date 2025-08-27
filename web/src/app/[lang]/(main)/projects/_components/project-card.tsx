@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
+import { Skeleton } from '../../../../../components/ui/skeleton'
 
 interface Project {
   id: string
@@ -76,7 +77,7 @@ const priorityConfig = {
   2: { label: '高', className: 'bg-red-100 text-red-700' },
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export const ProjectCard = ({ project }: ProjectCardProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const status = statusConfig[project.status as keyof typeof statusConfig] || statusConfig.active
@@ -85,7 +86,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const StatusIcon = status.icon
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return null
+    if (!dateString) {
+      return null
+    }
     try {
       const date = new Date(dateString)
       return format(date, 'yyyy年MM月dd日', { locale: ja })
@@ -184,5 +187,13 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </div>
       </CardFooter>
     </Card>
+  )
+}
+
+export const ProjectCardSkeleton = () => {
+  return (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <Skeleton className="h-[200px]" />
+    </div>
   )
 }

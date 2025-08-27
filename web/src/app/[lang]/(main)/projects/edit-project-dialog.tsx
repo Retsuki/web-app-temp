@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
 import { CalendarIcon, Edit } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -29,11 +29,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -43,9 +39,9 @@ import {
 } from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
 import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
 import { patchApiV1ProjectsProjectId } from '@/lib/api/generated/projects/projects'
 import type { ProjectsGetProjectsResponseItem } from '@/lib/api/generated/schemas'
+import { cn } from '@/lib/utils'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Project name is required'),
@@ -93,7 +89,10 @@ export default function EditProjectDialog({ project }: EditProjectDialogProps) {
         startDate: values.startDate?.toISOString(),
         endDate: values.endDate?.toISOString(),
         tags: values.tags
-          ? values.tags.split(',').map((tag) => tag.trim()).filter(Boolean)
+          ? values.tags
+              .split(',')
+              .map((tag) => tag.trim())
+              .filter(Boolean)
           : [],
       })
 
@@ -117,9 +116,7 @@ export default function EditProjectDialog({ project }: EditProjectDialogProps) {
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Project</DialogTitle>
-          <DialogDescription>
-            Update your project details
-          </DialogDescription>
+          <DialogDescription>Update your project details</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -162,10 +159,7 @@ export default function EditProjectDialog({ project }: EditProjectDialogProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select status" />
@@ -245,11 +239,7 @@ export default function EditProjectDialog({ project }: EditProjectDialogProps) {
                               !field.value && 'text-muted-foreground'
                             )}
                           >
-                            {field.value ? (
-                              format(field.value, 'PPP')
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
+                            {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -284,11 +274,7 @@ export default function EditProjectDialog({ project }: EditProjectDialogProps) {
                               !field.value && 'text-muted-foreground'
                             )}
                           >
-                            {field.value ? (
-                              format(field.value, 'PPP')
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
+                            {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -315,14 +301,9 @@ export default function EditProjectDialog({ project }: EditProjectDialogProps) {
                 <FormItem>
                   <FormLabel>Tags</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="web, mobile, design (comma separated)"
-                      {...field}
-                    />
+                    <Input placeholder="web, mobile, design (comma separated)" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Enter tags separated by commas
-                  </FormDescription>
+                  <FormDescription>Enter tags separated by commas</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
