@@ -14,8 +14,8 @@ import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getApiV1ProjectsProjectIdServer } from '@/lib/api/server-api'
 import { cn } from '@/lib/utils'
-import DeleteProjectDialog from '../delete-project-dialog'
-import EditProjectDialog from '../edit-project-dialog'
+import { DialogDeleteProject } from '../_containers/dialog-delete-project/container'
+import { DialogEditProject } from '../_containers/dialog-edit-project/container'
 
 interface PageProps {
   params: Promise<{
@@ -55,8 +55,8 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             )}
           </div>
           <div className="flex gap-2">
-            <EditProjectDialog project={project} />
-            <DeleteProjectDialog projectId={project.id} projectName={project.name} />
+            <DialogEditProject project={project} />
+            <DialogDeleteProject projectId={project.id} projectName={project.name} />
           </div>
         </div>
 

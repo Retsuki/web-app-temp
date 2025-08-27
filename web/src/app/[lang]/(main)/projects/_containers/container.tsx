@@ -9,7 +9,7 @@ import { Skeleton } from '../../../../../components/ui/skeleton'
 import { AppUtils } from '../../../../../lib/utils'
 import { EmptyState } from '../_components/empty-state'
 import { ProjectCard, ProjectCardSkeleton } from '../_components/project-card'
-import { CreateProjectDialog } from '../create-project-dialog'
+import { DialogCreateProject } from './dialog-create-project/container'
 
 export const ProjectContainer = () => {
   const [searchQuery, setSearchQuery] = useState('')
@@ -69,7 +69,7 @@ export const ProjectContainer = () => {
           </div>
         )}
 
-        <CreateProjectDialog
+        <DialogCreateProject
           open={isCreateDialogOpen}
           onOpenChange={setIsCreateDialogOpen}
           onSuccess={() => {
