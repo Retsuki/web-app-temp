@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { SignInData, SignUpData } from '../types'
+import { authActionError, createUserProfileAndProject, deleteUserOnError } from './auth-helpers'
 
 export async function signUp(data: SignUpData) {
   const supabase = await createClient()
@@ -14,59 +15,41 @@ export async function signUp(data: SignUpData) {
   })
 
   if (authError) {
-    return { error: authError.message }
+    return authActionError(authError.message)
   }
 
   if (!authData.user) {
-    return { error: 'ユーザーの作成に失敗しました' }
+    return authActionError('ユーザーの作成に失敗しました')
   }
 
-  // 2. プロフィールを作成
-  const { error: profileError } = await supabase.from('profiles').insert({
-    user_id: authData.user.id,
-    email: data.email,
-    nickname: data.nickname,
-  })
+  // 2. プロフィールとプロジェクトを作成
+  const language = data.lang || 'ja'
+  const setupResult = await createUserProfileAndProject(authData.user, data.nickname, language)
 
-  if (profileError) {
-    return { error: 'プロフィールの作成に失敗しました' }
+  // エラーの場合はユーザーを削除
+  if (!setupResult.success && setupResult.error) {
+    await deleteUserOnError(authData.user.id)
   }
 
-  // 3. デフォルトプロジェクトを作成
-  const { data: projectData, error: projectError } = await supabase
-    .from('projects')
-    .insert({
-      user_id: authData.user.id,
-      name: 'My First Project',
-      description: 'Welcome to your first project! You can edit or delete this project anytime.',
-      status: 'active',
-      tags: ['getting-started'],
-      metadata: {},
-      priority: 0,
-      progress: 0,
-    })
-    .select('id')
-    .single()
-
-  if (projectError || !projectData) {
-    // プロジェクト作成に失敗してもユーザー登録は成功しているので、プロジェクト一覧へ
-    redirect('/projects')
-  }
-
-  // 4. 作成したプロジェクトのページへリダイレクト
-  redirect(`/projects/${projectData.id}`)
+  // 3. 作成したプロジェクトのページへリダイレクト
+  redirect(`/projects/${setupResult.projectId}`)
 }
 
 export async function signIn(data: SignInData) {
   const supabase = await createClient()
 
-  const { error } = await supabase.auth.signInWithPassword({
+  // 1. 認証
+  const { data: authData, error } = await supabase.auth.signInWithPassword({
     email: data.email,
     password: data.password,
   })
 
   if (error) {
-    return { error: error.message }
+    return authActionError(error.message)
+  }
+
+  if (!authData.session) {
+    return authActionError('セッションの作成に失敗しました')
   }
 
   redirect('/projects')
@@ -96,7 +79,7 @@ export async function signInWithGoogle(lang = 'ja') {
   })
 
   if (error) {
-    return { error: error.message }
+    return authActionError(error.message)
   }
 
   if (data.url) {

@@ -5,26 +5,12 @@
  */
 
 import type {
-  CreateUserRequest,
-  CreateUserResponse,
+  GetApiV1ProjectsId200,
   GetApiV1UsersMe200,
-  GetApiV1ProjectsProjectId200,
-  GetApiV1ProjectsProjectId200Project,
+  PostApiV1AuthSetup201,
+  PostApiV1AuthSetupBody,
 } from '@/lib/api/generated/schemas'
 import { orvalServerClient } from './orval-server-client'
-
-export const postApiV1UsersServer = (
-  createUserRequest: CreateUserRequest,
-  signal?: AbortSignal
-) => {
-  return orvalServerClient<CreateUserResponse>({
-    url: '/api/v1/users',
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    data: createUserRequest,
-    signal,
-  })
-}
 
 // プロフィール取得用のAPI関数
 export const getApiV1UsersMeServer = (signal?: AbortSignal) => {
@@ -36,15 +22,30 @@ export const getApiV1UsersMeServer = (signal?: AbortSignal) => {
   })
 }
 
+// 新規ユーザーのセットアップ用のAPI関数
+// Supabase Auth でユーザー作成後、プロフィールと初期プロジェクトを作成します
+export const postApiV1AuthSetupServer = (
+  setupData: PostApiV1AuthSetupBody,
+  signal?: AbortSignal
+) => {
+  return orvalServerClient<PostApiV1AuthSetup201>({
+    url: '/api/v1/auth/setup',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: setupData,
+    signal,
+  })
+}
+
 // プロジェクト詳細取得用のAPI関数
 export const getApiV1ProjectsProjectIdServer = async (projectId: string, signal?: AbortSignal) => {
-  const response = await orvalServerClient<GetApiV1ProjectsProjectId200>({
+  const response = await orvalServerClient<GetApiV1ProjectsId200>({
     url: `/api/v1/projects/${projectId}`,
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
     signal,
   })
-  
+
   // APIレスポンスがproject属性を持つ場合と持たない場合の両方に対応
   if ('project' in response && response.project) {
     return response.project
