@@ -4,9 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { CalendarIcon, Loader2 } from 'lucide-react'
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
@@ -39,6 +37,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { usePostApiV1Projects } from '@/lib/api/generated/projects/projects'
 import { cn } from '@/lib/utils'
+import { useToast } from '../../../../../../features/toast/use-toast'
 
 const createProjectSchema = z.object({
   name: z.string().min(1, 'プロジェクト名は必須です').max(255),
@@ -58,8 +57,7 @@ interface DialogCreateProjectProps {
 }
 
 export function DialogCreateProject({ open, onOpenChange, onSuccess }: DialogCreateProjectProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
+  const { toast } = useToast()
   const form = useForm<CreateProjectFormData>({
     resolver: zodResolver(createProjectSchema),
     defaultValues: {
@@ -70,34 +68,33 @@ export function DialogCreateProject({ open, onOpenChange, onSuccess }: DialogCre
     },
   })
 
-  const createProjectMutation = usePostApiV1Projects()
+  const createProjectMutation = usePostApiV1Projects({
+    mutation: {
+      onSuccess: () => {
+        toast.success('プロジェクトを作成しました')
+        form.reset()
+        onSuccess()
+      },
+      onError: () => {
+        toast.error('プロジェクトの作成に失敗しました')
+      },
+    },
+  })
 
   const onSubmit = async (data: CreateProjectFormData) => {
-    setIsSubmitting(true)
-    try {
-      await createProjectMutation.mutateAsync({
-        data: {
-          name: data.name,
-          description: data.description,
-          status: data.status,
-          priority: data.priority,
-          startDate: data.startDate?.toISOString(),
-          endDate: data.endDate?.toISOString(),
-          tags: [],
-          metadata: {},
-          progress: 0,
-        },
-      })
-
-      toast.success('プロジェクトを作成しました')
-      form.reset()
-      onSuccess()
-    } catch (error) {
-      console.error('Failed to create project:', error)
-      toast.error('プロジェクトの作成に失敗しました')
-    } finally {
-      setIsSubmitting(false)
-    }
+    createProjectMutation.mutate({
+      data: {
+        name: data.name,
+        description: data.description,
+        status: data.status,
+        priority: data.priority,
+        startDate: data.startDate?.toISOString(),
+        endDate: data.endDate?.toISOString(),
+        tags: [],
+        metadata: {},
+        progress: 0,
+      },
+    })
   }
 
   return (
@@ -280,12 +277,14 @@ export function DialogCreateProject({ open, onOpenChange, onSuccess }: DialogCre
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
+                disabled={createProjectMutation.isPending}
               >
                 キャンセル
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" disabled={createProjectMutation.isPending}>
+                {createProjectMutation.isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 作成
               </Button>
             </DialogFooter>
