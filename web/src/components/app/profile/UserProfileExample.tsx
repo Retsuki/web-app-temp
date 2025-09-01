@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useGetApiV1UsersMe, usePutApiV1UsersMe } from '@/lib/api/generated/users/users'
+import { useGetProfile, useUpdateProfile } from '@/lib/api/generated/users/users'
 
 /**
  * Orvalが生成したAPIクライアントフックの使用例
@@ -17,7 +17,7 @@ export function UserProfileExample() {
   const nicknameId = useId()
 
   // プロフィール取得（自動的に認証ヘッダーが付与される）
-  const { data: response, isLoading, error, refetch } = useGetApiV1UsersMe()
+  const { data: response, isLoading, error, refetch } = useGetProfile()
 
   const profile = response?.data
 
@@ -29,7 +29,7 @@ export function UserProfileExample() {
   }, [profile])
 
   // プロフィール更新用のmutation
-  const updateProfileMutation = usePutApiV1UsersMe({
+  const updateProfileMutation = useUpdateProfile({
     mutation: {
       onSuccess: () => {
         toast.success('プロフィールを更新しました')

@@ -21,21 +21,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import type { Dictionary } from '@/features/i18n'
 import { useToast } from '@/features/toast/use-toast'
 import {
-  useDeleteApiV1BillingSubscription,
-  useGetApiV1BillingHistory,
-  useGetApiV1BillingSubscription,
+  useCancelSubscription,
+  useGetPaymentHistory,
+  useGetSubscription,
 } from '@/lib/api/generated/billing/billing'
+import type { GetPaymentHistory200PaymentsItem } from '@/lib/api/generated/schemas'
 
 export default function BillingContent({ dict }: { dict: Dictionary }) {
   const [showCancelDialog, setShowCancelDialog] = useState(false)
 
   // API hooks
-  const { data: subscriptionResponse, isLoading: subscriptionLoading } =
-    useGetApiV1BillingSubscription()
-  const { data: historyResponse, isLoading: historyLoading } = useGetApiV1BillingHistory({
+  const { data: subscriptionResponse, isLoading: subscriptionLoading } = useGetSubscription()
+  const { data: historyResponse, isLoading: historyLoading } = useGetPaymentHistory({
     limit: '10',
   })
-  const cancelSubscription = useDeleteApiV1BillingSubscription()
+  const cancelSubscription = useCancelSubscription()
 
   // Extract data from API responses
   const subscription = subscriptionResponse
@@ -50,16 +50,15 @@ export default function BillingContent({ dict }: { dict: Dictionary }) {
     try {
       await cancelSubscription.mutateAsync({ data: {} })
       setShowCancelDialog(false)
-      toast({
-        title: dict.common.success,
-        description: dict.billing.cancelSuccess || 'Subscription canceled successfully',
-      })
+      toast.success(
+        dict.common.success,
+        dict.billing.cancelSuccess || 'Subscription canceled successfully'
+      )
     } catch {
-      toast({
-        title: dict.common.error,
-        description: dict.billing.cancelError || 'Failed to cancel subscription',
-        variant: 'error',
-      })
+      toast.error(
+        dict.common.error,
+        dict.billing.cancelError || 'Failed to cancel subscription'
+      )
     }
   }
 
@@ -95,7 +94,7 @@ export default function BillingContent({ dict }: { dict: Dictionary }) {
             <>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">{dict.billing.status}</span>
-                <Badge variant={statusVariant[subscription.status] || 'default'}>
+                <Badge variant={statusVariant[subscription.status as keyof typeof statusVariant] || 'default'}>
                   {dict.billing.subscriptionStatus[subscription.status]}
                 </Badge>
               </div>
@@ -147,7 +146,7 @@ export default function BillingContent({ dict }: { dict: Dictionary }) {
             </div>
           ) : history?.payments && history.payments.length > 0 ? (
             <div className="space-y-2">
-              {history.payments.map((payment) => (
+              {history.payments.map((payment: GetPaymentHistory200PaymentsItem) => (
                 <div
                   key={payment.paymentId}
                   className="flex items-center justify-between py-2 border-b last:border-0"
@@ -163,7 +162,7 @@ export default function BillingContent({ dict }: { dict: Dictionary }) {
                       ¥{payment.amount.toLocaleString()} {payment.currency.toUpperCase()}
                     </p>
                     <Badge variant={payment.status === 'succeeded' ? 'default' : 'destructive'}>
-                      {dict.billing.paymentStatus[payment.status]}
+                      {dict.billing.paymentStatus[payment.status as keyof typeof dict.billing.paymentStatus]}
                     </Badge>
                   </div>
                 </div>

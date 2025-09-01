@@ -14,8 +14,7 @@ import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getApiV1ProjectsProjectIdServer } from '@/lib/api/server-api'
 import { cn } from '@/lib/utils'
-import { DialogDeleteProject } from '../_containers/dialog-delete-project/container'
-import { DialogEditProject } from '../_containers/dialog-edit-project/container'
+import { ProjectActions } from '../_containers/project-actions/actions.client'
 
 interface PageProps {
   params: Promise<{
@@ -25,7 +24,7 @@ interface PageProps {
 }
 
 export default async function ProjectDetailPage({ params }: PageProps) {
-  const { projectId } = await params
+  const { projectId, lang } = await params
 
   // APIからプロジェクトデータを取得
   try {
@@ -54,10 +53,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               <p className="text-muted-foreground text-lg">{project.description}</p>
             )}
           </div>
-          <div className="flex gap-2">
-            <DialogEditProject project={project} />
-            <DialogDeleteProject projectId={project.id} projectName={project.name} />
-          </div>
+          <ProjectActions project={project} lang={lang} />
         </div>
 
         {/* ステータスバッジと優先度 */}

@@ -1,16 +1,29 @@
 import { eq } from 'drizzle-orm'
 import type Stripe from 'stripe'
 import { logger } from '../../_shared/utils/logger.js'
-import {
-  type Database,
-  paymentHistory,
-  profiles,
-  subscriptions,
-  webhookEvents,
-} from '../../drizzle/index.js'
+import { type Database, profiles } from '../../drizzle/index.js'
+import { samplePaymentHistory as paymentHistory, sampleSubscriptions as subscriptions, sampleWebhookEvents as webhookEvents } from '../../drizzle/db/apps/sample/index.js'
 
 export class WebhookHandlers {
   constructor(private db: Database) {}
+
+  private mapStripeStatus(status: Stripe.Subscription.Status): 'active' | 'past_due' | 'canceled' | 'unpaid' {
+    switch (status) {
+      case 'active':
+      case 'trialing':
+      case 'incomplete':
+      case 'incomplete_expired':
+        return 'active'
+      case 'past_due':
+        return 'past_due'
+      case 'canceled':
+        return 'canceled'
+      case 'unpaid':
+        return 'unpaid'
+      default:
+        return 'active'
+    }
+  }
 
   async handleSubscriptionCreated(subscription: Stripe.Subscription) {
     logger.info({ subscriptionId: subscription.id }, 'Handling subscription created')
@@ -27,7 +40,7 @@ export class WebhookHandlers {
       stripePriceId: subscription.items.data[0].price.id,
       stripeProductId: subscription.items.data[0].price.product as string,
       plan: planId,
-      status: subscription.status,
+      status: this.mapStripeStatus(subscription.status),
       billingCycle,
       currentPeriodStart: new Date(subscription.items.data[0].current_period_start * 1000),
       currentPeriodEnd: new Date(subscription.items.data[0].current_period_end * 1000),
@@ -50,7 +63,7 @@ export class WebhookHandlers {
     await this.db
       .update(subscriptions)
       .set({
-        status: subscription.status,
+        status: this.mapStripeStatus(subscription.status),
         currentPeriodStart: new Date(subscription.items.data[0].current_period_start * 1000),
         currentPeriodEnd: new Date(subscription.items.data[0].current_period_end * 1000),
         cancelAt: subscription.cancel_at ? new Date(subscription.cancel_at * 1000) : null,
@@ -143,7 +156,7 @@ export class WebhookHandlers {
       stripePaymentIntentId: paymentIntentId,
       amount: invoice.amount_paid,
       currency: invoice.currency,
-      status: 'succeeded' as const,
+      status: 'paid' as const,
       description: `${sub.plan} plan - ${sub.billingCycle} billing`,
       periodStart: new Date(invoice.period_start * 1000),
       periodEnd: new Date(invoice.period_end * 1000),
@@ -152,17 +165,11 @@ export class WebhookHandlers {
 
     await this.db.insert(paymentHistory).values(paymentData)
 
-    // Reset monthly usage if needed
-    if (sub.billingCycle === 'monthly') {
-      await this.db
-        .update(profiles)
-        .set({
-          monthlyUsageCount: 0,
-          usageResetAt: new Date(invoice.period_end * 1000),
-          updatedAt: new Date(),
-        })
-        .where(eq(profiles.userId, sub.userId))
-    }
+    // 注: profiles テーブルに使用量カラムがないため、ここではリセット処理は行わない
+    await this.db
+      .update(profiles)
+      .set({ updatedAt: new Date() })
+      .where(eq(profiles.userId, sub.userId))
   }
 
   async handleInvoicePaymentFailed(invoice: Stripe.Invoice) {

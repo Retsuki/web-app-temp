@@ -1,6 +1,6 @@
 import { and, desc, eq, isNull, sql } from 'drizzle-orm'
 import type { Database } from '../../../drizzle/db/database.js'
-import { projects } from '../../../drizzle/db/schema.js'
+import { sampleProjects as projects } from '../../../drizzle/db/apps/sample/index.js'
 
 export interface CreateProjectParams {
   userId: string
@@ -55,7 +55,7 @@ export class ProjectRepository {
         userId: params.userId,
         name: params.name,
         description: params.description,
-        status: params.status || 'active',
+        status: (params.status as 'active' | 'archived' | 'completed') || 'active',
         tags: params.tags || [],
         metadata: params.metadata || {},
         startDate: params.startDate,
@@ -69,10 +69,13 @@ export class ProjectRepository {
   }
 
   async update(id: string, userId: string, params: UpdateProjectParams) {
+    const { status, ...rest } = params
     const results = await this.db
       .update(projects)
       .set({
-        ...params,
+        ...rest,
+        // status は 'active' | 'archived' | 'completed' を想定
+        ...(status ? { status: status as 'active' | 'archived' | 'completed' } : {}),
         updatedAt: sql`now()`,
       })
       .where(and(eq(projects.id, id), eq(projects.userId, userId), isNull(projects.deletedAt)))

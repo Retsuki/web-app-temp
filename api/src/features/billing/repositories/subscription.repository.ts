@@ -1,5 +1,6 @@
 import { and, eq } from 'drizzle-orm'
-import { type Database, subscriptions } from '../../../drizzle/index.js'
+import type { Database } from '../../../drizzle/index.js'
+import { sampleSubscriptions as subscriptions } from '../../../drizzle/db/apps/sample/index.js'
 
 export class SubscriptionRepository {
   constructor(private db: Database) {}
@@ -32,8 +33,9 @@ export class SubscriptionRepository {
       .values({
         ...data,
         plan: data.plan as 'free' | 'indie' | 'pro',
-        status: data.status as 'active' | 'canceled' | 'past_due' | 'unpaid' | 'incomplete',
-        billingCycle: data.billingCycle as 'monthly' | 'yearly',
+        // sample_subscriptions は status/billingCycle に厳密な Enum 型制限なし
+        status: data.status,
+        billingCycle: data.billingCycle,
       })
       .returning()
 

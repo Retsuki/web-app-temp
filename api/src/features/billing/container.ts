@@ -34,7 +34,7 @@ export class BillingContainer {
       this.subscriptionRepository
     )
 
-    this.getPlansUseCase = new GetPlansUseCase()
+    this.getPlansUseCase = new GetPlansUseCase(db)
 
     this.getSubscriptionUseCase = new GetSubscriptionUseCase(this.subscriptionRepository)
 

@@ -38,7 +38,10 @@ export const postApiV1AuthSetupServer = (
 }
 
 // プロジェクト詳細取得用のAPI関数
-export const getApiV1ProjectsProjectIdServer = async (projectId: string, signal?: AbortSignal) => {
+export const getApiV1ProjectsProjectIdServer = async (
+  projectId: string,
+  signal?: AbortSignal
+): Promise<GetApiV1ProjectsId200> => {
   const response = await orvalServerClient<GetApiV1ProjectsId200>({
     url: `/api/v1/projects/${projectId}`,
     method: 'GET',
@@ -46,9 +49,6 @@ export const getApiV1ProjectsProjectIdServer = async (projectId: string, signal?
     signal,
   })
 
-  // APIレスポンスがproject属性を持つ場合と持たない場合の両方に対応
-  if ('project' in response && response.project) {
-    return response.project
-  }
+  // 現在のOpenAPIスキーマではフラットなプロジェクトオブジェクトを返す
   return response
 }
