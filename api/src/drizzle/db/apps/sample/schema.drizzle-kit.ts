@@ -1,10 +1,24 @@
 // Drizzle-Kit friendly version of sample schema (no .js extensions)
 import { relations, sql } from 'drizzle-orm'
-import { index, integer, jsonb, pgEnum, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
+import {
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  varchar,
+} from 'drizzle-orm/pg-core'
 
 // Inline enum definitions for drizzle-kit to generate CREATE TYPE first
 export const samplePlanEnum = pgEnum('sample_plan', ['free', 'indie', 'pro'])
-export const sampleProjectStatusEnum = pgEnum('sample_project_status', ['active', 'archived', 'completed'])
+export const sampleProjectStatusEnum = pgEnum('sample_project_status', [
+  'active',
+  'archived',
+  'completed',
+])
 export const sampleSubscriptionStatusEnum = pgEnum('sample_subscription_status', [
   'active',
   'past_due',
@@ -17,7 +31,11 @@ export const samplePaymentStatusEnum = pgEnum('sample_payment_status', [
   'pending',
   'refunded',
 ])
-export const sampleWebhookStatusEnum = pgEnum('sample_webhook_status', ['pending', 'processed', 'failed'])
+export const sampleWebhookStatusEnum = pgEnum('sample_webhook_status', [
+  'pending',
+  'processed',
+  'failed',
+])
 export const sampleBillingCycleEnum = pgEnum('sample_billing_cycle', ['monthly', 'yearly'])
 
 export const sampleProjects = pgTable(
@@ -78,7 +96,9 @@ export const samplePaymentHistory = pgTable(
   {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
     userId: uuid('user_id').notNull(),
-    subscriptionId: uuid('subscription_id').references(() => sampleSubscriptions.id, { onDelete: 'cascade' }),
+    subscriptionId: uuid('subscription_id').references(() => sampleSubscriptions.id, {
+      onDelete: 'cascade',
+    }),
     stripeInvoiceId: varchar('stripe_invoice_id', { length: 255 }).notNull().unique(),
     stripePaymentIntentId: varchar('stripe_payment_intent_id', { length: 255 }),
     stripeChargeId: varchar('stripe_charge_id', { length: 255 }),

@@ -2,8 +2,8 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import type { GetApiV1ProjectsId200 } from '@/lib/api/generated/schemas'
 import { Button } from '@/components/ui/button'
+import type { GetApiV1ProjectsId200 } from '@/lib/api/generated/schemas'
 import { DialogDeleteProject } from '../dialog-delete-project/container'
 import { DialogEditProject } from '../dialog-edit-project/container'
 
@@ -45,4 +45,3 @@ export function ProjectActions({ project, lang }: ProjectActionsProps) {
     </div>
   )
 }
-

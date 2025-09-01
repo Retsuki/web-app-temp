@@ -55,10 +55,7 @@ export default function BillingContent({ dict }: { dict: Dictionary }) {
         dict.billing.cancelSuccess || 'Subscription canceled successfully'
       )
     } catch {
-      toast.error(
-        dict.common.error,
-        dict.billing.cancelError || 'Failed to cancel subscription'
-      )
+      toast.error(dict.common.error, dict.billing.cancelError || 'Failed to cancel subscription')
     }
   }
 
@@ -94,7 +91,11 @@ export default function BillingContent({ dict }: { dict: Dictionary }) {
             <>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">{dict.billing.status}</span>
-                <Badge variant={statusVariant[subscription.status as keyof typeof statusVariant] || 'default'}>
+                <Badge
+                  variant={
+                    statusVariant[subscription.status as keyof typeof statusVariant] || 'default'
+                  }
+                >
                   {dict.billing.subscriptionStatus[subscription.status]}
                 </Badge>
               </div>
@@ -162,7 +163,11 @@ export default function BillingContent({ dict }: { dict: Dictionary }) {
                       ¥{payment.amount.toLocaleString()} {payment.currency.toUpperCase()}
                     </p>
                     <Badge variant={payment.status === 'succeeded' ? 'default' : 'destructive'}>
-                      {dict.billing.paymentStatus[payment.status as keyof typeof dict.billing.paymentStatus]}
+                      {
+                        dict.billing.paymentStatus[
+                          payment.status as keyof typeof dict.billing.paymentStatus
+                        ]
+                      }
                     </Badge>
                   </div>
                 </div>

@@ -20,8 +20,16 @@ export const SAMPLE_PROJECT_STATUS_VALUES = ['active', 'archived', 'completed'] 
 export const sampleProjectStatusEnum = pgEnum('sample_project_status', SAMPLE_PROJECT_STATUS_VALUES)
 export type SampleProjectStatus = (typeof SAMPLE_PROJECT_STATUS_VALUES)[number]
 
-export const SAMPLE_SUBSCRIPTION_STATUS_VALUES = ['active', 'past_due', 'canceled', 'unpaid'] as const
-export const sampleSubscriptionStatusEnum = pgEnum('sample_subscription_status', SAMPLE_SUBSCRIPTION_STATUS_VALUES)
+export const SAMPLE_SUBSCRIPTION_STATUS_VALUES = [
+  'active',
+  'past_due',
+  'canceled',
+  'unpaid',
+] as const
+export const sampleSubscriptionStatusEnum = pgEnum(
+  'sample_subscription_status',
+  SAMPLE_SUBSCRIPTION_STATUS_VALUES
+)
 export type SampleSubscriptionStatus = (typeof SAMPLE_SUBSCRIPTION_STATUS_VALUES)[number]
 
 export const SAMPLE_PAYMENT_STATUS_VALUES = ['paid', 'failed', 'pending', 'refunded'] as const

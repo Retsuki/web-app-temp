@@ -16,7 +16,11 @@ import {
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/features/auth/hooks/auth-context'
 import type { Dictionary } from '@/features/i18n'
-import { useGetSubscription, useGetPlans, useCreateCheckout } from '@/lib/api/generated/billing/billing'
+import {
+  useCreateCheckout,
+  useGetPlans,
+  useGetSubscription,
+} from '@/lib/api/generated/billing/billing'
 
 export default function PricingContent({ dict }: { dict: Dictionary }) {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')

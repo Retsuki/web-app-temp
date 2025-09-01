@@ -1,13 +1,19 @@
 import { eq } from 'drizzle-orm'
 import type Stripe from 'stripe'
 import { logger } from '../../_shared/utils/logger.js'
+import {
+  samplePaymentHistory as paymentHistory,
+  sampleSubscriptions as subscriptions,
+  sampleWebhookEvents as webhookEvents,
+} from '../../drizzle/db/apps/sample/index.js'
 import { type Database, profiles } from '../../drizzle/index.js'
-import { samplePaymentHistory as paymentHistory, sampleSubscriptions as subscriptions, sampleWebhookEvents as webhookEvents } from '../../drizzle/db/apps/sample/index.js'
 
 export class WebhookHandlers {
   constructor(private db: Database) {}
 
-  private mapStripeStatus(status: Stripe.Subscription.Status): 'active' | 'past_due' | 'canceled' | 'unpaid' {
+  private mapStripeStatus(
+    status: Stripe.Subscription.Status
+  ): 'active' | 'past_due' | 'canceled' | 'unpaid' {
     switch (status) {
       case 'active':
       case 'trialing':

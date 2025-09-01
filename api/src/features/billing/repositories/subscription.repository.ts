@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm'
-import type { Database } from '../../../drizzle/index.js'
 import { sampleSubscriptions as subscriptions } from '../../../drizzle/db/apps/sample/index.js'
+import type { Database } from '../../../drizzle/index.js'
 
 export class SubscriptionRepository {
   constructor(private db: Database) {}

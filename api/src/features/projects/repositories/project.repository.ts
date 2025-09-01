@@ -1,6 +1,6 @@
 import { and, desc, eq, isNull, sql } from 'drizzle-orm'
-import type { Database } from '../../../drizzle/db/database.js'
 import { sampleProjects as projects } from '../../../drizzle/db/apps/sample/index.js'
+import type { Database } from '../../../drizzle/db/database.js'
 
 export interface CreateProjectParams {
   userId: string

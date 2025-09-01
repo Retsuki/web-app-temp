@@ -3,23 +3,14 @@
 // ========================================
 
 import { relations, sql } from 'drizzle-orm'
+import { index, integer, jsonb, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
 import {
-  index,
-  integer,
-  jsonb,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-  varchar,
-} from 'drizzle-orm/pg-core'
-import {
+  sampleBillingCycleEnum,
+  samplePaymentStatusEnum,
   samplePlanEnum,
   sampleProjectStatusEnum,
   sampleSubscriptionStatusEnum,
-  samplePaymentStatusEnum,
   sampleWebhookStatusEnum,
-  sampleBillingCycleEnum,
 } from './enum.js'
 
 // ========================================
@@ -163,7 +154,9 @@ export const samplePaymentHistory = pgTable(
   (table) => {
     return {
       userIdIdx: index('sample_payment_history_user_id_idx').on(table.userId),
-      subscriptionIdIdx: index('sample_payment_history_subscription_id_idx').on(table.subscriptionId),
+      subscriptionIdIdx: index('sample_payment_history_subscription_id_idx').on(
+        table.subscriptionId
+      ),
       statusIdx: index('sample_payment_history_status_idx').on(table.status),
       createdAtIdx: index('sample_payment_history_created_at_idx').on(table.createdAt),
     }

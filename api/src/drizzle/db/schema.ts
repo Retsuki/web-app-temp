@@ -1,15 +1,15 @@
-import { relations } from "drizzle-orm";
-import { profiles } from "./shared/common-schema.js";
+import { relations } from 'drizzle-orm'
 import { omPaymentHistory, omProjects, omSubscriptions } from './apps/om/schema.js'
 import { pmtPaymentHistory, pmtProjects, pmtSubscriptions } from './apps/pmt/schema.js'
+import { profiles } from './shared/common-schema.js'
 
+export * from './apps/om/index.js'
+export * from './apps/pmt/index.js'
 // Apps
-export * from "./apps/sample/index.js";
-export * from "./apps/pmt/index.js";
-export * from "./apps/om/index.js";
+export * from './apps/sample/index.js'
 
 // Shared
-export * from "./shared/common-schema.js";
+export * from './shared/common-schema.js'
 
 // Relations (循環参照回避のためここで定義)
 export const profilesRelations = relations(profiles, ({ many }) => ({

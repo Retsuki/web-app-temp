@@ -1,6 +1,5 @@
+import type { BillingContainer } from '../../container.js'
 import type { GetPlansResponse } from './dto.js'
-import type { Database } from '../../../../drizzle/index.js'
-import { samplePlanLimits } from '../../../../drizzle/db/apps/sample/index.js'
 
 const NAME_MAP: Record<'free' | 'indie' | 'pro', string> = {
   free: 'Free',
@@ -15,55 +14,43 @@ const DESC_MAP: Record<'free' | 'indie' | 'pro', string> = {
 }
 
 export class GetPlansUseCase {
-  constructor(private readonly db: Database) {}
+  constructor(private readonly container: BillingContainer) {}
 
   async execute(): Promise<GetPlansResponse> {
-    const rows = await this.db
-      .select()
-      .from(samplePlanLimits)
+    const plansRepository = this.container.plansRepository
+    const planLimits = await plansRepository.findAll()
 
-    const plans = rows
-      .map((row) => {
-        const id = row.plan as 'free' | 'indie' | 'pro'
-        const featuresFromJson = (row.features as any) || {}
-
-        const stripePriceIds =
-          id === 'free'
-            ? undefined
-            : {
-                monthly:
-                  id === 'indie'
-                    ? process.env.STRIPE_PRICE_ID_INDIE_MONTHLY || ''
-                    : process.env.STRIPE_PRICE_ID_PRO_MONTHLY || '',
-                yearly:
-                  id === 'indie'
-                    ? process.env.STRIPE_PRICE_ID_INDIE_YEARLY || ''
-                    : process.env.STRIPE_PRICE_ID_PRO_YEARLY || '',
-              }
+    const plans = planLimits
+      .filter((p) => p.plan !== 'free')
+      .map((planLimit) => {
+        const stripePriceIds = {
+          monthly:
+            planLimit.plan === 'indie'
+              ? process.env.STRIPE_PRICE_ID_INDIE_MONTHLY || ''
+              : process.env.STRIPE_PRICE_ID_PRO_MONTHLY || '',
+          yearly:
+            planLimit.plan === 'indie'
+              ? process.env.STRIPE_PRICE_ID_INDIE_YEARLY || ''
+              : process.env.STRIPE_PRICE_ID_PRO_YEARLY || '',
+        }
 
         return {
-          id,
-          name: NAME_MAP[id],
-          description: DESC_MAP[id],
-          monthlyPrice: row.monthlyPrice,
-          yearlyPrice: row.yearlyPrice,
-          ...(stripePriceIds ? { stripePriceIds } : {}),
+          id: planLimit.plan,
+          name: NAME_MAP[planLimit.plan],
+          description: DESC_MAP[planLimit.plan],
+          monthlyPrice: planLimit.monthlyPrice,
+          yearlyPrice: planLimit.yearlyPrice,
+          stripePriceIds,
           features: {
-            projectLimit: row.projectsLimit,
-            apiCallsPerMonth: row.monthlyUsageLimit,
-            teamMembers: row.membersPerProjectLimit,
-            storage: featuresFromJson.storage ?? 0,
-            support: featuresFromJson.support ?? 'community',
+            projectLimit: planLimit.projectsLimit,
+            apiCallsPerMonth: planLimit.monthlyUsageLimit,
+            teamMembers: planLimit.membersPerProjectLimit,
+            storage: planLimit.features.storage ?? 0,
+            support: planLimit.features.support ?? 'community',
           },
-        } satisfies import('../../../../constants/plans.js').Plan
-      })
-      // 表示順がある場合はそれに従う
-      .sort((a, b) => {
-        const aOrder = rows.find((r) => r.plan === a.id)?.displayOrder ?? 0
-        const bOrder = rows.find((r) => r.plan === b.id)?.displayOrder ?? 0
-        return aOrder - bOrder
+        }
       })
 
-    return { plans: plans.filter((p) => p.id !== 'free') }
+    return { plans }
   }
 }

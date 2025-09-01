@@ -2,13 +2,13 @@
 // Sample App - Type Definitions
 // ========================================
 
-import type { InferSelectModel, InferInsertModel } from 'drizzle-orm'
+import type { InferInsertModel, InferSelectModel } from 'drizzle-orm'
 import type {
+  samplePaymentHistory,
+  samplePlanLimits,
   sampleProjects,
   sampleSubscriptions,
-  samplePaymentHistory,
   sampleWebhookEvents,
-  samplePlanLimits,
 } from './schema.js'
 
 // ========================================
