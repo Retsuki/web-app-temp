@@ -1,43 +1,19 @@
-// Drizzle-Kit friendly version of sample schema (no .js extensions)
-import { relations, sql } from 'drizzle-orm'
-import {
-  index,
-  integer,
-  jsonb,
-  pgEnum,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-  varchar,
-} from 'drizzle-orm/pg-core'
+// Unified core schema for Sample app
+// - Used by runtime (via schema.ts re-export with .js)
+// - Used by drizzle-kit (via schema.drizzle-kit.ts re-export without extension)
 
-// Inline enum definitions for drizzle-kit to generate CREATE TYPE first
+import { relations, sql } from 'drizzle-orm'
+import { index, integer, jsonb, pgEnum, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
+
+// Enum definitions (inline to ensure CREATE TYPE generation)
 export const samplePlanEnum = pgEnum('sample_plan', ['free', 'indie', 'pro'])
-export const sampleProjectStatusEnum = pgEnum('sample_project_status', [
-  'active',
-  'archived',
-  'completed',
-])
-export const sampleSubscriptionStatusEnum = pgEnum('sample_subscription_status', [
-  'active',
-  'past_due',
-  'canceled',
-  'unpaid',
-])
-export const samplePaymentStatusEnum = pgEnum('sample_payment_status', [
-  'paid',
-  'failed',
-  'pending',
-  'refunded',
-])
-export const sampleWebhookStatusEnum = pgEnum('sample_webhook_status', [
-  'pending',
-  'processed',
-  'failed',
-])
+export const sampleProjectStatusEnum = pgEnum('sample_project_status', ['active', 'archived', 'completed'])
+export const sampleSubscriptionStatusEnum = pgEnum('sample_subscription_status', ['active', 'past_due', 'canceled', 'unpaid'])
+export const samplePaymentStatusEnum = pgEnum('sample_payment_status', ['paid', 'failed', 'pending', 'refunded'])
+export const sampleWebhookStatusEnum = pgEnum('sample_webhook_status', ['pending', 'processed', 'failed'])
 export const sampleBillingCycleEnum = pgEnum('sample_billing_cycle', ['monthly', 'yearly'])
 
+// Tables
 export const sampleProjects = pgTable(
   'sample_projects',
   {
@@ -96,9 +72,7 @@ export const samplePaymentHistory = pgTable(
   {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
     userId: uuid('user_id').notNull(),
-    subscriptionId: uuid('subscription_id').references(() => sampleSubscriptions.id, {
-      onDelete: 'cascade',
-    }),
+    subscriptionId: uuid('subscription_id').references(() => sampleSubscriptions.id, { onDelete: 'cascade' }),
     stripeInvoiceId: varchar('stripe_invoice_id', { length: 255 }).notNull().unique(),
     stripePaymentIntentId: varchar('stripe_payment_intent_id', { length: 255 }),
     stripeChargeId: varchar('stripe_charge_id', { length: 255 }),
@@ -164,6 +138,7 @@ export const samplePlanLimits = pgTable('sample_plan_limits', {
   updatedAt: timestamp('updated_at').default(sql`now()`).notNull(),
 })
 
+// Relations (kept minimal; drizzle-kit ignores relations)
 export const sampleProjectsRelations = relations(sampleProjects, () => ({}))
 export const sampleSubscriptionsRelations = relations(sampleSubscriptions, ({ many }) => ({
   paymentHistory: many(samplePaymentHistory),
@@ -174,3 +149,4 @@ export const samplePaymentHistoryRelations = relations(samplePaymentHistory, ({ 
     references: [sampleSubscriptions.id],
   }),
 }))
+

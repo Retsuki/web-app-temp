@@ -1,23 +1,18 @@
 import { relations } from 'drizzle-orm'
-import { omPaymentHistory, omProjects, omSubscriptions } from './apps/om/schema.js'
-import { pmtPaymentHistory, pmtProjects, pmtSubscriptions } from './apps/pmt/schema.js'
+import { omPaymentHistory, omProjects, omSubscriptions } from './apps/om/index.js'
+import { pmtProjects } from './apps/pmt/index.js'
 import { profiles } from './shared/common-schema.js'
 
 export * from './apps/om/index.js'
 export * from './apps/pmt/index.js'
-// Apps
 export * from './apps/sample/index.js'
-
-// Shared
 export * from './shared/common-schema.js'
 
-// Relations (循環参照回避のためここで定義)
+// Relations (必要最小限: 参照整合があるもののみ)
 export const profilesRelations = relations(profiles, ({ many }) => ({
-  // PMT relations
+  // PMT
   pmtProjects: many(pmtProjects),
-  pmtSubscriptions: many(pmtSubscriptions),
-  pmtPaymentHistory: many(pmtPaymentHistory),
-  // OM relations
+  // OM
   omProjects: many(omProjects),
   omSubscriptions: many(omSubscriptions),
   omPaymentHistory: many(omPaymentHistory),

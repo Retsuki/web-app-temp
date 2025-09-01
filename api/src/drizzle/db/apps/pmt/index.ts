@@ -2,7 +2,7 @@
 // PMT App - Centralized Exports
 // ========================================
 
-// Export all types from types.ts
+// Export enums
 export * from './enum.js'
-// Export all schemas from schema.ts
-export * from './schema.js'
+// Export unified core schema for runtime
+export * from './schema/core.js'
