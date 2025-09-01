@@ -72,9 +72,11 @@ export function DialogDeleteProject({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={deleteProjectMutation.isPending}>キャンセル</AlertDialogCancel>
-          <AlertDialogAction 
-            onClick={handleDelete} 
+          <AlertDialogCancel disabled={deleteProjectMutation.isPending}>
+            キャンセル
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDelete}
             className="bg-destructive hover:bg-destructive/90"
             disabled={deleteProjectMutation.isPending}
           >

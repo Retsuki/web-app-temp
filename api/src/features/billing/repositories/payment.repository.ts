@@ -1,5 +1,5 @@
 import { desc, eq } from 'drizzle-orm'
-import { paymentHistory } from '../../../drizzle/db/schema.js'
+import { samplePaymentHistory as paymentHistory } from '../../../drizzle/db/apps/sample/index.js'
 import type { Database } from '../../../drizzle/index.js'
 
 export class PaymentRepository {
@@ -31,7 +31,8 @@ export class PaymentRepository {
       .insert(paymentHistory)
       .values({
         ...data,
-        status: data.status as 'pending' | 'succeeded' | 'failed',
+        // sample_payment_history の status は 'paid' | 'failed' | 'pending' | 'refunded'
+        status: data.status as 'pending' | 'paid' | 'failed' | 'refunded',
       })
       .returning()
 

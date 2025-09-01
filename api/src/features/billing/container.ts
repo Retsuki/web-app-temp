@@ -1,6 +1,7 @@
 import type { Database } from '../../drizzle/index.js'
 import { UserRepository } from '../users/repositories/user.repository.js'
 import { PaymentRepository } from './repositories/payment.repository.js'
+import { PlansRepository } from './repositories/plans.repository.js'
 import { SubscriptionRepository } from './repositories/subscription.repository.js'
 import { CancelSubscriptionUseCase } from './use-cases/cancel-subscription/use-case.js'
 import { CreateCheckoutUseCase } from './use-cases/create-checkout/use-case.js'
@@ -13,6 +14,7 @@ export class BillingContainer {
   // Repositories
   public readonly subscriptionRepository: SubscriptionRepository
   public readonly paymentRepository: PaymentRepository
+  public readonly plansRepository: PlansRepository
 
   // Use Cases
   public readonly createCheckoutUseCase: CreateCheckoutUseCase
@@ -26,6 +28,7 @@ export class BillingContainer {
     // Initialize repositories
     this.subscriptionRepository = new SubscriptionRepository(db)
     this.paymentRepository = new PaymentRepository(db)
+    this.plansRepository = new PlansRepository(db)
     const userRepository = new UserRepository(db)
 
     // Initialize use cases
@@ -34,7 +37,7 @@ export class BillingContainer {
       this.subscriptionRepository
     )
 
-    this.getPlansUseCase = new GetPlansUseCase()
+    this.getPlansUseCase = new GetPlansUseCase(this)
 
     this.getSubscriptionUseCase = new GetSubscriptionUseCase(this.subscriptionRepository)
 

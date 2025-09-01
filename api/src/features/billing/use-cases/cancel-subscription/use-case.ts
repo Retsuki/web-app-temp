@@ -40,7 +40,14 @@ export class CancelSubscriptionUseCase {
         cancelAt: canceledSubscription.cancel_at
           ? new Date(canceledSubscription.cancel_at * 1000)
           : null,
-        status: canceledSubscription.status,
+        status:
+          canceledSubscription.status === 'canceled'
+            ? 'canceled'
+            : canceledSubscription.status === 'past_due'
+              ? 'past_due'
+              : canceledSubscription.status === 'unpaid'
+                ? 'unpaid'
+                : 'active',
       }
     )
 

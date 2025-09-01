@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { PrimaryButton } from '@/components/app/button/primary-button'
 import { FormInput } from '@/components/app/input/form-input'
 import { Form } from '@/components/ui/form'
-import { useGetApiV1UsersMe, usePutApiV1UsersMe } from '@/lib/api/generated/users/users'
+import { useGetProfile, useUpdateProfile } from '@/lib/api/generated/users/users'
 
 const profileSchema = z.object({
   nickname: z
@@ -19,8 +19,8 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>
 
 export function ProfileEdit() {
-  const { data: response, isLoading, error } = useGetApiV1UsersMe()
-  const updateUser = usePutApiV1UsersMe()
+  const { data: response, isLoading, error } = useGetProfile()
+  const updateUser = useUpdateProfile()
   const profile = response?.data
 
   const [isEditing, setIsEditing] = useState(false)

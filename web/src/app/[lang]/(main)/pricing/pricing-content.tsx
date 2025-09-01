@@ -17,9 +17,9 @@ import { Label } from '@/components/ui/label'
 import { useAuth } from '@/features/auth/hooks/auth-context'
 import type { Dictionary } from '@/features/i18n'
 import {
-  useGetApiV1BillingSubscription,
-  useGetApiV1Plans,
-  usePostApiV1BillingCheckout,
+  useCreateCheckout,
+  useGetPlans,
+  useGetSubscription,
 } from '@/lib/api/generated/billing/billing'
 
 export default function PricingContent({ dict }: { dict: Dictionary }) {
@@ -28,9 +28,9 @@ export default function PricingContent({ dict }: { dict: Dictionary }) {
   const router = useRouter()
 
   // API hooks
-  const { data: plansResponse, isLoading: plansLoading } = useGetApiV1Plans()
-  const { data: subscriptionResponse } = useGetApiV1BillingSubscription()
-  const createCheckout = usePostApiV1BillingCheckout()
+  const { data: plansResponse, isLoading: plansLoading } = useGetPlans()
+  const { data: subscriptionResponse } = useGetSubscription()
+  const createCheckout = useCreateCheckout()
 
   // Extract data from API responses
   const plans = plansResponse?.plans
