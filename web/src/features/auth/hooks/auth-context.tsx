@@ -4,6 +4,7 @@ import type { User } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import type React from 'react'
 import { createContext, useContext, useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 
 interface AuthContextType {
@@ -11,6 +12,7 @@ interface AuthContextType {
   loading: boolean
   signOut: () => Promise<void>
   refreshSession: () => Promise<void>
+  checkSession: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -20,6 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const supabase = createClient()
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     // 初回マウント時に認証状態を確認
@@ -46,7 +49,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // ログアウト時はサインインページへリダイレクト
       if (event === 'SIGNED_OUT') {
+        // 別ユーザーでのサインイン時に前ユーザーのキャッシュが表示されないようにクリア
+        queryClient.clear()
         router.push('/signin')
+      }
+
+      // サインイン完了時にも一度キャッシュをクリアして整合性を確保
+      if (event === 'SIGNED_IN') {
+        queryClient.clear()
       }
     })
 
@@ -58,6 +68,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       await supabase.auth.signOut()
+      // 明示的にQueryキャッシュをクリア（サーバーアクション経由のサインアウト未使用時の安全策）
+      queryClient.clear()
     } catch (error) {
       console.error('ログアウトエラー:', error)
       throw error
@@ -80,6 +92,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  // セッションを明示的に確認してユーザー状態を更新
+  const checkSession = async () => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      setUser(session?.user ?? null)
+    } catch (error) {
+      console.error('セッション再チェックエラー:', error)
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -87,6 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loading,
         signOut,
         refreshSession,
+        checkSession,
       }}
     >
       {children}

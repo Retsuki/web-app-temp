@@ -34,7 +34,7 @@ export default async function SignInPage({ params }: PageLang) {
           </p>
         </div>
 
-        <SignInForm dict={dict} />
+        <SignInForm dict={dict} lang={lang} />
 
         <div className="mt-6">
           <div className="relative">

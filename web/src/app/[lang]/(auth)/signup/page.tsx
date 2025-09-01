@@ -28,7 +28,7 @@ export default async function SignUpPage({ params }: PageLang) {
           </p>
         </div>
 
-        <SignUpForm />
+        <SignUpForm lang={lang} />
 
         <div className="mt-6">
           <div className="relative">

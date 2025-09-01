@@ -1,10 +1,10 @@
 'use client'
 
-import { CreditCardIcon, DollarSignIcon, FolderIcon, HomeIcon, LogOutIcon } from 'lucide-react'
+import { CreditCardIcon, DollarSignIcon, FolderIcon, HomeIcon } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { signOut } from '@/features/auth/server/auth-actions'
+import { SignOutButton } from '@/features/auth/components/sign-out-button'
 import type { Dictionary } from '@/features/i18n'
 import { cn } from '@/lib/utils'
 
@@ -56,12 +56,7 @@ export default function MainNav({ dict, lang }: MainNavProps) {
             </div>
           </div>
           <div className="flex items-center">
-            <form action={signOut}>
-              <Button variant="ghost" size="sm" type="submit">
-                <LogOutIcon className="h-4 w-4 mr-2" />
-                {dict.common.signOut}
-              </Button>
-            </form>
+            <SignOutButton label={dict.common.signOut} />
           </div>
         </div>
       </div>
