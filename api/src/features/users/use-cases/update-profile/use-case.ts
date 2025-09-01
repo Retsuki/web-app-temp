@@ -29,6 +29,7 @@ export class UpdateUserProfileUseCase {
       userId: updatedProfile.userId,
       email: updatedProfile.email,
       nickname: updatedProfile.nickname,
+      language: updatedProfile.language || 'ja',
       createdAt: updatedProfile.createdAt?.toISOString() || new Date().toISOString(),
       updatedAt: updatedProfile.updatedAt?.toISOString() || new Date().toISOString(),
     }
