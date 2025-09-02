@@ -12,7 +12,7 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core'
-import { profiles } from '../../shared/common-schema.js'
+import { profiles } from '../../../shared/common-schema.js'
 import {
   CAMPAIGN_STATUS,
   campaignStatusEnum,
@@ -20,7 +20,7 @@ import {
   meterUnitEnum,
   omSubscriptionStatusEnum,
   transactionTypeEnum,
-} from './enum.js'
+} from '../enum.js'
 
 // プロジェクトテーブル（開発者のプロジェクト）
 export const omProjects = pgTable(
@@ -32,7 +32,7 @@ export const omProjects = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => {
-        const { profiles } = require('../../shared/common-schema')
+        const { profiles } = require('../../../shared/common-schema')
         return profiles.id
       }),
 
@@ -129,6 +129,7 @@ export const omEndUsers = pgTable(
         table.projectId,
         table.externalUserId
       ),
+      projectIdIdx: index('om_end_users_project_id_idx').on(table.projectId),
     }
   }
 )
@@ -138,22 +139,10 @@ export const omCreditBalances = pgTable(
   'om_credit_balances',
   {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-
-    // ユーザー関連
     endUserId: uuid('end_user_id')
       .notNull()
-      .references(() => omEndUsers.id, { onDelete: 'cascade' })
-      .unique(),
-
-    // 残高情報
-    balance: decimal('balance', { precision: 20, scale: 2 }).notNull().default('0'),
-
-    // 累計
-    totalAllocated: decimal('total_allocated', { precision: 20, scale: 2 }).notNull().default('0'),
-    totalConsumed: decimal('total_consumed', { precision: 20, scale: 2 }).notNull().default('0'),
-
-    // タイムスタンプ
-    createdAt: timestamp('created_at').default(sql`now()`).notNull(),
+      .references(() => omEndUsers.id, { onDelete: 'cascade' }),
+    balance: integer('balance').notNull().default(0),
     updatedAt: timestamp('updated_at').default(sql`now()`).notNull(),
   },
   (table) => {
@@ -163,90 +152,49 @@ export const omCreditBalances = pgTable(
   }
 )
 
-// クレジット取引テーブル
+// クレジット取引履歴テーブル
 export const omCreditTransactions = pgTable(
   'om_credit_transactions',
   {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-
-    // ユーザー関連
     endUserId: uuid('end_user_id')
       .notNull()
       .references(() => omEndUsers.id, { onDelete: 'cascade' }),
-
-    // 取引情報
-    type: transactionTypeEnum('type').notNull(),
-    amount: decimal('amount', { precision: 20, scale: 2 }).notNull(),
-    balanceAfter: decimal('balance_after', {
-      precision: 20,
-      scale: 2,
-    }).notNull(),
-
-    // 関連情報
-    meterId: uuid('meter_id').references(() => omMeters.id),
-    campaignId: uuid('campaign_id').references(() => omCampaigns.id),
-
-    // メタデータ
+    amount: integer('amount').notNull(),
+    type: transactionTypeEnum('type').notNull(), // 'allocation', 'consumption', 'expiry', 'refund'
     description: text('description'),
-    metadata: jsonb('metadata').$type<{
-      model?: string
-      requestId?: string
-      [key: string]: any
-    }>(),
-
-    // タイムスタンプ
+    metadata: jsonb('metadata').$type<Record<string, any>>(),
+    meterId: uuid('meter_id').references(() => omMeters.id),
+    campaignId: uuid('campaign_id'),
     createdAt: timestamp('created_at').default(sql`now()`).notNull(),
   },
   (table) => {
     return {
       endUserIdIdx: index('om_credit_transactions_end_user_id_idx').on(table.endUserId),
-      typeIdx: index('om_credit_transactions_type_idx').on(table.type),
       createdAtIdx: index('om_credit_transactions_created_at_idx').on(table.createdAt),
     }
   }
 )
 
-// メーターイベントテーブル（使用量記録）
+// メーターイベントテーブル
 export const omMeterEvents = pgTable(
   'om_meter_events',
   {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-
-    // メーター関連
     meterId: uuid('meter_id')
       .notNull()
       .references(() => omMeters.id, { onDelete: 'cascade' }),
-
-    // ユーザー関連
     endUserId: uuid('end_user_id')
       .notNull()
       .references(() => omEndUsers.id, { onDelete: 'cascade' }),
-
-    // イベント情報
-    units: decimal('units', { precision: 20, scale: 2 }).notNull(),
-    creditsConsumed: decimal('credits_consumed', {
-      precision: 20,
-      scale: 2,
-    }).notNull(),
-
-    // メタデータ
-    metadata: jsonb('metadata').$type<{
-      model?: string
-      input?: string
-      output?: string
-      [key: string]: any
-    }>(),
-
-    // タイムスタンプ
-    eventTime: timestamp('event_time').default(sql`now()`).notNull(),
+    units: integer('units').notNull(),
+    createdAt: timestamp('created_at').default(sql`now()`).notNull(),
   },
-  (table) => {
-    return {
-      meterIdIdx: index('om_meter_events_meter_id_idx').on(table.meterId),
-      endUserIdIdx: index('om_meter_events_end_user_id_idx').on(table.endUserId),
-      eventTimeIdx: index('om_meter_events_event_time_idx').on(table.eventTime),
-    }
-  }
+  (table) => ({
+    meterIdIdx: index('om_meter_events_meter_id_idx').on(table.meterId),
+    endUserIdIdx: index('om_meter_events_end_user_id_idx').on(table.endUserId),
+    createdAtIdx: index('om_meter_events_created_at_idx').on(table.createdAt),
+  })
 )
 
 // キャンペーンテーブル
@@ -254,142 +202,66 @@ export const omCampaigns = pgTable(
   'om_campaigns',
   {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-
-    // プロジェクト関連
     projectId: uuid('project_id')
       .notNull()
       .references(() => omProjects.id, { onDelete: 'cascade' }),
-
-    // キャンペーン情報
+    type: campaignTypeEnum('type').notNull(), // 'coupon', 'automatic', 'referral', 'first_time'
+    status: campaignStatusEnum('status').notNull().default(CAMPAIGN_STATUS.DRAFT),
     name: varchar('name', { length: 255 }).notNull(),
     description: text('description'),
-    type: campaignTypeEnum('type').notNull(),
-    status: campaignStatusEnum('status').notNull().default(CAMPAIGN_STATUS.DRAFT),
-
-    // クレジット設定
-    creditAmount: decimal('credit_amount', {
-      precision: 20,
-      scale: 2,
-    }).notNull(),
-
-    // 期間設定
     startDate: timestamp('start_date'),
     endDate: timestamp('end_date'),
-
-    // 対象設定
-    targetConditions: jsonb('target_conditions').$type<{
-      userSegments?: string[]
-      metadata?: Record<string, any>
-    }>(),
-
-    // タイムスタンプ
+    metadata: jsonb('metadata').$type<Record<string, any>>(),
     createdAt: timestamp('created_at').default(sql`now()`).notNull(),
     updatedAt: timestamp('updated_at').default(sql`now()`).notNull(),
   },
-  (table) => {
-    return {
-      projectIdIdx: index('om_campaigns_project_id_idx').on(table.projectId),
-      statusIdx: index('om_campaigns_status_idx').on(table.status),
-    }
-  }
+  (table) => ({
+    projectIdIdx: index('om_campaigns_project_id_idx').on(table.projectId),
+    statusIdx: index('om_campaigns_status_idx').on(table.status),
+    createdAtIdx: index('om_campaigns_created_at_idx').on(table.createdAt),
+  })
 )
 
-// クーポンテーブル（キャンペーンタイプがCOUPONの場合に使用）
+// クーポンテーブル
 export const omCoupons = pgTable(
   'om_coupons',
   {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-
-    // キャンペーン関連（1つのキャンペーンに複数のクーポンコード）
     campaignId: uuid('campaign_id')
       .notNull()
       .references(() => omCampaigns.id, { onDelete: 'cascade' }),
-
-    // クーポン情報
     code: varchar('code', { length: 50 }).notNull().unique(),
-    creditAmount: decimal('credit_amount', {
-      precision: 20,
-      scale: 2,
-    }).notNull(),
-
-    // 使用制限
-    maxUses: integer('max_uses').default(1),
+    discountAmount: integer('discount_amount'),
+    usageLimit: integer('usage_limit'),
     usedCount: integer('used_count').default(0),
-
-    // 有効期限
-    validFrom: timestamp('valid_from').default(sql`now()`),
-    validUntil: timestamp('valid_until'),
-
-    // タイムスタンプ
+    expiresAt: timestamp('expires_at'),
     createdAt: timestamp('created_at').default(sql`now()`).notNull(),
   },
-  (table) => {
-    return {
-      codeIdx: index('om_coupons_code_idx').on(table.code),
-      campaignIdIdx: index('om_coupons_campaign_id_idx').on(table.campaignId),
-    }
-  }
+  (table) => ({
+    campaignIdIdx: index('om_coupons_campaign_id_idx').on(table.campaignId),
+    codeIdx: index('om_coupons_code_idx').on(table.code),
+  })
 )
 
-// 分析集計テーブル（日次集計）
+// 使用量集計テーブル
 export const omUsageAggregations = pgTable(
   'om_usage_aggregations',
   {
     id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-
-    // プロジェクト関連
     projectId: uuid('project_id')
       .notNull()
       .references(() => omProjects.id, { onDelete: 'cascade' }),
-
-    // 集計期間
-    aggregationDate: timestamp('aggregation_date').notNull(),
-
-    // 集計データ
-    totalUsers: integer('total_users').notNull().default(0),
-    activeUsers: integer('active_users').notNull().default(0),
-
-    totalCreditsAllocated: decimal('total_credits_allocated', {
-      precision: 20,
-      scale: 2,
-    })
-      .notNull()
-      .default('0'),
-    totalCreditsConsumed: decimal('total_credits_consumed', {
-      precision: 20,
-      scale: 2,
-    })
-      .notNull()
-      .default('0'),
-
-    // モデル別使用量
-    modelUsage: jsonb('model_usage').$type<{
-      [model: string]: {
-        count: number
-        credits: number
-      }
-    }>(),
-
-    // API利用料概算
-    estimatedApiCost: decimal('estimated_api_cost', {
-      precision: 10,
-      scale: 2,
-    }),
-
-    // タイムスタンプ
+    date: timestamp('date').notNull(),
+    totalUsage: integer('total_usage').notNull().default(0),
+    peakUsage: integer('peak_usage').notNull().default(0),
     createdAt: timestamp('created_at').default(sql`now()`).notNull(),
   },
-  (table) => {
-    return {
-      projectDateUnique: unique('om_usage_aggregations_project_date_unique').on(
-        table.projectId,
-        table.aggregationDate
-      ),
-    }
-  }
+  (table) => ({
+    projectIdIdx: index('om_usage_aggregations_project_id_idx').on(table.projectId),
+    dateIdx: index('om_usage_aggregations_date_idx').on(table.date),
+  })
 )
 
-// ========================================
 // サブスクリプション管理テーブル
 // ========================================
 
@@ -401,7 +273,7 @@ export const omSubscriptions = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => {
-        const { profiles } = require('../../shared/common-schema')
+        const { profiles } = require('../../../shared/common-schema')
         return profiles.id
       }),
     stripeSubscriptionId: varchar('stripe_subscription_id', {
@@ -434,7 +306,7 @@ export const omPaymentHistory = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => {
-        const { profiles } = require('../../shared/common-schema')
+        const { profiles } = require('../../../shared/common-schema')
         return profiles.id
       }),
     amount: integer('amount').notNull(),
@@ -607,3 +479,4 @@ export const omPaymentHistoryRelations = relations(omPaymentHistory, ({ one }) =
     references: [profiles.id],
   }),
 }))
+

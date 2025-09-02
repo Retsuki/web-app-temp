@@ -2,19 +2,22 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { PrimaryButton } from '@/components/app/button/primary-button'
 import { FormInput } from '@/components/app/input/form-input'
 import { Form } from '@/components/ui/form'
 import { signIn } from '@/features/auth/server/auth-actions'
+import { useAuth } from '@/features/auth/hooks/auth-context'
 import type { Dictionary } from '@/features/i18n'
 
 interface SignInFormProps {
   dict: Dictionary
+  lang?: string
 }
 
-export function SignInForm({ dict }: SignInFormProps) {
+export function SignInForm({ dict, lang = 'ja' }: SignInFormProps) {
   const formSchema = z.object({
     email: z.string().email(dict.auth.invalidEmail),
     password: z.string().min(1, dict.auth.password),
@@ -23,6 +26,8 @@ export function SignInForm({ dict }: SignInFormProps) {
   type FormValues = z.infer<typeof formSchema>
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
+  const { checkSession } = useAuth()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -41,6 +46,10 @@ export function SignInForm({ dict }: SignInFormProps) {
     if (result?.error) {
       setError(result.error)
       setLoading(false)
+    } else if (result?.success) {
+      // セッションを明示的に反映し、一覧ページへ遷移
+      await checkSession()
+      router.push(`/${lang}/projects`)
     }
   }
 

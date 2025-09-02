@@ -16,7 +16,7 @@ import type {
   omSubscriptions,
   omUsageAggregations,
   omWebhookEvents,
-} from './schema.js'
+} from './schema/core.js'
 
 // プロジェクト関連
 export type OmProject = typeof omProjects.$inferSelect

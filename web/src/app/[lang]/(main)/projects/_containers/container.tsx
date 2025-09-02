@@ -1,7 +1,7 @@
 'use client'
 
 import { Plus, Search } from 'lucide-react'
-import { Suspense, useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useGetApiV1Projects } from '@/lib/api/generated/projects/projects'
@@ -10,12 +10,23 @@ import { AppUtils } from '../../../../../lib/utils'
 import { EmptyState } from '../_components/empty-state'
 import { ProjectCard, ProjectCardSkeleton } from '../_components/project-card'
 import { DialogCreateProject } from './dialog-create-project/container'
+import { useAuth } from '@/features/auth/hooks/auth-context'
+import { keepPreviousData } from '@tanstack/react-query'
 
 export const ProjectContainer = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 
-  const { data, error, refetch } = useGetApiV1Projects()
+  const { user, loading: authLoading } = useAuth()
+  const { data, error, refetch, isPending, isRefetching } = useGetApiV1Projects({
+    query: {
+      // ユーザーIDをクエリキーに含めてユーザーごとにキャッシュを分離
+      queryKey: ['/api/v1/projects', user?.id],
+      enabled: !!user && !authLoading,
+      placeholderData: keepPreviousData,
+      refetchOnMount: false,
+    },
+  })
 
   if (error) {
     return (
@@ -35,6 +46,10 @@ export const ProjectContainer = () => {
       project.description?.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
+  if (authLoading || (!data && isPending)) {
+    return <ProjectListSkeleton />
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -42,42 +57,40 @@ export const ProjectContainer = () => {
         <p className="text-muted-foreground mt-2">あなたのプロジェクトを管理します</p>
       </div>
 
-      <Suspense fallback={<ProjectListSkeleton />}>
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="プロジェクトを検索..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            新規プロジェクト
-          </Button>
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="プロジェクトを検索..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
         </div>
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          新規プロジェクト
+        </Button>
+      </div>
 
-        {filteredProjects.length === 0 ? (
-          <EmptyState searchQuery={searchQuery} onCreateClick={() => setIsCreateDialogOpen(true)} />
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredProjects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
-          </div>
-        )}
+      {filteredProjects.length === 0 ? (
+        <EmptyState searchQuery={searchQuery} onCreateClick={() => setIsCreateDialogOpen(true)} />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredProjects.map((project) => (
+            <ProjectCard key={project.id} project={project} />
+          ))}
+        </div>
+      )}
 
-        <DialogCreateProject
-          open={isCreateDialogOpen}
-          onOpenChange={setIsCreateDialogOpen}
-          onSuccess={() => {
-            refetch()
-            setIsCreateDialogOpen(false)
-          }}
-        />
-      </Suspense>
+      <DialogCreateProject
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onSuccess={() => {
+          refetch()
+          setIsCreateDialogOpen(false)
+        }}
+      />
     </div>
   )
 }

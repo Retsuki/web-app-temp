@@ -9,7 +9,7 @@ import type {
   sampleProjects,
   sampleSubscriptions,
   sampleWebhookEvents,
-} from './schema.js'
+} from './schema/core.js'
 
 // ========================================
 // Projects Types

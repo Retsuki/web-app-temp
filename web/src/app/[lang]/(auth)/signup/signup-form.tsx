@@ -3,15 +3,19 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
 import { PrimaryButton } from '@/components/app/button/primary-button'
 import { FormInput } from '@/components/app/input/form-input'
 import { Form } from '@/components/ui/form'
 import { signUp } from '@/features/auth/server/auth-actions'
 import { type FormValues, formSchema } from './_schema'
+import { useAuth } from '@/features/auth/hooks/auth-context'
 
-export function SignUpForm() {
+export function SignUpForm({ lang = 'ja' }: { lang?: string }) {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
+  const { checkSession } = useAuth()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -26,11 +30,16 @@ export function SignUpForm() {
     setError(null)
     setLoading(true)
 
-    const result = await signUp(data)
+    const result = await signUp({ ...data, lang })
 
     if (result?.error) {
       setError(result.error)
       setLoading(false)
+    } else if (result?.success) {
+      // セッションを明示的に反映してから作成されたプロジェクト詳細へ遷移
+      await checkSession()
+      const projectId = result.projectId
+      router.push(`/${lang}/projects/${projectId}`)
     }
   }
 

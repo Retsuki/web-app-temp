@@ -1,8 +1,8 @@
-import { signOut } from '@/features/auth/server/auth-actions'
 import { requireAuth } from '@/features/auth/server/auth-server'
 import { getDictionary, type PageLang } from '@/features/i18n'
 import { FileUploadSection } from './file-upload-section'
 import { ProfileEdit } from './profile-edit'
+import { SignOutButton } from '@/features/auth/components/sign-out-button'
 
 export default async function DashboardPage({ params }: PageLang) {
   const { profile, error } = await requireAuth()
@@ -22,14 +22,11 @@ export default async function DashboardPage({ params }: PageLang) {
                 <p className="text-xs mt-1">{dict.errors.tryAgainLater}</p>
               </div>
 
-              <form action={signOut}>
-                <button
-                  type="submit"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                >
-                  {dict.common.signOut}
-                </button>
-              </form>
+              <SignOutButton
+                label={dict.common.signOut}
+                variant="destructive"
+                size="sm"
+              />
             </div>
           </div>
         </div>
@@ -84,14 +81,13 @@ export default async function DashboardPage({ params }: PageLang) {
               <FileUploadSection />
             </div>
 
-            <form action={signOut} className="mt-6">
-              <button
-                type="submit"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              >
-                {dict.common.signOut}
-              </button>
-            </form>
+            <div className="mt-6">
+              <SignOutButton
+                label={dict.common.signOut}
+                variant="destructive"
+                size="sm"
+              />
+            </div>
           </div>
         </div>
       </div>

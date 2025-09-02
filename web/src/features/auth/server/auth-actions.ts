@@ -31,8 +31,12 @@ export async function signUp(data: SignUpData) {
     await deleteUserOnError(authData.user.id)
   }
 
-  // 3. 作成したプロジェクトのページへリダイレクト
-  redirect(`/projects/${setupResult.projectId}`)
+  // 3. クライアント側でセッション反映＋リダイレクトを実施
+  return {
+    success: true,
+    profileId: setupResult.profileId,
+    projectId: setupResult.projectId,
+  }
 }
 
 export async function signIn(data: SignInData) {
@@ -51,8 +55,8 @@ export async function signIn(data: SignInData) {
   if (!authData.session) {
     return authActionError('セッションの作成に失敗しました')
   }
-
-  redirect('/projects')
+  // クライアント側でセッション反映とリダイレクトを実行（omに合わせる）
+  return { success: true }
 }
 
 export async function signInWithGoogle(lang = 'ja') {
