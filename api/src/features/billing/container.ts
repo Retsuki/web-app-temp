@@ -1,14 +1,14 @@
-import type { Database } from '../../drizzle/index.js'
-import { UserRepository } from '../users/repositories/user.repository.js'
-import { PaymentRepository } from './repositories/payment.repository.js'
-import { PlansRepository } from './repositories/plans.repository.js'
-import { SubscriptionRepository } from './repositories/subscription.repository.js'
-import { CancelSubscriptionUseCase } from './use-cases/cancel-subscription/use-case.js'
-import { CreateCheckoutUseCase } from './use-cases/create-checkout/use-case.js'
-import { GetPaymentHistoryUseCase } from './use-cases/get-payment-history/use-case.js'
-import { GetPlansUseCase } from './use-cases/get-plans/use-case.js'
-import { GetSubscriptionUseCase } from './use-cases/get-subscription/use-case.js'
-import { UpdateSubscriptionUseCase } from './use-cases/update-subscription/use-case.js'
+import type { Database } from "@app/drizzle/db/index.js"
+import { UserRepository } from "../users/repositories/user.repository.js"
+import { PaymentRepository } from "./repositories/payment.repository.js"
+import { PlansRepository } from "./repositories/plans.repository.js"
+import { SubscriptionRepository } from "./repositories/subscription.repository.js"
+import { CancelSubscriptionUseCase } from "./use-cases/cancel-subscription/use-case.js"
+import { CreateCheckoutUseCase } from "./use-cases/create-checkout/use-case.js"
+import { GetPaymentHistoryUseCase } from "./use-cases/get-payment-history/use-case.js"
+import { GetPlansUseCase } from "./use-cases/get-plans/use-case.js"
+import { GetSubscriptionUseCase } from "./use-cases/get-subscription/use-case.js"
+import { UpdateSubscriptionUseCase } from "./use-cases/update-subscription/use-case.js"
 
 export class BillingContainer {
   // Repositories
@@ -34,17 +34,25 @@ export class BillingContainer {
     // Initialize use cases
     this.createCheckoutUseCase = new CreateCheckoutUseCase(
       userRepository,
-      this.subscriptionRepository
+      this.subscriptionRepository,
     )
 
     this.getPlansUseCase = new GetPlansUseCase(this)
 
-    this.getSubscriptionUseCase = new GetSubscriptionUseCase(this.subscriptionRepository)
+    this.getSubscriptionUseCase = new GetSubscriptionUseCase(
+      this.subscriptionRepository,
+    )
 
-    this.getPaymentHistoryUseCase = new GetPaymentHistoryUseCase(this.paymentRepository)
+    this.getPaymentHistoryUseCase = new GetPaymentHistoryUseCase(
+      this.paymentRepository,
+    )
 
-    this.updateSubscriptionUseCase = new UpdateSubscriptionUseCase(this.subscriptionRepository)
+    this.updateSubscriptionUseCase = new UpdateSubscriptionUseCase(
+      this.subscriptionRepository,
+    )
 
-    this.cancelSubscriptionUseCase = new CancelSubscriptionUseCase(this.subscriptionRepository)
+    this.cancelSubscriptionUseCase = new CancelSubscriptionUseCase(
+      this.subscriptionRepository,
+    )
   }
 }

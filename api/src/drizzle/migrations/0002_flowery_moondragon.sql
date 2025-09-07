@@ -1,1 +1,0 @@
-ALTER TABLE "payment_history" ALTER COLUMN "currency" SET DATA TYPE varchar(10);

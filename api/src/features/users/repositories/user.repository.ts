@@ -1,11 +1,10 @@
-import { eq } from 'drizzle-orm'
-import { profiles } from '../../../drizzle/db/schema.js'
-import type { Database } from '../../../drizzle/index.js'
+import type { Database } from "@app/drizzle/db/index.js"
+import { eq, profiles } from "@app/drizzle/db/index.js"
 
 export type UserProfile = typeof profiles.$inferSelect
 export type CreateUserProfile = typeof profiles.$inferInsert
 export type UpdateUserProfile = Partial<
-  Omit<CreateUserProfile, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
+  Omit<CreateUserProfile, "id" | "userId" | "createdAt" | "updatedAt">
 >
 
 export class UserRepository {
@@ -15,7 +14,11 @@ export class UserRepository {
    * ユーザーIDでプロフィールを取得（stripeCustomerIdを含む）
    */
   async findById(userId: string): Promise<UserProfile | null> {
-    const result = await this.db.select().from(profiles).where(eq(profiles.userId, userId)).limit(1)
+    const result = await this.db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.userId, userId))
+      .limit(1)
 
     return result[0] || null
   }
@@ -24,7 +27,11 @@ export class UserRepository {
    * ユーザーIDでプロフィールを取得
    */
   async findByUserId(userId: string): Promise<UserProfile | null> {
-    const result = await this.db.select().from(profiles).where(eq(profiles.userId, userId)).limit(1)
+    const result = await this.db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.userId, userId))
+      .limit(1)
 
     return result[0] || null
   }
@@ -96,7 +103,11 @@ export class UserRepository {
     }
 
     // 論理削除されているレコードは重複とみなさない
-    const profile = await this.db.select().from(profiles).where(eq(profiles.email, email)).limit(1)
+    const profile = await this.db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.email, email))
+      .limit(1)
 
     if (profile[0]?.deletedAt) {
       return false
@@ -108,7 +119,10 @@ export class UserRepository {
   /**
    * Stripe Customer IDを更新
    */
-  async updateStripeCustomerId(userId: string, stripeCustomerId: string): Promise<void> {
+  async updateStripeCustomerId(
+    userId: string,
+    stripeCustomerId: string,
+  ): Promise<void> {
     await this.db
       .update(profiles)
       .set({

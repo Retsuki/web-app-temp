@@ -1,6 +1,9 @@
-import { desc, eq } from 'drizzle-orm'
-import { samplePaymentHistory as paymentHistory } from '../../../drizzle/db/apps/sample/index.js'
-import type { Database } from '../../../drizzle/index.js'
+import type { Database } from "@app/drizzle/db/index.js"
+import {
+  desc,
+  eq,
+  samplePaymentHistory as paymentHistory,
+} from "@app/drizzle/db/index.js"
 
 export class PaymentRepository {
   constructor(private db: Database) {}
@@ -25,14 +28,17 @@ export class PaymentRepository {
   }
 
   async create(
-    data: Omit<typeof paymentHistory.$inferInsert, 'paymentId' | 'createdAt' | 'updatedAt'>
+    data: Omit<
+      typeof paymentHistory.$inferInsert,
+      "paymentId" | "createdAt" | "updatedAt"
+    >,
   ) {
     const [result] = await this.db
       .insert(paymentHistory)
       .values({
         ...data,
         // sample_payment_history の status は 'paid' | 'failed' | 'pending' | 'refunded'
-        status: data.status as 'pending' | 'paid' | 'failed' | 'refunded',
+        status: data.status as "pending" | "paid" | "failed" | "refunded",
       })
       .returning()
 
@@ -41,7 +47,12 @@ export class PaymentRepository {
 
   async update(
     paymentId: string,
-    data: Partial<Omit<typeof paymentHistory.$inferInsert, 'paymentId' | 'createdAt' | 'updatedAt'>>
+    data: Partial<
+      Omit<
+        typeof paymentHistory.$inferInsert,
+        "paymentId" | "createdAt" | "updatedAt"
+      >
+    >,
   ) {
     const [result] = await this.db
       .update(paymentHistory)
