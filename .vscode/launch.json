@@ -1,0 +1,45 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "API: Debug (tsx)",
+      "cwd": "${workspaceFolder}/api",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--loader=tsx",
+        "--inspect"
+      ],
+      "program": "${workspaceFolder}/api/src/index.ts",
+      "envFile": "${workspaceFolder}/api/.env.development",
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal",
+      "autoAttachChildProcesses": true
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "API: npm run dev",
+      "cwd": "${workspaceFolder}/api",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "envFile": "${workspaceFolder}/api/.env.development",
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal",
+      "autoAttachChildProcesses": true
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach: Node on 9229",
+      "port": 9229,
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}
+

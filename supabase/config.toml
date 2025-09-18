@@ -1,0 +1,154 @@
+# Supabase Local Development Configuration
+# Docs: https://supabase.com/docs/guides/local-development/cli/config
+
+project_id = "web_app_temp"
+
+[api]
+enabled = true
+port = 55431
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[api.tls]
+enabled = false
+
+[db]
+port = 55432
+shadow_port = 55430
+major_version = 15
+
+[db.pooler]
+enabled = false
+port = 55439
+pool_mode = "transaction"
+default_pool_size = 20
+max_client_conn = 100
+
+[db.seed]
+enabled = true
+sql_paths = ['./seed.sql']
+
+[realtime]
+enabled = true
+port = 55438
+
+[studio]
+enabled = true
+port = 55433
+api_url = "http://127.0.0.1"
+openai_api_key = "env(OPENAI_API_KEY)"
+
+# Email Testing Server (Inbucket)
+[inbucket]
+enabled = true
+port = 55434
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+# Authentication Settings
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = [
+  "https://127.0.0.1:3000", 
+  "http://localhost:3000/auth/callback", 
+  "http://localhost:3000/ja/auth/callback",
+  "http://localhost:3000/en/auth/callback",
+  "https://web-app-web-180146147603.asia-northeast1.run.app/auth/callback",
+  "https://web-app-web-180146147603.asia-northeast1.run.app/ja/auth/callback",
+  "https://web-app-web-180146147603.asia-northeast1.run.app/en/auth/callback"
+]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+enable_anonymous_sign_ins = false
+enable_manual_linking = false
+minimum_password_length = 6
+password_requirements = ""
+
+# Email Authentication
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+secure_password_change = false
+max_frequency = "1s"
+otp_length = 6
+otp_expiry = 3600
+
+# SMS Authentication (Disabled)
+[auth.sms]
+enable_signup = false
+enable_confirmations = false
+template = "Your code is {{ .Code }}"
+max_frequency = "5s"
+
+[auth.sms.twilio]
+enabled = false
+account_sid = ""
+message_service_sid = ""
+auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
+
+# Multi-Factor Authentication
+[auth.mfa]
+max_enrolled_factors = 10
+
+[auth.mfa.totp]
+enroll_enabled = false
+verify_enabled = false
+
+[auth.mfa.phone]
+enroll_enabled = false
+verify_enabled = false
+otp_length = 6
+template = "Your code is {{ .Code }}"
+max_frequency = "5s"
+
+# External OAuth Providers
+[auth.external.google]
+enabled = true
+client_id = "env(GOOGLE_CLIENT_ID)"
+secret = "env(GOOGLE_CLIENT_SECRET)"
+redirect_uri = "env(GOOGLE_REDIRECT_URI)"
+url = ""
+skip_nonce_check = true  # Required for local development
+
+[auth.external.apple]
+enabled = false
+client_id = ""
+secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
+redirect_uri = ""
+url = ""
+skip_nonce_check = false
+
+# Third-party Auth Providers (All Disabled)
+[auth.third_party.firebase]
+enabled = false
+
+[auth.third_party.auth0]
+enabled = false
+
+[auth.third_party.aws_cognito]
+enabled = false
+
+[edge_runtime]
+enabled = true
+policy = "oneshot"  # Use "per_worker" for load testing
+inspector_port = 8084
+
+[analytics]
+enabled = true
+port = 55437
+backend = "postgres"
+
+# Experimental Features
+[experimental]
+orioledb_version = ""
+s3_host = "env(S3_HOST)"
+s3_region = "env(S3_REGION)"
+s3_access_key = "env(S3_ACCESS_KEY)"
+s3_secret_key = "env(S3_SECRET_KEY)"
