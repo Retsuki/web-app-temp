@@ -3,20 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
-    "dev:api": "cd api && PORT=${DEV_API_PORT:-8080} npm run dev",
-    "dev:web": "cd web && PORT=${DEV_WEB_PORT:-3000} npm run dev",
-    "dev:all": "concurrently \"npm run supabase:start\" \"npm run dev:api\" \"npm run dev:web\"",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"npm --prefix api run dev\" \"npm --prefix web run dev\"",
     "lint": "biome lint .",
-    "lint:fix": "biome lint --write .",
     "format": "biome format --write .",
-    "check": "biome check .",
-    "check:apply": "biome check --write .",
-    "gen:api": "curl -X GET http://localhost:8080/api/v1/doc | tee ./web/openapi.json && cd web && npm run orval",
-    "supabase:start": "supabase start",
-    "supabase:stop": "supabase stop --project-id web_app_temp",
-    "idea": "cd .ideas && npm run idea",
+    "typecheck": "npm --prefix api run typecheck && npm --prefix web run typecheck",
+    "gen:api": "curl -X GET http://localhost:8080/api/v1/doc | tee ./web/openapi.json && npm --prefix web run orval",
     "pulumi:init": "cd pulumi && npm install",
     "pulumi:dev": "cd pulumi && pulumi stack select dev && pulumi up",
     "pulumi:prod": "cd pulumi && pulumi stack select prod && pulumi up",
@@ -26,8 +17,7 @@
     "pulumi:destroy:prod": "cd pulumi && pulumi stack select prod && pulumi destroy",
     "pulumi:typecheck": "cd pulumi && npm run typecheck",
     "pulumi:lint": "cd pulumi && npm run lint",
-    "pulumi:check": "cd pulumi && npm run check",
-    "kill": "sh -c 'lsof -ti:$0 | xargs kill -9 2>/dev/null || echo \"No process running on port $0\"'"
+    "pulumi:check": "cd pulumi && npm run check"
   },
   "repository": {
     "type": "git",
