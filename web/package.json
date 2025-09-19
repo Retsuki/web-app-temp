@@ -11,7 +11,7 @@
     "format": "biome format --write .",
     "check": "biome check .",
     "check:apply": "biome check --write .",
-    "orval": "rm -rf ./src/lib/api/generated && orval --config ./orval.config.ts",
+    "gen:api": "rm -rf ./src/lib/api/generated && orval --config ./orval.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
