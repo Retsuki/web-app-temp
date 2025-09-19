@@ -1,15 +1,15 @@
-import type { Database } from "@app/drizzle/db/index.js"
-import { eq, samplePlanLimits } from "@app/drizzle/db/index.js"
+import type { Database } from '@app/drizzle/index.js'
+import { eq, planLimits } from '@app/drizzle/index.js'
 
 export interface PlanLimit {
   id: string
-  plan: "free" | "indie" | "pro"
+  plan: 'free' | 'indie' | 'pro'
   projectsLimit: number
   monthlyUsageLimit: number
   membersPerProjectLimit: number
   features: {
     storage?: number
-    support?: "community" | "email" | "priority"
+    support?: 'community' | 'email' | 'priority'
   }
   monthlyPrice: number
   yearlyPrice: number
@@ -22,18 +22,15 @@ export class PlansRepository {
   constructor(private db: Database) {}
 
   async findAll(): Promise<PlanLimit[]> {
-    const plans = await this.db
-      .select()
-      .from(samplePlanLimits)
-      .orderBy(samplePlanLimits.displayOrder)
-
-    return plans.map((plan) => ({
+    const plans = await this.db.select().from(planLimits).orderBy(planLimits.displayOrder)
+    type PlanRow = typeof planLimits.$inferSelect
+    return plans.map((plan: PlanRow) => ({
       id: plan.id,
-      plan: plan.plan as "free" | "indie" | "pro",
+      plan: plan.plan as 'free' | 'indie' | 'pro',
       projectsLimit: plan.projectsLimit,
       monthlyUsageLimit: plan.monthlyUsageLimit,
       membersPerProjectLimit: plan.membersPerProjectLimit,
-      features: plan.features as PlanLimit["features"],
+      features: plan.features as PlanLimit['features'],
       monthlyPrice: plan.monthlyPrice,
       yearlyPrice: plan.yearlyPrice,
       displayOrder: plan.displayOrder,
@@ -42,12 +39,8 @@ export class PlansRepository {
     }))
   }
 
-  async findByPlan(plan: "free" | "indie" | "pro"): Promise<PlanLimit | null> {
-    const [result] = await this.db
-      .select()
-      .from(samplePlanLimits)
-      .where(eq(samplePlanLimits.plan, plan))
-      .limit(1)
+  async findByPlan(plan: 'free' | 'indie' | 'pro'): Promise<PlanLimit | null> {
+    const [result] = await this.db.select().from(planLimits).where(eq(planLimits.plan, plan)).limit(1)
 
     if (!result) {
       return null
@@ -55,11 +48,11 @@ export class PlansRepository {
 
     return {
       id: result.id,
-      plan: result.plan as "free" | "indie" | "pro",
+      plan: result.plan as 'free' | 'indie' | 'pro',
       projectsLimit: result.projectsLimit,
       monthlyUsageLimit: result.monthlyUsageLimit,
       membersPerProjectLimit: result.membersPerProjectLimit,
-      features: result.features as PlanLimit["features"],
+      features: result.features as PlanLimit['features'],
       monthlyPrice: result.monthlyPrice,
       yearlyPrice: result.yearlyPrice,
       displayOrder: result.displayOrder,

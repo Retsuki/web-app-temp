@@ -1,9 +1,9 @@
-import type { Database } from "@app/drizzle/db/index.js"
-import { UserRepository } from "./repositories/user.repository.js"
-import { CreateUserUseCase } from "./use-cases/create-user/use-case.js"
-import { DeleteUserAccountUseCase } from "./use-cases/delete-account/use-case.js"
-import { GetUserProfileUseCase } from "./use-cases/get-profile/use-case.js"
-import { UpdateUserProfileUseCase } from "./use-cases/update-profile/use-case.js"
+import type { Database } from '@app/drizzle/index.js'
+import { UserRepository } from './repositories/user.repository.js'
+import { CreateUserUseCase } from './use-cases/create-user/use-case.js'
+import { DeleteUserAccountUseCase } from './use-cases/delete-account/use-case.js'
+import { GetUserProfileUseCase } from './use-cases/get-profile/use-case.js'
+import { UpdateUserProfileUseCase } from './use-cases/update-profile/use-case.js'
 
 export class UserContainer {
   public readonly repository: UserRepository

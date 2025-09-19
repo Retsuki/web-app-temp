@@ -43,7 +43,7 @@ export function SignInForm({ dict, lang = 'ja' }: SignInFormProps) {
 
     const result = await signIn(data)
 
-    if (result?.error) {
+    if (result && 'error' in result && result.error) {
       setError(result.error)
       setLoading(false)
     } else if (result?.success) {

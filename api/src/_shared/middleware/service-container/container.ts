@@ -1,9 +1,9 @@
-import { db } from "@app/drizzle/db/index.js"
-import { AuthContainer } from "../../../features/auth/container.js"
-import { BillingContainer } from "../../../features/billing/container.js"
-import { ProjectContainer } from "../../../features/projects/container.js"
-import { UserContainer } from "../../../features/users/container.js"
-import { initializeFirebaseAdmin } from "../../lib/firebase-admin.js"
+import { db } from '@app/drizzle/index.js'
+import { AuthContainer } from '../../../features/auth/container.js'
+import { BillingContainer } from '../../../features/billing/container.js'
+import { ProjectContainer } from '../../../features/projects/container.js'
+import { UserContainer } from '../../../features/users/container.js'
+import { initializeFirebaseAdmin } from '../../lib/firebase-admin.js'
 
 export interface AppConfig {
   googleCloudProjectId?: string
@@ -27,10 +27,6 @@ export class ServiceContainer {
     this.users = new UserContainer(db)
     this.billing = new BillingContainer(db)
     this.projects = new ProjectContainer(db)
-    this.auth = new AuthContainer(
-      db,
-      this.users.repository,
-      this.projects.repository,
-    )
+    this.auth = new AuthContainer(db, this.users.repository, this.projects.repository)
   }
 }

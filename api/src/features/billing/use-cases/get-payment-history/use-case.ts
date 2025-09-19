@@ -1,3 +1,4 @@
+import type { paymentHistory as paymentHistoryTable } from '@app/drizzle/index.js'
 import type { PaymentRepository } from '../../repositories/payment.repository.js'
 import type { GetPaymentHistoryResponse } from './dto.js'
 
@@ -13,8 +14,9 @@ export class GetPaymentHistoryUseCase {
       payments.pop() // Remove the extra item
     }
 
+    type PaymentRow = typeof paymentHistoryTable.$inferSelect
     return {
-      payments: payments.map((payment) => ({
+      payments: payments.map((payment: PaymentRow) => ({
         paymentId: payment.id,
         amount: payment.amount,
         currency: payment.currency,

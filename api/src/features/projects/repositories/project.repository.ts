@@ -1,12 +1,5 @@
-import type { Database } from "@app/drizzle/db/index.js"
-import {
-  and,
-  desc,
-  eq,
-  isNull,
-  sampleProjects as projects,
-  sql,
-} from "@app/drizzle/db/index.js"
+import type { Database } from '@app/drizzle/index.js'
+import { and, desc, eq, isNull, projects, sql } from '@app/drizzle/index.js'
 
 export interface CreateProjectParams {
   userId: string
@@ -48,13 +41,7 @@ export class ProjectRepository {
     const results = await this.db
       .select()
       .from(projects)
-      .where(
-        and(
-          eq(projects.id, id),
-          eq(projects.userId, userId),
-          isNull(projects.deletedAt),
-        ),
-      )
+      .where(and(eq(projects.id, id), eq(projects.userId, userId), isNull(projects.deletedAt)))
       .limit(1)
 
     return results[0] || null
@@ -67,8 +54,7 @@ export class ProjectRepository {
         userId: params.userId,
         name: params.name,
         description: params.description,
-        status:
-          (params.status as "active" | "archived" | "completed") || "active",
+        status: (params.status as 'active' | 'archived' | 'completed') || 'active',
         tags: params.tags || [],
         metadata: params.metadata || {},
         startDate: params.startDate,
@@ -88,18 +74,10 @@ export class ProjectRepository {
       .set({
         ...rest,
         // status は 'active' | 'archived' | 'completed' を想定
-        ...(status
-          ? { status: status as "active" | "archived" | "completed" }
-          : {}),
+        ...(status ? { status: status as 'active' | 'archived' | 'completed' } : {}),
         updatedAt: sql`now()`,
       })
-      .where(
-        and(
-          eq(projects.id, id),
-          eq(projects.userId, userId),
-          isNull(projects.deletedAt),
-        ),
-      )
+      .where(and(eq(projects.id, id), eq(projects.userId, userId), isNull(projects.deletedAt)))
       .returning()
 
     return results[0] || null
@@ -112,13 +90,7 @@ export class ProjectRepository {
         deletedAt: sql`now()`,
         updatedAt: sql`now()`,
       })
-      .where(
-        and(
-          eq(projects.id, id),
-          eq(projects.userId, userId),
-          isNull(projects.deletedAt),
-        ),
-      )
+      .where(and(eq(projects.id, id), eq(projects.userId, userId), isNull(projects.deletedAt)))
       .returning()
 
     return results[0] || null

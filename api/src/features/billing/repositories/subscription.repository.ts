@@ -1,9 +1,5 @@
-import type { Database } from "@app/drizzle/db/index.js"
-import {
-  and,
-  eq,
-  sampleSubscriptions as subscriptions,
-} from "@app/drizzle/db/index.js"
+import type { Database } from '@app/drizzle/index.js'
+import { and, eq, subscriptions } from '@app/drizzle/index.js'
 
 export class SubscriptionRepository {
   constructor(private db: Database) {}
@@ -12,12 +8,7 @@ export class SubscriptionRepository {
     const [result] = await this.db
       .select()
       .from(subscriptions)
-      .where(
-        and(
-          eq(subscriptions.userId, userId),
-          eq(subscriptions.status, "active"),
-        ),
-      )
+      .where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, 'active')))
       .limit(1)
 
     return result || null
@@ -34,16 +25,13 @@ export class SubscriptionRepository {
   }
 
   async create(
-    data: Omit<
-      typeof subscriptions.$inferInsert,
-      "subscriptionId" | "createdAt" | "updatedAt"
-    >,
+    data: Omit<typeof subscriptions.$inferInsert, 'subscriptionId' | 'createdAt' | 'updatedAt'>,
   ): Promise<typeof subscriptions.$inferSelect> {
     const [result] = await this.db
       .insert(subscriptions)
       .values({
         ...data,
-        plan: data.plan as "free" | "indie" | "pro",
+        plan: data.plan as 'free' | 'indie' | 'pro',
         // sample_subscriptions は status/billingCycle に厳密な Enum 型制限なし
         status: data.status,
         billingCycle: data.billingCycle,
@@ -55,12 +43,7 @@ export class SubscriptionRepository {
 
   async update(
     subscriptionId: string,
-    data: Partial<
-      Omit<
-        typeof subscriptions.$inferInsert,
-        "subscriptionId" | "createdAt" | "updatedAt"
-      >
-    >,
+    data: Partial<Omit<typeof subscriptions.$inferInsert, 'subscriptionId' | 'createdAt' | 'updatedAt'>>,
   ) {
     const [result] = await this.db
       .update(subscriptions)
@@ -76,12 +59,7 @@ export class SubscriptionRepository {
 
   async updateByStripeSubscriptionId(
     stripeSubscriptionId: string,
-    data: Partial<
-      Omit<
-        typeof subscriptions.$inferInsert,
-        "subscriptionId" | "createdAt" | "updatedAt"
-      >
-    >,
+    data: Partial<Omit<typeof subscriptions.$inferInsert, 'subscriptionId' | 'createdAt' | 'updatedAt'>>,
   ) {
     const [result] = await this.db
       .update(subscriptions)

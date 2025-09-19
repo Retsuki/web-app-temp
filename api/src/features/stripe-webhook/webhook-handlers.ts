@@ -1,46 +1,35 @@
-import {
-  type Database,
-  eq,
-  samplePaymentHistory as paymentHistory,
-  sampleSubscriptions as subscriptions,
-  sampleWebhookEvents as webhookEvents,
-} from "@app/drizzle/db/index.js"
-import type Stripe from "stripe"
-import { logger } from "../../_shared/utils/logger.js"
+import { type Database, eq, paymentHistory, profiles, subscriptions, webhookEvents } from '@app/drizzle/index.js'
+import type Stripe from 'stripe'
+import { logger } from '../../_shared/utils/logger.js'
 
 export class WebhookHandlers {
   constructor(private db: Database) {}
 
-  private mapStripeStatus(
-    status: Stripe.Subscription.Status,
-  ): "active" | "past_due" | "canceled" | "unpaid" {
+  private mapStripeStatus(status: Stripe.Subscription.Status): 'active' | 'past_due' | 'canceled' | 'unpaid' {
     switch (status) {
-      case "active":
-      case "trialing":
-      case "incomplete":
-      case "incomplete_expired":
-        return "active"
-      case "past_due":
-        return "past_due"
-      case "canceled":
-        return "canceled"
-      case "unpaid":
-        return "unpaid"
+      case 'active':
+      case 'trialing':
+      case 'incomplete':
+      case 'incomplete_expired':
+        return 'active'
+      case 'past_due':
+        return 'past_due'
+      case 'canceled':
+        return 'canceled'
+      case 'unpaid':
+        return 'unpaid'
       default:
-        return "active"
+        return 'active'
     }
   }
 
   async handleSubscriptionCreated(subscription: Stripe.Subscription) {
-    logger.info(
-      { subscriptionId: subscription.id },
-      "Handling subscription created",
-    )
+    logger.info({ subscriptionId: subscription.id }, 'Handling subscription created')
 
     const metadata = subscription.metadata
     const userId = metadata.userId
-    const planId = metadata.planId as "indie" | "pro"
-    const billingCycle = metadata.billingCycle as "monthly" | "yearly"
+    const planId = metadata.planId as 'indie' | 'pro'
+    const billingCycle = metadata.billingCycle as 'monthly' | 'yearly'
 
     // Insert subscription record
     await this.db.insert(subscriptions).values({
@@ -51,50 +40,32 @@ export class WebhookHandlers {
       plan: planId,
       status: this.mapStripeStatus(subscription.status),
       billingCycle,
-      currentPeriodStart: new Date(
-        subscription.items.data[0].current_period_start * 1000,
-      ),
-      currentPeriodEnd: new Date(
-        subscription.items.data[0].current_period_end * 1000,
-      ),
+      currentPeriodStart: new Date(subscription.items.data[0].current_period_start * 1000),
+      currentPeriodEnd: new Date(subscription.items.data[0].current_period_end * 1000),
     })
 
     // profiles にプランカラムはないため更新不要
   }
 
   async handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-    logger.info(
-      { subscriptionId: subscription.id },
-      "Handling subscription updated",
-    )
+    logger.info({ subscriptionId: subscription.id }, 'Handling subscription updated')
 
     // Update subscription record
     await this.db
       .update(subscriptions)
       .set({
         status: this.mapStripeStatus(subscription.status),
-        currentPeriodStart: new Date(
-          subscription.items.data[0].current_period_start * 1000,
-        ),
-        currentPeriodEnd: new Date(
-          subscription.items.data[0].current_period_end * 1000,
-        ),
-        cancelAt: subscription.cancel_at
-          ? new Date(subscription.cancel_at * 1000)
-          : null,
-        canceledAt: subscription.canceled_at
-          ? new Date(subscription.canceled_at * 1000)
-          : null,
+        currentPeriodStart: new Date(subscription.items.data[0].current_period_start * 1000),
+        currentPeriodEnd: new Date(subscription.items.data[0].current_period_end * 1000),
+        cancelAt: subscription.cancel_at ? new Date(subscription.cancel_at * 1000) : null,
+        canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
         updatedAt: new Date(),
       })
       .where(eq(subscriptions.stripeSubscriptionId, subscription.id))
   }
 
   async handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-    logger.info(
-      { subscriptionId: subscription.id },
-      "Handling subscription deleted",
-    )
+    logger.info({ subscriptionId: subscription.id }, 'Handling subscription deleted')
 
     // Get subscription to find userId
     const [sub] = await this.db
@@ -104,7 +75,7 @@ export class WebhookHandlers {
       .limit(1)
 
     if (!sub) {
-      logger.warn({ subscriptionId: subscription.id }, "Subscription not found")
+      logger.warn({ subscriptionId: subscription.id }, 'Subscription not found')
       return
     }
 
@@ -112,7 +83,7 @@ export class WebhookHandlers {
     await this.db
       .update(subscriptions)
       .set({
-        status: "canceled",
+        status: 'canceled',
         canceledAt: new Date(),
         updatedAt: new Date(),
       })
@@ -122,31 +93,25 @@ export class WebhookHandlers {
   }
 
   async handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
-    logger.info({ invoiceId: invoice.id }, "Handling invoice payment succeeded")
+    logger.info({ invoiceId: invoice.id }, 'Handling invoice payment succeeded')
 
     const invoiceId = invoice.id
     if (!invoiceId) {
-      logger.warn({ invoiceId }, "No invoice ID found")
+      logger.warn({ invoiceId }, 'No invoice ID found')
       return
     }
 
     // Get subscription ID from parent.subscription_details.subscription
-    const subscriptionIdOrObject =
-      invoice.parent?.subscription_details?.subscription
+    const subscriptionIdOrObject = invoice.parent?.subscription_details?.subscription
 
     if (!subscriptionIdOrObject) {
-      logger.warn(
-        { invoiceId: invoice.id },
-        "No subscription ID found in invoice",
-      )
+      logger.warn({ invoiceId: invoice.id }, 'No subscription ID found in invoice')
       return
     }
 
     // Extract subscription ID (it might be a string or an object)
     const subscriptionId =
-      typeof subscriptionIdOrObject === "string"
-        ? subscriptionIdOrObject
-        : subscriptionIdOrObject.id
+      typeof subscriptionIdOrObject === 'string' ? subscriptionIdOrObject : subscriptionIdOrObject.id
 
     // Get user ID from subscription
     const [sub] = await this.db
@@ -156,16 +121,13 @@ export class WebhookHandlers {
       .limit(1)
 
     if (!sub) {
-      logger.warn({ subscriptionId }, "Subscription not found for invoice")
+      logger.warn({ subscriptionId }, 'Subscription not found for invoice')
       return
     }
 
     // Get payment intent ID from payments data if available
     const paymentIntent = invoice.payments?.data?.[0]?.payment?.payment_intent
-    const paymentIntentId =
-      typeof paymentIntent === "string"
-        ? paymentIntent
-        : paymentIntent?.id || null
+    const paymentIntentId = typeof paymentIntent === 'string' ? paymentIntent : paymentIntent?.id || null
 
     // Record payment
     const paymentData = {
@@ -175,7 +137,7 @@ export class WebhookHandlers {
       stripePaymentIntentId: paymentIntentId,
       amount: invoice.amount_paid,
       currency: invoice.currency,
-      status: "paid" as const,
+      status: 'paid' as const,
       description: `${sub.plan} plan - ${sub.billingCycle} billing`,
       periodStart: new Date(invoice.period_start * 1000),
       periodEnd: new Date(invoice.period_end * 1000),
@@ -185,44 +147,35 @@ export class WebhookHandlers {
     await this.db.insert(paymentHistory).values(paymentData)
 
     // 注: profiles テーブルに使用量カラムがないため、ここではリセット処理は行わない
-    await this.db
-      .update(profiles)
-      .set({ updatedAt: new Date() })
-      .where(eq(profiles.userId, sub.userId))
+    await this.db.update(profiles).set({ updatedAt: new Date() }).where(eq(profiles.userId, sub.userId))
   }
 
   async handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
-    logger.info({ invoiceId: invoice.id }, "Handling invoice payment failed")
+    logger.info({ invoiceId: invoice.id }, 'Handling invoice payment failed')
 
     const invoiceId = invoice.id
     if (!invoiceId) {
-      logger.warn({ invoiceId }, "No invoice ID found")
+      logger.warn({ invoiceId }, 'No invoice ID found')
       return
     }
 
     // Get subscription ID from parent.subscription_details.subscription
-    const subscriptionIdOrObject =
-      invoice.parent?.subscription_details?.subscription
+    const subscriptionIdOrObject = invoice.parent?.subscription_details?.subscription
 
     if (!subscriptionIdOrObject) {
-      logger.warn(
-        { invoiceId: invoice.id },
-        "No subscription ID found in invoice",
-      )
+      logger.warn({ invoiceId: invoice.id }, 'No subscription ID found in invoice')
       return
     }
 
     // Extract subscription ID (it might be a string or an object)
     const subscriptionId =
-      typeof subscriptionIdOrObject === "string"
-        ? subscriptionIdOrObject
-        : subscriptionIdOrObject.id
+      typeof subscriptionIdOrObject === 'string' ? subscriptionIdOrObject : subscriptionIdOrObject.id
 
     // Update subscription status
     await this.db
       .update(subscriptions)
       .set({
-        status: "past_due",
+        status: 'past_due',
         updatedAt: new Date(),
       })
       .where(eq(subscriptions.stripeSubscriptionId, subscriptionId))
@@ -237,10 +190,7 @@ export class WebhookHandlers {
     if (sub) {
       // Get payment intent ID from payments data if available
       const paymentIntent = invoice.payments?.data?.[0]?.payment?.payment_intent
-      const paymentIntentId =
-        typeof paymentIntent === "string"
-          ? paymentIntent
-          : paymentIntent?.id || null
+      const paymentIntentId = typeof paymentIntent === 'string' ? paymentIntent : paymentIntent?.id || null
 
       const paymentData = {
         userId: sub.userId,
@@ -249,14 +199,10 @@ export class WebhookHandlers {
         stripePaymentIntentId: paymentIntentId,
         amount: invoice.amount_due,
         currency: invoice.currency,
-        status: "failed" as const,
+        status: 'failed' as const,
         description: `Payment failed for ${sub.plan} plan`,
-        periodStart: invoice.period_start
-          ? new Date(invoice.period_start * 1000)
-          : null,
-        periodEnd: invoice.period_end
-          ? new Date(invoice.period_end * 1000)
-          : null,
+        periodStart: invoice.period_start ? new Date(invoice.period_start * 1000) : null,
+        periodEnd: invoice.period_end ? new Date(invoice.period_end * 1000) : null,
         failedAt: new Date(),
       }
 
@@ -270,12 +216,9 @@ export class WebhookHandlers {
       eventType: event.type,
       apiVersion: event.api_version || null,
       payload: event,
-      objectId:
-        "id" in event.data.object && typeof event.data.object.id === "string"
-          ? event.data.object.id
-          : null,
+      objectId: 'id' in event.data.object && typeof event.data.object.id === 'string' ? event.data.object.id : null,
       objectType: event.data.object.object || null,
-      status: "processed",
+      status: 'processed',
       processedAt: new Date(),
       eventCreatedAt: new Date(event.created * 1000),
     })

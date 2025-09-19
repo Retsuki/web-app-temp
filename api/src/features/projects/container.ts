@@ -1,10 +1,10 @@
-import type { Database } from "@app/drizzle/db/index.js"
-import { ProjectRepository } from "./repositories/project.repository.js"
-import { CreateProjectUseCase } from "./use-cases/create-project/use-case.js"
-import { DeleteProjectUseCase } from "./use-cases/delete-project/use-case.js"
-import { GetProjectUseCase } from "./use-cases/get-project/use-case.js"
-import { ListProjectsUseCase } from "./use-cases/list-projects/use-case.js"
-import { UpdateProjectUseCase } from "./use-cases/update-project/use-case.js"
+import type { Database } from '@app/drizzle/index.js'
+import { ProjectRepository } from './repositories/project.repository.js'
+import { CreateProjectUseCase } from './use-cases/create-project/use-case.js'
+import { DeleteProjectUseCase } from './use-cases/delete-project/use-case.js'
+import { GetProjectUseCase } from './use-cases/get-project/use-case.js'
+import { ListProjectsUseCase } from './use-cases/list-projects/use-case.js'
+import { UpdateProjectUseCase } from './use-cases/update-project/use-case.js'
 
 export class ProjectContainer {
   public readonly repository: ProjectRepository

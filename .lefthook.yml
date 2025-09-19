@@ -1,0 +1,8 @@
+pre-commit:
+  parallel: true
+  commands:
+    typecheck-web:
+      run: npm --prefix web run typecheck
+    typecheck-api:
+      run: npm --prefix api run typecheck
+
