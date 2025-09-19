@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const code = requestUrl.searchParams.get('code')
 
   // 環境変数から正しいURLを取得、なければリクエストのoriginを使用
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || requestUrl.origin
 
   // パスから言語を取得
   const pathParts = requestUrl.pathname.split('/')
