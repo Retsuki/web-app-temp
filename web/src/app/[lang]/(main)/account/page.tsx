@@ -1,6 +1,6 @@
+import { SignOutButton } from '@/features/auth/components/sign-out-button'
 import { requireAuth } from '@/features/auth/server/auth-server'
 import { getDictionary, type PageLang } from '@/features/i18n'
-import { SignOutButton } from '@/features/auth/components/sign-out-button'
 import BillingStatus from './billing-status'
 import LanguageSettings from './language-settings'
 
@@ -31,7 +31,6 @@ export default async function AccountPage({ params }: PageLang) {
   }
 
   const p = profile.data
-
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
