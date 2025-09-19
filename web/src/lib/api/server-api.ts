@@ -6,7 +6,7 @@
 
 import type {
   GetApiV1ProjectsId200,
-  GetApiV1UsersMe200,
+  GetProfile200,
   PostApiV1AuthSetup201,
   PostApiV1AuthSetupBody,
 } from '@/lib/api/generated/schemas'
@@ -14,7 +14,7 @@ import { orvalServerClient } from './orval-server-client'
 
 // プロフィール取得用のAPI関数
 export const getApiV1UsersMeServer = (signal?: AbortSignal) => {
-  return orvalServerClient<GetApiV1UsersMe200>({
+  return orvalServerClient<GetProfile200>({
     url: '/api/v1/users/me',
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },

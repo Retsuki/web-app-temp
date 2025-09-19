@@ -11,6 +11,7 @@ export default defineConfig({
       schemas: './src/lib/api/generated/schemas',
       client: 'react-query',
       mock: true,
+      clean: true,
       override: {
         mutator: {
           path: './src/lib/api/orval-client.ts',
