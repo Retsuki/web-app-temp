@@ -4,6 +4,7 @@
     "signIn": "サインイン",
     "signUp": "サインアップ",
     "signOut": "サインアウト",
+    "account": "アカウント",
     "dashboard": "ダッシュボード",
     "email": "メールアドレス",
     "password": "パスワード",
@@ -55,7 +56,8 @@
     }
   },
   "profile": {
-    "nickname": "ニックネーム"
+    "nickname": "ニックネーム",
+    "language": "言語"
   },
   "pricing": {
     "title": "料金プラン",

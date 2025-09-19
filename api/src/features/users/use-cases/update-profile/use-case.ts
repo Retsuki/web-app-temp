@@ -18,6 +18,7 @@ export class UpdateUserProfileUseCase {
     // 更新データの準備
     const updateData = {
       ...(data.nickname !== undefined && { nickname: data.nickname }),
+      ...(data.language !== undefined && { language: data.language }),
     }
 
     // プロフィールを更新

@@ -37,6 +37,20 @@ export const postApiV1AuthSetupServer = (
   })
 }
 
+// プロフィール更新（言語/ニックネーム）
+export const putApiV1UsersMeServer = (
+  updateData: { nickname?: string; language?: string },
+  signal?: AbortSignal
+) => {
+  return orvalServerClient<GetProfile200>({
+    url: '/api/v1/users/me',
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: updateData,
+    signal,
+  })
+}
+
 // プロジェクト詳細取得用のAPI関数
 export const getApiV1ProjectsProjectIdServer = async (
   projectId: string,

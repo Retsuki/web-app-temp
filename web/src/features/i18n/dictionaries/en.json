@@ -4,6 +4,7 @@
     "signIn": "Sign In",
     "signUp": "Sign Up",
     "signOut": "Sign Out",
+    "account": "Account",
     "dashboard": "Dashboard",
     "email": "Email",
     "password": "Password",
@@ -55,7 +56,8 @@
     }
   },
   "profile": {
-    "nickname": "Nickname"
+    "nickname": "Nickname",
+    "language": "Language"
   },
   "pricing": {
     "title": "Pricing Plans",

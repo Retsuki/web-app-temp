@@ -1,6 +1,6 @@
 'use client'
 
-import { CreditCardIcon, DollarSignIcon, FolderIcon, HomeIcon } from 'lucide-react'
+import { DollarSignIcon, FolderIcon, HomeIcon, UserIcon } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -18,9 +18,9 @@ export default function MainNav({ dict, lang }: MainNavProps) {
 
   const navigation = [
     { name: dict.common.dashboard, href: `/${lang}/dashboard`, icon: HomeIcon },
+    { name: dict.common.account, href: `/${lang}/account`, icon: UserIcon },
     { name: 'プロジェクト', href: `/${lang}/projects`, icon: FolderIcon },
     { name: dict.pricing.title, href: `/${lang}/pricing`, icon: DollarSignIcon },
-    { name: dict.billing.title, href: `/${lang}/billing`, icon: CreditCardIcon },
   ]
 
   return (
