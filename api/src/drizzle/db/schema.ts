@@ -1,26 +1,15 @@
 import { relations, sql } from 'drizzle-orm'
-import {
-  index,
-  integer,
-  jsonb,
-  pgEnum,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-  varchar,
-} from 'drizzle-orm/pg-core'
-
-// Enums定義
-export const PLAN_VALUES = ['free', 'indie', 'pro'] as const
-export const planEnum = pgEnum('plan', PLAN_VALUES)
-export type Plan = (typeof PLAN_VALUES)[number]
+import { index, integer, jsonb, pgEnum, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
 
 export const PLAN = {
   FREE: 'free',
   INDIE: 'indie',
   PRO: 'pro',
 } as const
+
+// Enums定義（PLANを唯一のソースに統一）
+export type Plan = (typeof PLAN)[keyof typeof PLAN]
+export const planEnum = pgEnum('plan', Object.values(PLAN) as [Plan, ...Plan[]])
 
 // ユーザープロフィールテーブル
 export const profiles = pgTable('profiles', {
@@ -47,38 +36,7 @@ export const profiles = pgTable('profiles', {
 
   // 削除日時（論理削除）
   deletedAt: timestamp('deleted_at'),
-
-  // Stripe関連
-  stripeCustomerId: varchar('stripe_customer_id', { length: 255 }).unique(),
-  plan: varchar('plan', { length: 50 }).notNull().default('free'), // free, standard, pro
-  remainedCredits: integer('remained_credits').notNull().default(500), // 残りクレジット数
 })
-
-// プロジェクトテーブル（開発者のプロジェクト）
-export const omProjects = pgTable(
-  'om_projects',
-  {
-    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-
-    // 開発者情報（profilesテーブルのidを参照）
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => profiles.id),
-
-    // プロジェクト情報
-    name: varchar('name', { length: 255 }).notNull(),
-    description: text('description'),
-
-    // タイムスタンプ
-    createdAt: timestamp('created_at').default(sql`now()`).notNull(),
-    updatedAt: timestamp('updated_at').default(sql`now()`).notNull(),
-  },
-  (table) => {
-    return {
-      userIdIdx: index('om_projects_user_id_idx').on(table.userId),
-    }
-  }
-)
 
 // 汎用プロジェクトテーブル
 export const projects = pgTable(
@@ -119,7 +77,7 @@ export const projects = pgTable(
       statusIdx: index('projects_status_idx').on(table.status),
       createdAtIdx: index('projects_created_at_idx').on(table.createdAt),
     }
-  }
+  },
 )
 
 // サブスクリプションテーブル
@@ -166,7 +124,7 @@ export const subscriptions = pgTable(
       statusIdx: index('subscriptions_status_idx').on(table.status),
       planIdx: index('subscriptions_plan_idx').on(table.plan),
     }
-  }
+  },
 )
 
 // 支払い履歴テーブル
@@ -222,7 +180,7 @@ export const paymentHistory = pgTable(
       statusIdx: index('payment_history_status_idx').on(table.status),
       createdAtIdx: index('payment_history_created_at_idx').on(table.createdAt),
     }
-  }
+  },
 )
 
 // Webhookイベント履歴テーブル
@@ -257,8 +215,26 @@ export const webhookEvents = pgTable(
       statusIdx: index('webhook_events_status_idx').on(table.status),
       objectIdIdx: index('webhook_events_object_id_idx').on(table.objectId),
     }
-  }
+  },
 )
+
+// 請求用顧客テーブル（Stripe Customer をユーザー単位で管理）
+export const billingCustomers = pgTable('billing_customers', {
+  id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+
+  // ユーザー関連（Supabase AuthのユーザーIDで紐付け）
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => profiles.userId, { onDelete: 'cascade' })
+    .unique(),
+
+  // Stripe Customer ID（ユーザーと1対1）
+  stripeCustomerId: varchar('stripe_customer_id', { length: 255 }).notNull().unique(),
+
+  // タイムスタンプ
+  createdAt: timestamp('created_at').default(sql`now()`).notNull(),
+  updatedAt: timestamp('updated_at').default(sql`now()`).notNull(),
+})
 
 // プラン制限管理テーブル
 export const planLimits = pgTable('plan_limits', {
@@ -314,6 +290,13 @@ export const paymentHistoryRelations = relations(paymentHistory, ({ one }) => ({
 export const projectsRelations = relations(projects, ({ one }) => ({
   profile: one(profiles, {
     fields: [projects.userId],
+    references: [profiles.userId],
+  }),
+}))
+
+export const billingCustomersRelations = relations(billingCustomers, ({ one }) => ({
+  profile: one(profiles, {
+    fields: [billingCustomers.userId],
     references: [profiles.userId],
   }),
 }))

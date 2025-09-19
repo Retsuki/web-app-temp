@@ -61,8 +61,6 @@ export class SetupUserUseCase {
         email: data.email,
         nickname: data.nickname,
         language: data.language,
-        plan: 'free',
-        remainedCredits: 500,
       })
 
       // 3. 初期プロジェクト作成

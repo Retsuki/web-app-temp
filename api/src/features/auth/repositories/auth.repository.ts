@@ -57,8 +57,6 @@ export class AuthRepository {
         email: data.email,
         nickname: data.nickname,
         language: data.language,
-        plan: "free",
-        remainedCredits: 500,
       })
       .returning()
 

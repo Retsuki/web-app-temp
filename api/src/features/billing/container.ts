@@ -5,6 +5,7 @@ import { PlansRepository } from "./repositories/plans.repository.js"
 import { SubscriptionRepository } from "./repositories/subscription.repository.js"
 import { CancelSubscriptionUseCase } from "./use-cases/cancel-subscription/use-case.js"
 import { CreateCheckoutUseCase } from "./use-cases/create-checkout/use-case.js"
+import { BillingCustomerRepository } from "./repositories/billing-customer.repository.js"
 import { GetPaymentHistoryUseCase } from "./use-cases/get-payment-history/use-case.js"
 import { GetPlansUseCase } from "./use-cases/get-plans/use-case.js"
 import { GetSubscriptionUseCase } from "./use-cases/get-subscription/use-case.js"
@@ -15,6 +16,7 @@ export class BillingContainer {
   public readonly subscriptionRepository: SubscriptionRepository
   public readonly paymentRepository: PaymentRepository
   public readonly plansRepository: PlansRepository
+  public readonly billingCustomerRepository: BillingCustomerRepository
 
   // Use Cases
   public readonly createCheckoutUseCase: CreateCheckoutUseCase
@@ -29,12 +31,14 @@ export class BillingContainer {
     this.subscriptionRepository = new SubscriptionRepository(db)
     this.paymentRepository = new PaymentRepository(db)
     this.plansRepository = new PlansRepository(db)
+    this.billingCustomerRepository = new BillingCustomerRepository(db)
     const userRepository = new UserRepository(db)
 
     // Initialize use cases
     this.createCheckoutUseCase = new CreateCheckoutUseCase(
       userRepository,
       this.subscriptionRepository,
+      this.billingCustomerRepository,
     )
 
     this.getPlansUseCase = new GetPlansUseCase(this)

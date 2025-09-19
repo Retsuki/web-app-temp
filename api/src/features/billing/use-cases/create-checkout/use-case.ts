@@ -2,6 +2,7 @@ import { AppHTTPException, ERROR_CODES } from '../../../../_shared/utils/error/i
 import { logger } from '../../../../_shared/utils/logger.js'
 import { getStripePriceId } from '../../../../constants/plans.js'
 import type { UserRepository } from '../../../../features/users/repositories/user.repository.js'
+import type { BillingCustomerRepository } from '../../repositories/billing-customer.repository.js'
 import { STRIPE_CONFIG, stripe } from '../../../../lib/stripe.js'
 import type { SubscriptionRepository } from '../../repositories/subscription.repository.js'
 import type { CreateCheckoutDto, CreateCheckoutResponse } from './dto.js'
@@ -9,7 +10,8 @@ import type { CreateCheckoutDto, CreateCheckoutResponse } from './dto.js'
 export class CreateCheckoutUseCase {
   constructor(
     private userRepository: UserRepository,
-    private subscriptionRepository: SubscriptionRepository
+    private subscriptionRepository: SubscriptionRepository,
+    private billingCustomerRepository: BillingCustomerRepository,
   ) {}
 
   async execute(userId: string, dto: CreateCheckoutDto): Promise<CreateCheckoutResponse> {
@@ -40,19 +42,16 @@ export class CreateCheckoutUseCase {
       })
     }
 
-    // 4. Stripe顧客を作成または取得
-    let stripeCustomerId = user.stripeCustomerId
+    // 4. Stripe顧客を作成または取得（billing_customers テーブル）
+    const existingBillingCustomer = await this.billingCustomerRepository.findByUserId(userId)
+    let stripeCustomerId = existingBillingCustomer?.stripeCustomerId
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({
         email: user.email,
-        metadata: {
-          userId: user.userId,
-        },
+        metadata: { userId: user.userId },
       })
       stripeCustomerId = customer.id
-
-      // ユーザーのStripe顧客IDを更新
-      await this.userRepository.updateStripeCustomerId(userId, stripeCustomerId)
+      await this.billingCustomerRepository.create(userId, stripeCustomerId)
     }
 
     // 5. Checkout Sessionを作成

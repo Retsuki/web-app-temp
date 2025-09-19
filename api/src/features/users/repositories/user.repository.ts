@@ -11,7 +11,7 @@ export class UserRepository {
   constructor(private db: Database) {}
 
   /**
-   * ユーザーIDでプロフィールを取得（stripeCustomerIdを含む）
+   * ユーザーIDでプロフィールを取得
    */
   async findById(userId: string): Promise<UserProfile | null> {
     const result = await this.db
@@ -116,19 +116,5 @@ export class UserRepository {
     return true
   }
 
-  /**
-   * Stripe Customer IDを更新
-   */
-  async updateStripeCustomerId(
-    userId: string,
-    stripeCustomerId: string,
-  ): Promise<void> {
-    await this.db
-      .update(profiles)
-      .set({
-        stripeCustomerId,
-        updatedAt: new Date(),
-      })
-      .where(eq(profiles.userId, userId))
-  }
+  // Stripe Customer ID の管理は billing_customers テーブルに移行
 }

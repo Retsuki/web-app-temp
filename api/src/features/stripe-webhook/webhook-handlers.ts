@@ -2,7 +2,6 @@ import {
   type Database,
   eq,
   samplePaymentHistory as paymentHistory,
-  profiles,
   sampleSubscriptions as subscriptions,
   sampleWebhookEvents as webhookEvents,
 } from "@app/drizzle/db/index.js"
@@ -60,14 +59,7 @@ export class WebhookHandlers {
       ),
     })
 
-    // Update user profile
-    await this.db
-      .update(profiles)
-      .set({
-        plan: planId,
-        updatedAt: new Date(),
-      })
-      .where(eq(profiles.userId, userId))
+    // profiles にプランカラムはないため更新不要
   }
 
   async handleSubscriptionUpdated(subscription: Stripe.Subscription) {
@@ -126,14 +118,7 @@ export class WebhookHandlers {
       })
       .where(eq(subscriptions.stripeSubscriptionId, subscription.id))
 
-    // Update user to free plan
-    await this.db
-      .update(profiles)
-      .set({
-        plan: "free",
-        updatedAt: new Date(),
-      })
-      .where(eq(profiles.userId, sub.userId))
+    // profiles にプランカラムはないため更新不要
   }
 
   async handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
