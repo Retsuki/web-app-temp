@@ -1,4 +1,4 @@
-import { db } from '@app/drizzle/index.js'
+import { db } from '../../../drizzle/index.js'
 import { AuthContainer } from '../../../features/auth/container.js'
 import { BillingContainer } from '../../../features/billing/container.js'
 import { ProjectContainer } from '../../../features/projects/container.js'
@@ -27,6 +27,6 @@ export class ServiceContainer {
     this.users = new UserContainer(db)
     this.billing = new BillingContainer(db)
     this.projects = new ProjectContainer(db)
-    this.auth = new AuthContainer(db, this.users.repository, this.projects.repository)
+    this.auth = new AuthContainer(this.users.repository, this.projects.repository)
   }
 }

@@ -1,4 +1,4 @@
-import type { Database } from '@app/drizzle/index.js'
+import type { Database } from '../../drizzle/index.js'
 import { UserRepository } from '../users/repositories/user.repository.js'
 import { BillingCustomerRepository } from './repositories/billing-customer.repository.js'
 import { PaymentRepository } from './repositories/payment.repository.js'

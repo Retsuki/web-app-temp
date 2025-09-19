@@ -1,5 +1,5 @@
-import type { Database } from '@app/drizzle/index.js'
-import { eq, planLimits } from '@app/drizzle/index.js'
+import type { Database } from '../../../drizzle/index.js'
+import { eq, planLimits } from '../../../drizzle/index.js'
 
 export interface PlanLimit {
   id: string

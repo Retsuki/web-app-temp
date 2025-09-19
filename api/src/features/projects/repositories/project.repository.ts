@@ -1,5 +1,5 @@
-import type { Database } from '@app/drizzle/index.js'
-import { and, desc, eq, isNull, projects, sql } from '@app/drizzle/index.js'
+import type { Database } from '../../../drizzle/index.js'
+import { and, desc, eq, isNull, projects, sql } from '../../../drizzle/index.js'
 
 export interface CreateProjectParams {
   userId: string

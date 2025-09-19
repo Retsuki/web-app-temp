@@ -1,5 +1,5 @@
-import type { Database } from '@app/drizzle/index.js'
-import { and, eq, subscriptions } from '@app/drizzle/index.js'
+import type { Database } from '../../../drizzle/index.js'
+import { and, eq, subscriptions } from '../../../drizzle/index.js'
 
 export class SubscriptionRepository {
   constructor(private db: Database) {}

@@ -27,8 +27,7 @@ billingApi(app)
 stripeWebhookApi(app)
 projectsApi(app)
 
-// 開発環境ではDEV_API_PORTを優先、本番環境ではPORTを使用（デフォルト: 8080）
-const port = Number(process.env.DEV_API_PORT || process.env.PORT) || 8080
+const port = 8080
 serve(
   {
     fetch: app.fetch,
@@ -37,5 +36,5 @@ serve(
   () => {
     console.log(`🚀 サーバーが起動しました！ポート: http://localhost:${port}`)
     console.log(`🚀 Swagger UI: http://localhost:${port}/api/v1/ui`)
-  }
+  },
 )

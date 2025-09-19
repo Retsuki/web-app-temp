@@ -1,5 +1,5 @@
-import type { Database } from '@app/drizzle/index.js'
-import { eq, profiles } from '@app/drizzle/index.js'
+import type { Database } from '../../../drizzle/index.js'
+import { eq, profiles } from '../../../drizzle/index.js'
 
 export type UserProfile = typeof profiles.$inferSelect
 export type CreateUserProfile = typeof profiles.$inferInsert

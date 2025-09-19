@@ -1,5 +1,5 @@
-import type { Database } from '@app/drizzle/index.js'
-import { desc, eq, paymentHistory } from '@app/drizzle/index.js'
+import type { Database } from '../../../drizzle/index.js'
+import { desc, eq, paymentHistory } from '../../../drizzle/index.js'
 
 export class PaymentRepository {
   constructor(private db: Database) {}

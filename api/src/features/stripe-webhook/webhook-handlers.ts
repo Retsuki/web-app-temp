@@ -1,6 +1,6 @@
-import { type Database, eq, paymentHistory, profiles, subscriptions, webhookEvents } from '@app/drizzle/index.js'
 import type Stripe from 'stripe'
 import { logger } from '../../_shared/utils/logger.js'
+import { type Database, eq, paymentHistory, profiles, subscriptions, webhookEvents } from '../../drizzle/index.js'
 
 export class WebhookHandlers {
   constructor(private db: Database) {}

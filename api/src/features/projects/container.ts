@@ -1,4 +1,4 @@
-import type { Database } from '@app/drizzle/index.js'
+import type { Database } from '../../drizzle/index.js'
 import { ProjectRepository } from './repositories/project.repository.js'
 import { CreateProjectUseCase } from './use-cases/create-project/use-case.js'
 import { DeleteProjectUseCase } from './use-cases/delete-project/use-case.js'

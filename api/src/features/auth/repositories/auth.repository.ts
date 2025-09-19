@@ -1,7 +1,7 @@
-import type { Database } from '@app/drizzle/index.js'
-import { eq, profiles, projects } from '@app/drizzle/index.js'
 import { AppHTTPException } from '../../../_shared/utils/error/error-exception.js'
 import { ERROR_CODES } from '../../../_shared/utils/error/index.js'
+import type { Database } from '../../../drizzle/index.js'
+import { eq, profiles, projects } from '../../../drizzle/index.js'
 
 export class AuthRepository {
   constructor(private readonly db: Database) {}

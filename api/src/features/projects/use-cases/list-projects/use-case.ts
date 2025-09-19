@@ -1,4 +1,3 @@
-import type { projects as projectsTable } from '@app/drizzle/index.js'
 import type { ProjectRepository } from '../../repositories/project.repository.js'
 import type { ListProjectsResponse } from './dto.js'
 
@@ -11,9 +10,8 @@ export class ListProjectsUseCase {
       this.projectRepository.countByUserId(userId),
     ])
 
-    type ProjectRow = typeof projectsTable.$inferSelect
     return {
-      projects: projects.map((project: ProjectRow) => ({
+      projects: projects.map((project) => ({
         id: project.id,
         userId: project.userId,
         name: project.name,
