@@ -16,7 +16,6 @@ export class UpdateProjectUseCase {
     if (request.name !== undefined) updateData.name = request.name
     if (request.description !== undefined) updateData.description = request.description
     if (request.status !== undefined) updateData.status = request.status
-    if (request.tags !== undefined) updateData.tags = request.tags
     if (request.metadata !== undefined) updateData.metadata = request.metadata
     if (request.startDate !== undefined) {
       updateData.startDate = request.startDate ? new Date(request.startDate) : null
@@ -24,8 +23,6 @@ export class UpdateProjectUseCase {
     if (request.endDate !== undefined) {
       updateData.endDate = request.endDate ? new Date(request.endDate) : null
     }
-    if (request.priority !== undefined) updateData.priority = request.priority
-    if (request.progress !== undefined) updateData.progress = request.progress
 
     const project = await this.projectRepository.update(id, userId, updateData)
 
@@ -42,12 +39,9 @@ export class UpdateProjectUseCase {
       name: project.name,
       description: project.description,
       status: project.status,
-      tags: project.tags as unknown[],
       metadata: project.metadata as Record<string, unknown>,
       startDate: project.startDate?.toISOString() || null,
       endDate: project.endDate?.toISOString() || null,
-      priority: project.priority,
-      progress: project.progress,
       createdAt: project.createdAt?.toISOString() || new Date().toISOString(),
       updatedAt: project.updatedAt?.toISOString() || new Date().toISOString(),
     }

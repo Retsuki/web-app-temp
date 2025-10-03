@@ -11,100 +11,116 @@ import type { GetPlansResponse } from "./dto.js";
 export class GetPlansUseCase {
 	constructor(
 		private readonly container: BillingContainer,
-		private readonly stripe: StripeClient,
+		private readonly stripeClient: StripeClient,
 	) {}
 
-	private resolvePlanId(
+	async execute(): Promise<GetPlansResponse> {
+		const planRepository = this.container.plansRepository;
+		const dbPlans = await planRepository.findAll();
+
+		// 1) Stripeから有効なProduct/Priceを取得
+		const stripeProducts = await this.stripeClient.api.products.list({
+			active: true,
+			limit: 100,
+		});
+
+		// DB上のプラン行を slug で引けるようにマップ化
+		type PlanRow = (typeof dbPlans)[number];
+		const planBySlug = new Map<PlanRow["slug"], PlanRow>(
+			dbPlans.map((row) => [row.slug as PlanId, row]),
+		);
+
+		// paid plans を DTO と並び順キーのペアで保持
+		type PlanDto = GetPlansResponse["plans"][number];
+		const paidPlanEntries: { dto: PlanDto; sortKey: number }[] = [];
+		for (const product of stripeProducts.data) {
+			const productMetadata = (product.metadata as StripeProductMetadata) || {};
+			const planId = this.getPlanIdFromStripeProduct(
+				product.name,
+				productMetadata,
+			);
+			if (!planId) continue; // 想定外Productは除外
+
+			// 公開フラグ（metadata.public）が truthy のもののみ採用
+			const isPublic = parseBooleanish(productMetadata.public);
+			if (!isPublic) continue;
+
+			// 該当ProductのPrice一覧
+			const prices = await this.stripeClient.api.prices.list({
+				product: product.id,
+				active: true,
+				limit: 100,
+			});
+			const monthlyPrice = prices.data.find(
+				(price) => price.recurring?.interval === "month",
+			);
+			const yearlyPrice = prices.data.find(
+				(price) => price.recurring?.interval === "year",
+			);
+
+			const planFromDb = planBySlug.get(planId);
+			const sortKey = this.getSortOrderFromStripeMetadata(productMetadata);
+
+			paidPlanEntries.push({
+				sortKey,
+				dto: {
+					id: planId,
+					name: product.name || planFromDb?.name || planId,
+					description: product.description || planFromDb?.description || "",
+					monthlyPrice: monthlyPrice?.unit_amount ?? 0,
+					yearlyPrice: yearlyPrice?.unit_amount ?? 0,
+				},
+			});
+		}
+
+		// 2) Freeプラン（Stripeには存在しないためDB由来）
+		const freePlanFromDb = planBySlug.get(PLANS.free);
+		const freePlanEntries: { dto: PlanDto; sortKey: number }[] = freePlanFromDb
+			? [
+					{
+						sortKey: 0, // Free は先頭固定（Starter=1, Pro=2 と整合）
+						dto: {
+							id: PLANS.free,
+							name: freePlanFromDb?.name || "Free",
+							description: freePlanFromDb?.description || "",
+							monthlyPrice: 0,
+							yearlyPrice: 0,
+						},
+					},
+				]
+			: [];
+
+		// 3) 並び順: Stripe metadata.sortOrder（未設定は末尾）+ Free は 0
+		const sortedPlans = [...freePlanEntries, ...paidPlanEntries]
+			.sort((a, b) => a.sortKey - b.sortKey)
+			.map((entry) => entry.dto);
+
+		return { plans: sortedPlans };
+	}
+
+	// Product からプランIDを解決（metadata.planId を最優先）
+	private getPlanIdFromStripeProduct(
 		name?: string | null,
 		metadata?: Record<string, string> | StripeProductMetadata,
 	) {
-		const n = (name || "").toLowerCase();
-		const m = Object.fromEntries(
-			Object.entries(metadata || {}).map(([k, v]) => [
-				String(k).toLowerCase(),
-				String(v ?? "").toLowerCase(),
-			]),
-		);
-		const metaPlan = m.planid;
+		const meta = (metadata || {}) as StripeProductMetadata;
+		const metaPlan = String(meta.planId || "").toLowerCase();
 		if (metaPlan === PLANS.starter) return PLANS.starter;
 		if (metaPlan === PLANS.pro) return PLANS.pro;
+
+		const n = String(name || "").toLowerCase();
 		if (n === PLANS.starter) return PLANS.starter;
 		if (n === PLANS.pro) return PLANS.pro;
 		return null;
 	}
 
-	async execute(): Promise<GetPlansResponse> {
-		const plansRepository = this.container.plansRepository;
-		const dbPlans = await plansRepository.findAll();
-
-		// Stripeの有効Product/Priceを取得
-		const stripeProducts = await this.stripe.api.products.list({
-			active: true,
-			limit: 100,
-		});
-
-		// DB plans(plan_limits)を plan スラッグで引けるように
-		type DbPlan = (typeof dbPlans)[number];
-		const plansBySlug = new Map<DbPlan["slug"], DbPlan>(
-			dbPlans.map((p) => [p.slug as PlanId, p]),
-		);
-
-		const paidPlanDtos = [] as GetPlansResponse["plans"];
-		for (const product of stripeProducts.data) {
-			const stripeMeta =
-				(product.metadata as unknown as StripeProductMetadata) || {};
-			const planId = this.resolvePlanId(product.name, stripeMeta);
-			if (!planId) continue; // 想定外Productは除外
-
-			// 公開フラグ（metadata.public）が truthy のもののみ採用
-			const isPublic = parseBooleanish(stripeMeta.public);
-			if (!isPublic) continue;
-
-			// 該当ProductのPrice一覧
-			const prices = await this.stripe.api.prices.list({
-				product: product.id,
-				active: true,
-				limit: 100,
-			});
-			const monthly = prices.data.find(
-				(x) => x.recurring?.interval === "month",
-			);
-			const yearly = prices.data.find((x) => x.recurring?.interval === "year");
-
-			const dbPlan = plansBySlug.get(planId);
-			paidPlanDtos.push({
-				id: planId,
-				name: product.name || dbPlan?.name || planId,
-				description: product.description || dbPlan?.description || "",
-				monthlyPrice: monthly?.unit_amount ?? 0,
-				yearlyPrice: yearly?.unit_amount ?? 0,
-			});
-		}
-
-		// 2) Freeプラン（Stripeには存在しないためDB由来）
-		const freeDbPlan = plansBySlug.get(PLANS.free);
-		const freePlanDtos = freeDbPlan
-			? [
-					{
-						id: PLANS.free,
-						name: freeDbPlan?.name || "Free",
-						description: freeDbPlan?.description || "",
-						monthlyPrice: 0,
-						yearlyPrice: 0,
-					},
-				]
-			: [];
-
-		// 3) 並び順: Free -> Starter -> Pro（存在するもののみ）
-		const planOrder: Record<PlanId, number> = {
-			[PLANS.free]: 0,
-			[PLANS.starter]: 1,
-			[PLANS.pro]: 2,
-		};
-		const mergedPlans = [...freePlanDtos, ...paidPlanDtos].sort(
-			(a, b) => planOrder[a.id as PlanId] - planOrder[b.id as PlanId],
-		);
-
-		return { plans: mergedPlans };
+	// 並び順の解決（未設定は末尾へ）
+	private getSortOrderFromStripeMetadata(
+		metadata?: Record<string, string> | StripeProductMetadata,
+	): number {
+		const meta = (metadata || {}) as StripeProductMetadata;
+		const rawSortOrder = meta.sortOrder;
+		const parsed = Number.parseFloat(String(rawSortOrder ?? ""));
+		return Number.isFinite(parsed) ? parsed : 9999;
 	}
 }

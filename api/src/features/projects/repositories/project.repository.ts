@@ -6,24 +6,18 @@ export interface CreateProjectParams {
   name: string
   description?: string | null
   status?: string
-  tags?: unknown[]
   metadata?: Record<string, unknown>
   startDate?: Date | null
   endDate?: Date | null
-  priority?: number
-  progress?: number
 }
 
 export interface UpdateProjectParams {
   name?: string
   description?: string | null
   status?: string
-  tags?: unknown[]
   metadata?: Record<string, unknown>
   startDate?: Date | null
   endDate?: Date | null
-  priority?: number
-  progress?: number
 }
 
 export class ProjectRepository {
@@ -55,12 +49,9 @@ export class ProjectRepository {
         name: params.name,
         description: params.description,
         status: (params.status as 'active' | 'archived' | 'completed') || 'active',
-        tags: params.tags || [],
         metadata: params.metadata || {},
         startDate: params.startDate,
         endDate: params.endDate,
-        priority: params.priority || 0,
-        progress: params.progress || 0,
       })
       .returning()
 

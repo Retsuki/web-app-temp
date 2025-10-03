@@ -8,12 +8,9 @@ export const listProjectsResponseSchema = z.object({
       name: z.string(),
       description: z.string().nullable(),
       status: z.string(),
-      tags: z.array(z.unknown()),
       metadata: z.record(z.unknown()),
       startDate: z.string().nullable(),
       endDate: z.string().nullable(),
-      priority: z.number(),
-      progress: z.number(),
       createdAt: z.string(),
       updatedAt: z.string(),
     })
