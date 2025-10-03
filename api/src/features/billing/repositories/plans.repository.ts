@@ -1,48 +1,38 @@
-import type { Database } from '../../../drizzle/index.js'
-import { eq, plans } from '../../../drizzle/index.js'
-
-export interface PlanRowDto {
-  id: string
-  plan: 'free' | 'starter' | 'pro'
-  name?: string
-  description?: string
-  displayOrder: number
-  createdAt?: Date
-  updatedAt?: Date
-}
+import type { Database } from "../../../drizzle/index.js";
+import { eq, plans } from "../../../drizzle/index.js";
+import type { PlanId } from "../../../external-apis/stripe/stripe-client.js";
 
 export class PlansRepository {
-  constructor(private db: Database) {}
+	constructor(private db: Database) {}
 
-  async findAll(): Promise<PlanRowDto[]> {
-    const rows = await this.db.select().from(plans).orderBy(plans.displayOrder)
-    type PlanTable = typeof plans.$inferSelect
-    return rows.map((row: PlanTable) => ({
-      id: row.id,
-      plan: row.slug as 'free' | 'starter' | 'pro',
-      name: row.name || undefined,
-      description: row.description || undefined,
-      displayOrder: row.displayOrder,
-      createdAt: row.createdAt || undefined,
-      updatedAt: row.updatedAt || undefined,
-    }))
-  }
+	async getIdBySlug(slug: PlanId): Promise<string | null> {
+		const [row] = await this.db
+			.select({ id: plans.id })
+			.from(plans)
+			.where(eq(plans.slug, slug))
+			.limit(1);
+		return row?.id ?? null;
+	}
 
-  async findByPlan(plan: 'free' | 'starter' | 'pro'): Promise<PlanRowDto | null> {
-    const [result] = await this.db.select().from(plans).where(eq(plans.slug, plan)).limit(1)
+	async getSlugById(id: string): Promise<PlanId | null> {
+		const [row] = await this.db
+			.select({ slug: plans.slug })
+			.from(plans)
+			.where(eq(plans.id, id))
+			.limit(1);
+		return (row?.slug as PlanId | undefined) ?? null;
+	}
 
-    if (!result) {
-      return null
-    }
+	async findAll() {
+		return this.db.select().from(plans).orderBy(plans.displayOrder);
+	}
 
-    return {
-      id: result.id,
-      plan: result.slug as 'free' | 'starter' | 'pro',
-      name: result.name || undefined,
-      description: result.description || undefined,
-      displayOrder: result.displayOrder,
-      createdAt: result.createdAt || undefined,
-      updatedAt: result.updatedAt || undefined,
-    }
-  }
+	async findByPlan(plan: PlanId) {
+		const [row] = await this.db
+			.select()
+			.from(plans)
+			.where(eq(plans.slug, plan))
+			.limit(1);
+		return row ?? null;
+	}
 }

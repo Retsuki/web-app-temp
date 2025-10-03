@@ -52,10 +52,7 @@ export default async function AccountPage({ params }: PageLang) {
                 <dt className="text-sm font-medium text-gray-500">{dict.profile?.nickname || 'Nickname'}</dt>
                 <dd className="mt-1 text-sm text-gray-900">{p.nickname}</dd>
               </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">{dict.profile?.language || 'Language'}</dt>
-                <dd className="mt-1 text-sm text-gray-900">{p.language}</dd>
-              </div>
+              {/* Language is no longer part of UserProfile */}
               <div>
                 <dt className="text-sm font-medium text-gray-500">Created</dt>
                 <dd className="mt-1 text-sm text-gray-900">{new Date(p.createdAt).toLocaleString()}</dd>
@@ -67,7 +64,7 @@ export default async function AccountPage({ params }: PageLang) {
             </div>
 
             <div className="mt-8">
-              <LanguageSettings currentLanguage={p.language || 'ja'} dict={dict} />
+              <LanguageSettings currentLanguage={lang} dict={dict} />
             </div>
 
             <div className="mt-8">

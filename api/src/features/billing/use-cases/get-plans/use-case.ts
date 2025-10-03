@@ -1,7 +1,9 @@
 import {
+	PLANS,
 	type PlanId,
 	parseBooleanish,
 	type StripeClient,
+	type StripeProductMetadata,
 } from "../../../../external-apis/stripe/stripe-client.js";
 import type { BillingContainer } from "../../container.js";
 import type { GetPlansResponse } from "./dto.js";
@@ -14,7 +16,7 @@ export class GetPlansUseCase {
 
 	private resolvePlanId(
 		name?: string | null,
-		metadata?: Record<string, string>,
+		metadata?: Record<string, string> | StripeProductMetadata,
 	) {
 		const n = (name || "").toLowerCase();
 		const m = Object.fromEntries(
@@ -24,10 +26,10 @@ export class GetPlansUseCase {
 			]),
 		);
 		const metaPlan = m.planid;
-		if (metaPlan === "starter") return "starter";
-		if (metaPlan === "pro") return "pro";
-		if (n === "starter") return "starter";
-		if (n === "pro") return "pro";
+		if (metaPlan === PLANS.starter) return PLANS.starter;
+		if (metaPlan === PLANS.pro) return PLANS.pro;
+		if (n === PLANS.starter) return PLANS.starter;
+		if (n === PLANS.pro) return PLANS.pro;
 		return null;
 	}
 
@@ -43,18 +45,22 @@ export class GetPlansUseCase {
 
 		// DB plans(plan_limits)を plan スラッグで引けるように
 		type DbPlan = (typeof dbPlans)[number];
-		const plansBySlug = new Map<DbPlan["plan"], DbPlan>(
-			dbPlans.map((p) => [p.plan as PlanId, p]),
+		const plansBySlug = new Map<DbPlan["slug"], DbPlan>(
+			dbPlans.map((p) => [p.slug as PlanId, p]),
 		);
 
-		const paidPlanDtos: GetPlansResponse["plans"] = [];
+		const paidPlanDtos = [] as GetPlansResponse["plans"];
 		for (const product of stripeProducts.data) {
-			const planId = this.resolvePlanId(product.name, product.metadata);
-			if (!planId) continue;
+			const stripeMeta =
+				(product.metadata as unknown as StripeProductMetadata) || {};
+			const planId = this.resolvePlanId(product.name, stripeMeta);
+			if (!planId) continue; // 想定外Productは除外
 
-			const isPublic = parseBooleanish(product.metadata?.public);
+			// 公開フラグ（metadata.public）が truthy のもののみ採用
+			const isPublic = parseBooleanish(stripeMeta.public);
 			if (!isPublic) continue;
 
+			// 該当ProductのPrice一覧
 			const prices = await this.stripe.api.prices.list({
 				product: product.id,
 				active: true,
@@ -67,42 +73,38 @@ export class GetPlansUseCase {
 
 			const dbPlan = plansBySlug.get(planId);
 			paidPlanDtos.push({
-				id: planId as PlanId,
-				name: product.name || (dbPlan ? planId : planId),
-				description: product.description || "",
+				id: planId,
+				name: product.name || dbPlan?.name || planId,
+				description: product.description || dbPlan?.description || "",
 				monthlyPrice: monthly?.unit_amount ?? 0,
 				yearlyPrice: yearly?.unit_amount ?? 0,
 			});
 		}
 
-		// Freeプラン（Stripe上にはない）
-		const freeDb = plansBySlug.get("free");
-		const free: GetPlansResponse["plans"] = freeDb
+		// 2) Freeプラン（Stripeには存在しないためDB由来）
+		const freeDbPlan = plansBySlug.get(PLANS.free);
+		const freePlanDtos = freeDbPlan
 			? [
 					{
-						id: "free",
-						name: "Free",
-						description: "個人の趣味プロジェクトに最適",
+						id: PLANS.free,
+						name: freeDbPlan?.name || "Free",
+						description: freeDbPlan?.description || "",
 						monthlyPrice: 0,
 						yearlyPrice: 0,
 					},
 				]
-			: [
-					{
-						id: "free",
-						name: "Free",
-						description: "個人の趣味プロジェクトに最適",
-						monthlyPrice: 0,
-						yearlyPrice: 0,
-					},
-				];
+			: [];
 
-		// 並び順: Free -> Starter -> Pro
-		const order: Record<PlanId, number> = { free: 0, starter: 1, pro: 2 };
-		const plans = [...free, ...paidPlanDtos].sort(
-			(a, b) => order[a.id as PlanId] - order[b.id as PlanId],
+		// 3) 並び順: Free -> Starter -> Pro（存在するもののみ）
+		const planOrder: Record<PlanId, number> = {
+			[PLANS.free]: 0,
+			[PLANS.starter]: 1,
+			[PLANS.pro]: 2,
+		};
+		const mergedPlans = [...freePlanDtos, ...paidPlanDtos].sort(
+			(a, b) => planOrder[a.id as PlanId] - planOrder[b.id as PlanId],
 		);
 
-		return { plans };
+		return { plans: mergedPlans };
 	}
 }

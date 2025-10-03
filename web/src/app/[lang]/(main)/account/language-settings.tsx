@@ -3,7 +3,6 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import type { Dictionary } from '@/features/i18n'
-import { createClient } from '@/lib/supabase/client'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 type Props = {
@@ -21,25 +20,8 @@ export default function LanguageSettings({ currentLanguage, dict }: Props) {
     if (!nextLang || nextLang === value) return
     setValue(nextLang)
 
-    try {
-      // Update profile.language via API proxy
-      const supabase = createClient()
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      const token = session?.access_token
-
-      await fetch('/api/proxy/api/v1/users/me', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ language: nextLang }),
-      })
-    } catch {
-      // ignore, still navigate to reflect UI language
-    }
+    // Persisting language to profile has been removed from API.
+    // Only update the URL segment and refresh the UI language.
 
     // Replace first path segment ([lang]) and navigate
     startTransition(() => {

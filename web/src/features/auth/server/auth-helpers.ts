@@ -46,10 +46,12 @@ export async function createUserProfileAndProject(
  */
 export async function getUserLanguage(defaultLang = 'ja'): Promise<string> {
   try {
-    const result = await getApiV1UsersMeServer()
-    return result?.data?.language || defaultLang
+    // Language is no longer part of the UserProfile API response.
+    // Keep returning the default until a new source of truth is introduced.
+    await getApiV1UsersMeServer()
+    return defaultLang
   } catch (error) {
-    console.error('Failed to fetch user profile language:', error)
+    console.error('Failed to fetch user profile:', error)
     return defaultLang
   }
 }
