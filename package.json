@@ -1,50 +1,54 @@
 {
-  "name": "web_app_temp",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "prepare": "lefthook install",
-    "dev": "concurrently \"npm --prefix api run dev\" \"npm --prefix web run dev\"",
-    "idea": "npm --prefix .ideas run idea",
-    "lint": "biome lint .",
-    "format": "biome format --write .",
-    "typecheck": "npm --prefix api run typecheck && npm --prefix web run typecheck",
-    "gen:api": "curl -X GET http://localhost:8080/api/v1/doc | tee ./web/openapi.json && npm --prefix web run gen:api",
-    "db:build": "npm --prefix api run db:build",
-    "db:generate": "npm --prefix api run db:generate",
-    "db:push": "npm --prefix api run db:push",
-    "db:migrate": "npm --prefix api run db:migrate",
-    "db:check": "npm --prefix api run db:check",
-    "db:seed": "npm --prefix api run db:seed",
-    "supabase:start": "supabase start",
-    "supabase:stop": "supabase stop --project-id web_app_temp",
-    "supabase:db:reset": "supabase db reset",
-    "pulumi:init": "cd pulumi && npm install",
-    "pulumi:dev": "cd pulumi && pulumi stack select dev && pulumi up",
-    "pulumi:prod": "cd pulumi && pulumi stack select prod && pulumi up",
-    "pulumi:preview:dev": "cd pulumi && pulumi stack select dev && pulumi preview",
-    "pulumi:preview:prod": "cd pulumi && pulumi stack select prod && pulumi preview",
-    "pulumi:destroy:dev": "cd pulumi && pulumi stack select dev && pulumi destroy",
-    "pulumi:destroy:prod": "cd pulumi && pulumi stack select prod && pulumi destroy",
-    "pulumi:typecheck": "cd pulumi && npm run typecheck",
-    "pulumi:lint": "cd pulumi && npm run lint",
-    "pulumi:check": "cd pulumi && npm run check"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Retsuki/web-app-temp.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Retsuki/web-app-temp/issues"
-  },
-  "homepage": "https://github.com/Retsuki/web-app-temp#readme",
-  "description": "",
-  "devDependencies": {
-    "lefthook": "^1.10.10",
-    "@biomejs/biome": "^2.0.5",
-    "concurrently": "^9.2.0"
-  }
+	"name": "web_app_temp",
+	"version": "1.0.0",
+	"main": "index.js",
+	"scripts": {
+		"prepare": "lefthook install",
+		"dev": "concurrently \"npm --prefix api run dev\" \"npm --prefix web run dev\"",
+		"idea": "npm --prefix .ideas run idea",
+		"lint": "biome lint .",
+		"format": "biome format --write .",
+		"typecheck": "npm --prefix api run typecheck && npm --prefix web run typecheck",
+		"gen:api": "curl -X GET http://localhost:8080/api/v1/doc | tee ./web/openapi.json && npm --prefix web run gen:api",
+		"db:build": "npm --prefix api run db:build",
+		"db:generate": "npm --prefix api run db:generate",
+		"db:push": "npm --prefix api run db:push",
+		"db:migrate": "npm --prefix api run db:migrate",
+		"db:check": "npm --prefix api run db:check",
+		"db:seed": "npm --prefix api run db:seed",
+		"supabase:start": "supabase start",
+		"supabase:stop": "supabase stop --project-id web_app_temp",
+		"supabase:db:reset": "supabase db reset",
+		"pulumi:init": "cd pulumi && npm install",
+		"pulumi:dev": "cd pulumi && pulumi stack select dev && pulumi up",
+		"pulumi:prod": "cd pulumi && pulumi stack select prod && pulumi up",
+		"pulumi:preview:dev": "cd pulumi && pulumi stack select dev && pulumi preview",
+		"pulumi:preview:prod": "cd pulumi && pulumi stack select prod && pulumi preview",
+		"pulumi:destroy:dev": "cd pulumi && pulumi stack select dev && pulumi destroy",
+		"pulumi:destroy:prod": "cd pulumi && pulumi stack select prod && pulumi destroy",
+		"pulumi:typecheck": "cd pulumi && npm run typecheck",
+		"pulumi:lint": "cd pulumi && npm run lint",
+		"pulumi:check": "cd pulumi && npm run check",
+		"secrets:web:upload": "bash scripts/env/upload-web-env.sh",
+		"secrets:api:upload": "bash scripts/env/upload-api-env.sh",
+		"secrets:upload:all": "npm run secrets:api:upload && npm run secrets:web:upload",
+		"deploy:stripe-gateway": "bash scripts/gcp/deploy-stripe-gateway.sh"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Retsuki/web-app-temp.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Retsuki/web-app-temp/issues"
+	},
+	"homepage": "https://github.com/Retsuki/web-app-temp#readme",
+	"description": "",
+	"devDependencies": {
+		"lefthook": "^1.10.10",
+		"@biomejs/biome": "^2.0.5",
+		"concurrently": "^9.2.0"
+	}
 }

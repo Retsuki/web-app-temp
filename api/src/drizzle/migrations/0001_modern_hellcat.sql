@@ -1,1 +1,0 @@
-DROP TABLE "om_projects" CASCADE;

@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1758238828625,
-      "tag": "0000_windy_blink",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1758240324551,
-      "tag": "0001_modern_hellcat",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1758245540307,
-      "tag": "0002_ordinary_warpath",
+      "when": 1759526275321,
+      "tag": "0000_condemned_goblin_queen",
       "breakpoints": true
     }
   ]
