@@ -1,11 +1,51 @@
 import { AppHTTPException, ERROR_CODES } from '../../../../_shared/utils/error/index.js'
-import { getStripePriceId, isUpgrade, type PlanId } from '../../../../constants/plans.js'
 import { stripe } from '../../../../lib/stripe.js'
 import type { SubscriptionRepository } from '../../repositories/subscription.repository.js'
 import type { UpdateSubscriptionDto, UpdateSubscriptionResponse } from './dto.js'
+import type { BillingCycle, StripeClient } from '../../../../external-apis/stripe/stripe-client.js'
 
 export class UpdateSubscriptionUseCase {
-  constructor(private subscriptionRepository: SubscriptionRepository) {}
+  constructor(
+    private subscriptionRepository: SubscriptionRepository,
+    private stripeClient: StripeClient,
+  ) {}
+
+  private isUpgrade(currentPlan: 'free' | 'starter' | 'pro', newPlan: 'starter' | 'pro') {
+    const order: Array<'free' | 'starter' | 'pro'> = ['free', 'starter', 'pro']
+    return order.indexOf(newPlan) > order.indexOf(currentPlan)
+  }
+
+  private async resolveStripePriceId(planId: 'starter' | 'pro', billingCycle: BillingCycle) {
+    const products = await this.stripeClient.api.products.list({ active: true, limit: 100 })
+    const normalize = (v?: string | null) => (v || '').toLowerCase()
+    const target = products.data.find((p) => {
+      const meta = (p.metadata as any) || {}
+      const metaPlan = normalize(meta.planId)
+      const byMeta = (planId === 'starter' && metaPlan === 'starter') || (planId === 'pro' && metaPlan === 'pro')
+      const byName =
+        (planId === 'starter' && ['starter'].includes(normalize(p.name))) ||
+        (planId === 'pro' && ['pro'].includes(normalize(p.name)))
+      return byMeta || byName
+    })
+
+    if (!target) {
+      throw new AppHTTPException(400, {
+        code: ERROR_CODES.INVALID_REQUEST,
+        message: `Stripe上に対象プラン(${planId})のProductが見つかりません`,
+      })
+    }
+
+    const prices = await this.stripeClient.api.prices.list({ product: target.id, active: true, limit: 100 })
+    const price = prices.data.find((pr) => pr.recurring?.interval === (billingCycle === 'monthly' ? 'month' : 'year'))
+
+    if (!price?.id) {
+      throw new AppHTTPException(400, {
+        code: ERROR_CODES.INVALID_REQUEST,
+        message: `Stripe上に対象プラン(${planId})の${billingCycle}価格が見つかりません`,
+      })
+    }
+    return price.id
+  }
 
   async execute(userId: string, dto: UpdateSubscriptionDto): Promise<UpdateSubscriptionResponse> {
     // 1. 現在のサブスクリプションを取得
@@ -18,13 +58,7 @@ export class UpdateSubscriptionUseCase {
     }
 
     // 2. 新しいPrice IDを取得
-    const newPriceId = getStripePriceId(dto.planId, dto.billingCycle)
-    if (!newPriceId) {
-      throw new AppHTTPException(400, {
-        code: ERROR_CODES.INVALID_REQUEST,
-        message: '無効なプランまたは請求サイクルです',
-      })
-    }
+    const newPriceId = await this.resolveStripePriceId(dto.planId, dto.billingCycle as BillingCycle)
 
     // 3. 同じプランへの変更はエラー
     if (
@@ -43,7 +77,10 @@ export class UpdateSubscriptionUseCase {
     )
 
     // アップグレードかダウングレードかを判定
-    const isUpgradeRequest = isUpgrade(currentSubscription.plan as PlanId, dto.planId)
+    const isUpgradeRequest = this.isUpgrade(
+      currentSubscription.plan as 'free' | 'starter' | 'pro',
+      dto.planId,
+    )
 
     // 更新を実行
     const updatedSubscription = await stripe.subscriptions.update(stripeSubscription.id, {

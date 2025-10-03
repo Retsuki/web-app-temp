@@ -1,7 +1,7 @@
 import type Stripe from 'stripe'
 import type { App } from '../../_shared/factory/index.js'
 import { logger } from '../../_shared/utils/logger.js'
-import { STRIPE_CONFIG, stripe } from '../../lib/stripe.js'
+import { getStripeClient } from '../../external-apis/stripe/stripe-client.js'
 import { stripeWebhookRoute } from './route.js'
 import { WebhookHandlers } from './webhook-handlers.js'
 
@@ -18,7 +18,8 @@ export const stripeWebhookApi = (app: App) => {
 
     let event: Stripe.Event
     try {
-      event = stripe.webhooks.constructEvent(body, signature, STRIPE_CONFIG.webhookSecret)
+      const stripeClient = getStripeClient()
+      event = stripeClient.constructEvent(body, signature)
     } catch (err) {
       logger.error({ err }, 'Webhook signature verification failed')
       return c.json({ error: 'Invalid signature' }, 400)

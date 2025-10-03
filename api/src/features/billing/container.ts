@@ -10,6 +10,7 @@ import { GetPaymentHistoryUseCase } from './use-cases/get-payment-history/use-ca
 import { GetPlansUseCase } from './use-cases/get-plans/use-case.js'
 import { GetSubscriptionUseCase } from './use-cases/get-subscription/use-case.js'
 import { UpdateSubscriptionUseCase } from './use-cases/update-subscription/use-case.js'
+import { getStripeClient } from '../../external-apis/stripe/stripe-client.js'
 
 export class BillingContainer {
   // Repositories
@@ -33,21 +34,26 @@ export class BillingContainer {
     this.plansRepository = new PlansRepository(db)
     this.billingCustomerRepository = new BillingCustomerRepository(db)
     const userRepository = new UserRepository(db)
+    const stripeClient = getStripeClient()
 
     // Initialize use cases
     this.createCheckoutUseCase = new CreateCheckoutUseCase(
       userRepository,
       this.subscriptionRepository,
       this.billingCustomerRepository,
+      stripeClient,
     )
 
-    this.getPlansUseCase = new GetPlansUseCase(this)
+    this.getPlansUseCase = new GetPlansUseCase(this, stripeClient)
 
     this.getSubscriptionUseCase = new GetSubscriptionUseCase(this.subscriptionRepository)
 
     this.getPaymentHistoryUseCase = new GetPaymentHistoryUseCase(this.paymentRepository)
 
-    this.updateSubscriptionUseCase = new UpdateSubscriptionUseCase(this.subscriptionRepository)
+    this.updateSubscriptionUseCase = new UpdateSubscriptionUseCase(
+      this.subscriptionRepository,
+      stripeClient,
+    )
 
     this.cancelSubscriptionUseCase = new CancelSubscriptionUseCase(this.subscriptionRepository)
   }

@@ -88,26 +88,32 @@
 
 ### 🚀 全体コマンド
 ```bash
-# ルートディレクトリで
-npm run dev         # API + Web を一括起動（デフォルトポート: Web=3000, API=8080）
-npm run dev:all     # Supabase + API + Web を一括起動
-npm run dev:api     # APIサーバーのみ起動
-npm run dev:web     # Webアプリのみ起動
-npm run lint        # Biomeでリント
-npm run format      # Biomeでフォーマット
-npm run check       # Biomeでチェック
-npm run check:apply # Biomeでチェックと修正
+# ルート（ワークスペース統括）
+npm run dev                    # API + Web を同時起動（Web=3000, API=8080）
+npm run lint                   # Biome lint（リポジトリ全体）
+npm run format                 # Biome format --write（リポジトリ全体）
+npm run typecheck              # web と api の型チェックを順次実行
 
-# APIスキーマ生成
-npm run gen:api     # OpenAPIスキーマからTypeScript型定義を生成
+# OpenAPI → クライアント生成（API 起動中が前提）
+npm run gen:api                # web/openapi.json を更新し orval で生成
 
-# Supabase
-npm run supabase:start # Supabaseローカル起動
-npm run supabase:stop  # Supabaseローカル停止
+# DB（Drizzle, api へプロキシ）
+npm run db:generate            # マイグレーション生成
+npm run db:push                # スキーマ適用
+npm run db:migrate             # 既存マイグレーション実行
+npm run db:seed                # シード投入
+npm run db:check               # Drizzle 定義の検証
 
-# セットアップ・デプロイ
-npm run setup       # 初期プロジェクトセットアップ
-npm run setup:gcp   # Google Cloud Platform セットアップ
+# Supabase（ローカル）
+npm run supabase:start         # 起動
+npm run supabase:stop          # 停止（プロジェクトID固定）
+npm run supabase:db:reset      # DB リセット
+
+# Pulumi（IaC）
+npm run pulumi:preview:dev     # dev のプレビュー
+npm run pulumi:preview:prod    # prod のプレビュー
+npm run pulumi:dev             # dev に適用（up）
+npm run pulumi:prod            # prod に適用（up）
 ```
 
 ### 💻 Frontend
@@ -119,10 +125,11 @@ npm run start       # プロダクションサーバー起動
 npm run lint        # Biomeリントチェック
 npm run lint:fix    # Biome自動修正
 npm run format      # Biomeフォーマット
-npm run check       # Biomeチェック
-npm run check:apply # Biomeチェックと修正
+npm run check       # Biomeチェック（非破壊）
+npm run check:apply # Biomeチェック + 自動修正
 npm run orval       # OpenAPIからクライアント生成
 npm run gen:api     # orval のエイリアス
+npm run typecheck   # 型チェック
 ```
 
 ### ⚙️ Backend
@@ -131,16 +138,21 @@ cd api
 npm run dev         # 開発サーバー起動 (http://localhost:8080)
 npm run build       # TypeScriptビルド
 npm run start       # プロダクションサーバー起動
+npm run lint        # Biomeリント
+npm run format      # Biomeフォーマット
+npm run typecheck   # 型チェック
 npm run db:generate # Drizzleマイグレーション生成
 npm run db:push     # データベースへマイグレーション適用
+npm run db:migrate  # 既存マイグレーション実行
+npm run db:check    # Drizzle 定義の検証
 npm run db:seed     # シードデータ投入
 ```
 
 ### 🗄️ Supabase Local
 ```bash
-supabase start      # ローカルSupabase起動
-supabase stop       # ローカルSupabase停止
-supabase status     # 状態確認
+npm run supabase:start      # ローカル Supabase 起動
+npm run supabase:stop       # ローカル Supabase 停止
+npm run supabase:db:reset   # DB リセット
 ```
 
 ## Architecture
@@ -218,9 +230,11 @@ web_app_temp/
 │   │   │   │   └── /seed/         # シードデータ
 │   │   │   └── /migrations/       # マイグレーションファイル
 │   │   ├── /features/              # 機能別モジュール
+│   │   │   ├── /auth/              # 認証（初期セットアップ等）
 │   │   │   ├── /billing/           # 請求・サブスクリプション管理
 │   │   │   ├── /stripe-webhook/    # Stripe Webhookハンドラー
 │   │   │   ├── /users/             # ユーザー管理
+│   │   │   ├── /projects/          # プロジェクト管理
 │   │   │   └── /health/            # ヘルスチェック
 │   │   ├── /lib/                   # 外部ライブラリ設定
 │   │   │   └── stripe.ts          # Stripeクライアント設定
@@ -229,23 +243,17 @@ web_app_temp/
 │   │   └── index.ts               # APIサーバーエントリポイント
 │   └── drizzle.config.ts          # Drizzle設定
 │
-├── /supabase/                      # Supabase設定
-│   ├── config.toml                 # Supabase設定ファイル
-│   └── seed.sql                    # 初期シードSQL
+├── /supabase/                      # Supabase（ローカル）設定
+│   └── config.toml                 # Supabase CLI 設定
 │
-├── /scripts/                       # デプロイ・セットアップスクリプト
-│   ├── /api/                       # APIデプロイスクリプト
-│   ├── /web/                       # Webデプロイスクリプト
-│   ├── /gcp/                       # GCPセットアップ
-│   ├── setup.sh                    # 初期セットアップ
-│   └── env-switch.sh              # 環境切り替え
+├── /pulumi/                        # インフラ（IaC）
+│   └── ...                         # dev/prod スタック等
 │
-├── /ideas/                         # アイデア管理ディレクトリ
-│   └── /ideas/                     # 各種プロジェクトアイデア
-│
+├── /.docs/                         # ドキュメント
+├── /.vscode/                       # エディタ設定
+├── /.ideas/                        # アイデア・メモ
 ├── biome.json                      # Biome設定
 ├── package.json                    # ルートパッケージ
-├── .env.example                    # 環境変数テンプレート
 └── .gitignore                      # Git除外設定
 ```
 
@@ -307,6 +315,10 @@ web_app_temp/
 
 ### Environment Variables
 ```bash
+# 配置場所
+# - web/.env.local         # フロント（NEXT_PUBLIC_* など）
+# - api/.env               # API（サーバー機密）
+# - /etc/secrets/.env      # 本番で自動読込（api）
 # 開発環境用ポート設定（オプション）
 # DEV_WEB_PORT=3001  # デフォルト: 3000
 # DEV_API_PORT=8081  # デフォルト: 8080
@@ -350,6 +362,7 @@ SITE_URL=https://web-PROJECT_ID.run.app
 
 ### Import Aliases
 - `@/*` - `/web/src/*` のエイリアス
+- `@/i18n` - `/web/i18n` のエイリアス
 
 ### Authentication Providers
 APIは複数の認証プロバイダーに対応：
@@ -623,29 +636,27 @@ gcloud api-gateway api-configs create stripe-webhook-config \
 ### 🚀 Quick Start
 ```bash
 # 1. 環境変数設定
-cp .env.example .env
-# .envファイルを編集してSupabaseとGoogle OAuthの認証情報を設定
+# - web/.env.local に NEXT_PUBLIC_* を設定
+# - api/.env に DATABASE_URL / Stripe / Google OAuth 等を設定
 
 # 2. 依存関係インストール
-npm install
-cd web && npm install
-cd ../api && npm install
+npm install               # ルート（スクリプト/フック用）
+cd web && npm install     # Web
+cd ../api && npm install  # API
 cd ..
 
-# 3. Supabase起動（初回のみ）
+# 3. Supabase 起動（初回のみ）
 npm run supabase:start
 
-# 4. データベースセットアップ
-cd api
-npm run db:push  # スキーマ適用
-npm run db:seed  # シードデータ投入
-cd ..
+# 4. データベースセットアップ（Drizzle）
+npm run db:push   # スキーマ適用
+npm run db:seed   # シードデータ投入
 
 # 5. 開発環境起動
-npm run dev  # API, Webを一括起動
+npm run dev       # API と Web を同時起動
 
-# または全サービス起動（Supabaseも含む）
-npm run dev:all
+# 6. API クライアント生成（API 起動後）
+npm run gen:api
 ```
 
 ### ポート設定
@@ -685,14 +696,14 @@ npm run dev  # 設定したポートで起動
 - 54323: Supabase Auth
 
 ### Testing Workflow
-1. **Lint & Format**: `npm run check:apply`
-2. **Type Check**: フロントエンド/APIそれぞれで `npm run build`
-3. **API Integration**: `npm run api:schema` で最新の型定義を取得
+1. **Lint & Format**: `npm run format && npm run lint`
+2. **Type Check**: `npm run typecheck`（または各パッケージで `npm run typecheck`）
+3. **API Integration**: `npm run gen:api` で最新の型定義とクライアント生成
 
 ### Code Quality Rules
-- **IMPORTANT**: コードの変更や追加を行った後は必ず `npm run lint` または `npm run check:apply` を実行してコード品質を保つこと
-- Biomeによる自動フォーマットとリントチェックを活用する
-- コミット前にも必ずlintを実行する
+- **IMPORTANT**: 変更後は `npm run format` と `npm run lint` を実行してコード品質を維持
+- Biome による自動フォーマット/リントを活用（各パッケージでも同名スクリプトあり）
+- pre-commit フックで `web` と `api` の型チェックを実行（`.lefthook.yml`）
 
 ## Future Enhancements
 - メール通知システム（SendGrid/Resend連携）

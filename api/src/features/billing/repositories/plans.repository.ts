@@ -3,7 +3,7 @@ import { eq, planLimits } from '../../../drizzle/index.js'
 
 export interface PlanLimit {
   id: string
-  plan: 'free' | 'indie' | 'pro'
+  plan: 'free' | 'starter' | 'pro'
   projectsLimit: number
   monthlyUsageLimit: number
   membersPerProjectLimit: number
@@ -26,7 +26,7 @@ export class PlansRepository {
     type PlanRow = typeof planLimits.$inferSelect
     return plans.map((plan: PlanRow) => ({
       id: plan.id,
-      plan: plan.plan as 'free' | 'indie' | 'pro',
+      plan: plan.plan as 'free' | 'starter' | 'pro',
       projectsLimit: plan.projectsLimit,
       monthlyUsageLimit: plan.monthlyUsageLimit,
       membersPerProjectLimit: plan.membersPerProjectLimit,
@@ -39,7 +39,7 @@ export class PlansRepository {
     }))
   }
 
-  async findByPlan(plan: 'free' | 'indie' | 'pro'): Promise<PlanLimit | null> {
+  async findByPlan(plan: 'free' | 'starter' | 'pro'): Promise<PlanLimit | null> {
     const [result] = await this.db.select().from(planLimits).where(eq(planLimits.plan, plan)).limit(1)
 
     if (!result) {
@@ -48,7 +48,7 @@ export class PlansRepository {
 
     return {
       id: result.id,
-      plan: result.plan as 'free' | 'indie' | 'pro',
+      plan: result.plan as 'free' | 'starter' | 'pro',
       projectsLimit: result.projectsLimit,
       monthlyUsageLimit: result.monthlyUsageLimit,
       membersPerProjectLimit: result.membersPerProjectLimit,

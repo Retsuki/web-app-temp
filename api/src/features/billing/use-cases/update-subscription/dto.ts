@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const updateSubscriptionSchema = z.object({
-  planId: z.enum(['indie', 'pro']),
+  planId: z.enum(['starter', 'pro']),
   billingCycle: z.enum(['monthly', 'yearly']),
 })
 

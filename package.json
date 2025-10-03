@@ -5,6 +5,7 @@
   "scripts": {
     "prepare": "lefthook install",
     "dev": "concurrently \"npm --prefix api run dev\" \"npm --prefix web run dev\"",
+    "idea": "npm --prefix .ideas run idea",
     "lint": "biome lint .",
     "format": "biome format --write .",
     "typecheck": "npm --prefix api run typecheck && npm --prefix web run typecheck",

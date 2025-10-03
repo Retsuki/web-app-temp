@@ -28,7 +28,7 @@ export class WebhookHandlers {
 
     const metadata = subscription.metadata
     const userId = metadata.userId
-    const planId = metadata.planId as 'indie' | 'pro'
+    const planId = metadata.planId as 'starter' | 'pro'
     const billingCycle = metadata.billingCycle as 'monthly' | 'yearly'
 
     // Insert subscription record

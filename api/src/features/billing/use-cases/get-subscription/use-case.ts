@@ -13,7 +13,7 @@ export class GetSubscriptionUseCase {
 
     return {
       subscriptionId: subscription.id,
-      plan: subscription.plan as 'free' | 'indie' | 'pro',
+      plan: subscription.plan as 'free' | 'starter' | 'pro',
       status: subscription.status as 'active' | 'canceled' | 'past_due' | 'unpaid' | 'incomplete',
       billingCycle: subscription.billingCycle as 'monthly' | 'yearly',
       currentPeriodStart: subscription.currentPeriodStart.toISOString(),

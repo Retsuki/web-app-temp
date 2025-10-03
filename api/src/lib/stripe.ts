@@ -30,14 +30,14 @@ export const STRIPE_CONFIG = {
     return process.env.STRIPE_WEBHOOK_SECRET || ''
   },
 
-  // Price IDs
+  // Price IDs (not used; kept for compatibility)
   priceIds: {
-    indie: {
+    starter: {
       get monthly() {
-        return process.env.STRIPE_PRICE_ID_INDIE_MONTHLY || ''
+        return process.env.STRIPE_PRICE_ID_STARTER_MONTHLY || ''
       },
       get yearly() {
-        return process.env.STRIPE_PRICE_ID_INDIE_YEARLY || ''
+        return process.env.STRIPE_PRICE_ID_STARTER_YEARLY || ''
       },
     },
     pro: {
@@ -54,11 +54,13 @@ export const STRIPE_CONFIG = {
   urls: {
     get success() {
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-      return `${siteUrl}/{locale}/billing/success?session_id={CHECKOUT_SESSION_ID}`
+      // zubora準拠: 成功時は設定アカウント画面へ
+      return `${siteUrl}/{locale}/settings/account?session_id={CHECKOUT_SESSION_ID}`
     },
     get cancel() {
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-      return `${siteUrl}/{locale}/billing/cancel`
+      // zubora準拠: キャンセルは設定トップへ
+      return `${siteUrl}/{locale}/settings`
     },
     get portal() {
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'

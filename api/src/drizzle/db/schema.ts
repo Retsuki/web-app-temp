@@ -1,15 +1,30 @@
 import { relations, sql } from 'drizzle-orm'
-import { index, integer, jsonb, pgEnum, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
+import { boolean, index, integer, jsonb, pgEnum, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
 
 export const PLAN = {
   FREE: 'free',
-  INDIE: 'indie',
+  STARTER: 'starter',
   PRO: 'pro',
 } as const
 
 // Enums定義（PLANを唯一のソースに統一）
 export type Plan = (typeof PLAN)[keyof typeof PLAN]
 export const planEnum = pgEnum('plan', Object.values(PLAN) as [Plan, ...Plan[]])
+
+// プラン（lookup テーブル）
+export const plans = pgTable('plans', {
+  id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+  // 'free' | 'starter' | 'pro' | ...
+  slug: varchar('slug', { length: 50 }).notNull().unique(),
+  name: varchar('name', { length: 100 }).notNull(),
+  description: text('description'),
+  // マーケ用の表示情報や含まれる機能ラベル等の柔軟な格納先
+  metadata: jsonb('metadata').notNull().default(sql`'{}'::jsonb`),
+  isActive: boolean('is_active').default(true).notNull(),
+  displayOrder: integer('display_order').default(0).notNull(),
+  createdAt: timestamp('created_at').default(sql`now()`).notNull(),
+  updatedAt: timestamp('updated_at').default(sql`now()`).notNull(),
+})
 
 // ユーザープロフィールテーブル
 export const profiles = pgTable('profiles', {
@@ -98,6 +113,8 @@ export const subscriptions = pgTable(
 
     // プラン情報
     plan: planEnum('plan').notNull(),
+    // 正規化先のプラン参照（移行期間はNULL許容）
+    planId: uuid('plan_id').references(() => plans.id),
     status: varchar('status', { length: 50 }).notNull(), // active, past_due, canceled, unpaid
     billingCycle: varchar('billing_cycle', { length: 20 }).notNull(), // monthly, yearly
 
@@ -123,6 +140,7 @@ export const subscriptions = pgTable(
       userIdIdx: index('subscriptions_user_id_idx').on(table.userId),
       statusIdx: index('subscriptions_status_idx').on(table.status),
       planIdx: index('subscriptions_plan_idx').on(table.plan),
+      planIdIdx: index('subscriptions_plan_id_idx').on(table.planId),
     }
   },
 )
@@ -242,6 +260,8 @@ export const planLimits = pgTable('plan_limits', {
 
   // プラン名
   plan: planEnum('plan').notNull().unique(),
+  // 正規化先のプラン参照（移行期間はNULL許容）
+  planId: uuid('plan_id').references(() => plans.id),
 
   // 制限値
   monthlyUsageLimit: integer('monthly_usage_limit').notNull(), // 月間使用回数上限
@@ -274,6 +294,10 @@ export const subscriptionsRelations = relations(subscriptions, ({ one, many }) =
     references: [profiles.userId],
   }),
   paymentHistory: many(paymentHistory),
+  plan: one(plans, {
+    fields: [subscriptions.planId],
+    references: [plans.id],
+  }),
 }))
 
 export const paymentHistoryRelations = relations(paymentHistory, ({ one }) => ({
@@ -299,4 +323,16 @@ export const billingCustomersRelations = relations(billingCustomers, ({ one }) =
     fields: [billingCustomers.userId],
     references: [profiles.userId],
   }),
+}))
+
+export const planLimitsRelations = relations(planLimits, ({ one }) => ({
+  plan: one(plans, {
+    fields: [planLimits.planId],
+    references: [plans.id],
+  }),
+}))
+
+export const plansRelations = relations(plans, ({ many }) => ({
+  planLimits: many(planLimits),
+  subscriptions: many(subscriptions),
 }))

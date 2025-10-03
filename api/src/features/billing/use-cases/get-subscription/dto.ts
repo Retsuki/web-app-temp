@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const subscriptionSchema = z.object({
   subscriptionId: z.string(),
-  plan: z.enum(['free', 'indie', 'pro']),
+  plan: z.enum(['free', 'starter', 'pro']),
   status: z.enum(['active', 'canceled', 'past_due', 'unpaid', 'incomplete']),
   billingCycle: z.enum(['monthly', 'yearly']),
   currentPeriodStart: z.string().datetime(),

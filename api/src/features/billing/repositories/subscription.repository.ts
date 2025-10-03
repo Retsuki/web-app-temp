@@ -31,7 +31,7 @@ export class SubscriptionRepository {
       .insert(subscriptions)
       .values({
         ...data,
-        plan: data.plan as 'free' | 'indie' | 'pro',
+        plan: data.plan as 'free' | 'starter' | 'pro',
         // sample_subscriptions は status/billingCycle に厳密な Enum 型制限なし
         status: data.status,
         billingCycle: data.billingCycle,
