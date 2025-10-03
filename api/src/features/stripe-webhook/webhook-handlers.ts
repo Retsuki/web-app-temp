@@ -1,6 +1,6 @@
 import type Stripe from 'stripe'
 import { logger } from '../../_shared/utils/logger.js'
-import { type Database, eq, paymentHistory, profiles, subscriptions, webhookEvents } from '../../drizzle/index.js'
+import { type Database, eq, paymentHistory, profiles, subscriptions, webhookEvents, plans, billingCustomers } from '../../drizzle/index.js'
 
 export class WebhookHandlers {
   constructor(private db: Database) {}
@@ -28,8 +28,12 @@ export class WebhookHandlers {
 
     const metadata = subscription.metadata
     const userId = metadata.userId
-    const planId = metadata.planId as 'starter' | 'pro'
+    const planSlug = metadata.planId as 'starter' | 'pro'
     const billingCycle = metadata.billingCycle as 'monthly' | 'yearly'
+
+    // Resolve plan row from slug
+    const [planRow] = await this.db.select().from(plans).where(eq(plans.slug, planSlug)).limit(1)
+    const planId = planRow?.id as string
 
     // Insert subscription record
     await this.db.insert(subscriptions).values({
@@ -37,14 +41,18 @@ export class WebhookHandlers {
       stripeSubscriptionId: subscription.id,
       stripePriceId: subscription.items.data[0].price.id,
       stripeProductId: subscription.items.data[0].price.product as string,
-      plan: planId,
+      planId,
       status: this.mapStripeStatus(subscription.status),
       billingCycle,
       currentPeriodStart: new Date(subscription.items.data[0].current_period_start * 1000),
       currentPeriodEnd: new Date(subscription.items.data[0].current_period_end * 1000),
     })
 
-    // profiles にプランカラムはないため更新不要
+    // billing_customers に現在の有効プランを反映
+    await this.db
+      .update(billingCustomers)
+      .set({ planId, updatedAt: new Date() })
+      .where(eq(billingCustomers.userId, userId))
   }
 
   async handleSubscriptionUpdated(subscription: Stripe.Subscription) {
@@ -115,8 +123,14 @@ export class WebhookHandlers {
 
     // Get user ID from subscription
     const [sub] = await this.db
-      .select()
+      .select({
+        id: subscriptions.id,
+        userId: subscriptions.userId,
+        billingCycle: subscriptions.billingCycle,
+        planSlug: plans.slug,
+      })
       .from(subscriptions)
+      .leftJoin(plans, eq(subscriptions.planId, plans.id))
       .where(eq(subscriptions.stripeSubscriptionId, subscriptionId))
       .limit(1)
 
@@ -138,7 +152,7 @@ export class WebhookHandlers {
       amount: invoice.amount_paid,
       currency: invoice.currency,
       status: 'paid' as const,
-      description: `${sub.plan} plan - ${sub.billingCycle} billing`,
+      description: `${sub.planSlug} plan - ${sub.billingCycle} billing`,
       periodStart: new Date(invoice.period_start * 1000),
       periodEnd: new Date(invoice.period_end * 1000),
       paidAt: new Date(),
@@ -182,8 +196,13 @@ export class WebhookHandlers {
 
     // Record failed payment
     const [sub] = await this.db
-      .select()
+      .select({
+        id: subscriptions.id,
+        userId: subscriptions.userId,
+        planSlug: plans.slug,
+      })
       .from(subscriptions)
+      .leftJoin(plans, eq(subscriptions.planId, plans.id))
       .where(eq(subscriptions.stripeSubscriptionId, subscriptionId))
       .limit(1)
 
@@ -200,7 +219,7 @@ export class WebhookHandlers {
         amount: invoice.amount_due,
         currency: invoice.currency,
         status: 'failed' as const,
-        description: `Payment failed for ${sub.plan} plan`,
+        description: `Payment failed for ${sub.planSlug} plan`,
         periodStart: invoice.period_start ? new Date(invoice.period_start * 1000) : null,
         periodEnd: invoice.period_end ? new Date(invoice.period_end * 1000) : null,
         failedAt: new Date(),

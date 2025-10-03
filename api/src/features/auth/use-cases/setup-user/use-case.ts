@@ -46,7 +46,7 @@ export class SetupUserUseCase {
           data: {
             profileId: existingProfile.id,
             projectId: projects[0]?.id || '',
-            redirectTo: `/${existingProfile.language || 'ja'}/projects`,
+            redirectTo: `/${data.language || 'ja'}/projects`,
           },
           metadata: {
             timestamp: new Date().toISOString(),
@@ -60,7 +60,6 @@ export class SetupUserUseCase {
         userId: data.userId,
         email: data.email,
         nickname: data.nickname,
-        language: data.language,
       })
 
       // 3. 初期プロジェクト作成
@@ -79,7 +78,7 @@ export class SetupUserUseCase {
         data: {
           profileId: profile.id,
           projectId: project.id,
-          redirectTo: `/${data.language}/projects/${project.id}`,
+          redirectTo: `/${data.language || 'ja'}/projects/${project.id}`,
         },
         metadata: {
           timestamp: new Date().toISOString(),

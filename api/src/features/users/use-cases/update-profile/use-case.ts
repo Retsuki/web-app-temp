@@ -18,7 +18,6 @@ export class UpdateUserProfileUseCase {
     // 更新データの準備
     const updateData = {
       ...(data.nickname !== undefined && { nickname: data.nickname }),
-      ...(data.language !== undefined && { language: data.language }),
     }
 
     // プロフィールを更新
@@ -30,7 +29,6 @@ export class UpdateUserProfileUseCase {
       userId: updatedProfile.userId,
       email: updatedProfile.email,
       nickname: updatedProfile.nickname,
-      language: updatedProfile.language || 'ja',
       createdAt: updatedProfile.createdAt?.toISOString() || new Date().toISOString(),
       updatedAt: updatedProfile.updatedAt?.toISOString() || new Date().toISOString(),
     }

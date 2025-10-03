@@ -1,18 +1,11 @@
 import type { Database } from '../../../drizzle/index.js'
-import { eq, planLimits } from '../../../drizzle/index.js'
+import { eq, plans } from '../../../drizzle/index.js'
 
-export interface PlanLimit {
+export interface PlanRowDto {
   id: string
   plan: 'free' | 'starter' | 'pro'
-  projectsLimit: number
-  monthlyUsageLimit: number
-  membersPerProjectLimit: number
-  features: {
-    storage?: number
-    support?: 'community' | 'email' | 'priority'
-  }
-  monthlyPrice: number
-  yearlyPrice: number
+  name?: string
+  description?: string
   displayOrder: number
   createdAt?: Date
   updatedAt?: Date
@@ -21,26 +14,22 @@ export interface PlanLimit {
 export class PlansRepository {
   constructor(private db: Database) {}
 
-  async findAll(): Promise<PlanLimit[]> {
-    const plans = await this.db.select().from(planLimits).orderBy(planLimits.displayOrder)
-    type PlanRow = typeof planLimits.$inferSelect
-    return plans.map((plan: PlanRow) => ({
-      id: plan.id,
-      plan: plan.plan as 'free' | 'starter' | 'pro',
-      projectsLimit: plan.projectsLimit,
-      monthlyUsageLimit: plan.monthlyUsageLimit,
-      membersPerProjectLimit: plan.membersPerProjectLimit,
-      features: plan.features as PlanLimit['features'],
-      monthlyPrice: plan.monthlyPrice,
-      yearlyPrice: plan.yearlyPrice,
-      displayOrder: plan.displayOrder,
-      createdAt: plan.createdAt || undefined,
-      updatedAt: plan.updatedAt || undefined,
+  async findAll(): Promise<PlanRowDto[]> {
+    const rows = await this.db.select().from(plans).orderBy(plans.displayOrder)
+    type PlanTable = typeof plans.$inferSelect
+    return rows.map((row: PlanTable) => ({
+      id: row.id,
+      plan: row.slug as 'free' | 'starter' | 'pro',
+      name: row.name || undefined,
+      description: row.description || undefined,
+      displayOrder: row.displayOrder,
+      createdAt: row.createdAt || undefined,
+      updatedAt: row.updatedAt || undefined,
     }))
   }
 
-  async findByPlan(plan: 'free' | 'starter' | 'pro'): Promise<PlanLimit | null> {
-    const [result] = await this.db.select().from(planLimits).where(eq(planLimits.plan, plan)).limit(1)
+  async findByPlan(plan: 'free' | 'starter' | 'pro'): Promise<PlanRowDto | null> {
+    const [result] = await this.db.select().from(plans).where(eq(plans.slug, plan)).limit(1)
 
     if (!result) {
       return null
@@ -48,13 +37,9 @@ export class PlansRepository {
 
     return {
       id: result.id,
-      plan: result.plan as 'free' | 'starter' | 'pro',
-      projectsLimit: result.projectsLimit,
-      monthlyUsageLimit: result.monthlyUsageLimit,
-      membersPerProjectLimit: result.membersPerProjectLimit,
-      features: result.features as PlanLimit['features'],
-      monthlyPrice: result.monthlyPrice,
-      yearlyPrice: result.yearlyPrice,
+      plan: result.slug as 'free' | 'starter' | 'pro',
+      name: result.name || undefined,
+      description: result.description || undefined,
       displayOrder: result.displayOrder,
       createdAt: result.createdAt || undefined,
       updatedAt: result.updatedAt || undefined,

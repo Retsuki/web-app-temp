@@ -1,6 +1,7 @@
 import { AppHTTPException, ERROR_CODES } from '../../../../_shared/utils/error/index.js'
 import { stripe } from '../../../../lib/stripe.js'
 import type { SubscriptionRepository } from '../../repositories/subscription.repository.js'
+import type { PlansRepository } from '../../repositories/plans.repository.js'
 import type { UpdateSubscriptionDto, UpdateSubscriptionResponse } from './dto.js'
 import type { BillingCycle, StripeClient } from '../../../../external-apis/stripe/stripe-client.js'
 
@@ -8,6 +9,7 @@ export class UpdateSubscriptionUseCase {
   constructor(
     private subscriptionRepository: SubscriptionRepository,
     private stripeClient: StripeClient,
+    private plansRepository: PlansRepository,
   ) {}
 
   private isUpgrade(currentPlan: 'free' | 'starter' | 'pro', newPlan: 'starter' | 'pro') {
@@ -62,7 +64,7 @@ export class UpdateSubscriptionUseCase {
 
     // 3. 同じプランへの変更はエラー
     if (
-      currentSubscription.plan === dto.planId &&
+      (currentSubscription as any).planSlug === dto.planId &&
       currentSubscription.billingCycle === dto.billingCycle
     ) {
       throw new AppHTTPException(400, {
@@ -77,10 +79,7 @@ export class UpdateSubscriptionUseCase {
     )
 
     // アップグレードかダウングレードかを判定
-    const isUpgradeRequest = this.isUpgrade(
-      currentSubscription.plan as 'free' | 'starter' | 'pro',
-      dto.planId,
-    )
+    const isUpgradeRequest = this.isUpgrade(((currentSubscription as any).planSlug || 'starter') as any, dto.planId)
 
     // 更新を実行
     const updatedSubscription = await stripe.subscriptions.update(stripeSubscription.id, {
@@ -98,10 +97,11 @@ export class UpdateSubscriptionUseCase {
     })
 
     // 5. DBを更新
+    const newPlan = await this.plansRepository.findByPlan(dto.planId)
     await this.subscriptionRepository.updateByStripeSubscriptionId(
       currentSubscription.stripeSubscriptionId,
       {
-        plan: dto.planId,
+        planId: newPlan?.id,
         billingCycle: dto.billingCycle,
         stripePriceId: newPriceId,
       }

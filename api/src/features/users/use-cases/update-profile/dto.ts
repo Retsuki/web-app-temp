@@ -9,10 +9,6 @@ export const updateProfileReqSchema = z
       description: 'ニックネーム',
       example: 'たろう',
     }),
-    language: z.enum(['ja', 'en']).optional().openapi({
-      description: '言語設定',
-      example: 'ja',
-    }),
   })
   .openapi('UpdateProfileRequest')
 

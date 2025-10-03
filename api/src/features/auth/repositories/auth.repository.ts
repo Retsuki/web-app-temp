@@ -26,7 +26,7 @@ export class AuthRepository {
     return null
   }
 
-  async createProfile(data: { userId: string; email: string; nickname: string; language: string }) {
+  async createProfile(data: { userId: string; email: string; nickname: string }) {
     // メールアドレスの重複チェック
     const existingEmail = await this.db.select().from(profiles).where(eq(profiles.email, data.email)).limit(1)
 
@@ -39,12 +39,7 @@ export class AuthRepository {
 
     const [profile] = await this.db
       .insert(profiles)
-      .values({
-        userId: data.userId,
-        email: data.email,
-        nickname: data.nickname,
-        language: data.language,
-      })
+      .values({ userId: data.userId, email: data.email, nickname: data.nickname })
       .returning()
 
     if (!profile) {

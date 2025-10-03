@@ -1,13 +1,33 @@
 import type { Database } from '../../../drizzle/index.js'
-import { and, eq, subscriptions } from '../../../drizzle/index.js'
+import { and, eq, subscriptions, plans } from '../../../drizzle/index.js'
 
 export class SubscriptionRepository {
   constructor(private db: Database) {}
 
   async findByUserId(userId: string) {
     const [result] = await this.db
-      .select()
+      .select({
+        id: subscriptions.id,
+        userId: subscriptions.userId,
+        stripeSubscriptionId: subscriptions.stripeSubscriptionId,
+        stripePriceId: subscriptions.stripePriceId,
+        stripeProductId: subscriptions.stripeProductId,
+        planId: subscriptions.planId,
+        planSlug: plans.slug,
+        status: subscriptions.status,
+        billingCycle: subscriptions.billingCycle,
+        currentPeriodStart: subscriptions.currentPeriodStart,
+        currentPeriodEnd: subscriptions.currentPeriodEnd,
+        cancelAt: subscriptions.cancelAt,
+        canceledAt: subscriptions.canceledAt,
+        cancelReason: subscriptions.cancelReason,
+        trialStart: subscriptions.trialStart,
+        trialEnd: subscriptions.trialEnd,
+        createdAt: subscriptions.createdAt,
+        updatedAt: subscriptions.updatedAt,
+      })
       .from(subscriptions)
+      .leftJoin(plans, eq(subscriptions.planId, plans.id))
       .where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, 'active')))
       .limit(1)
 
@@ -16,8 +36,28 @@ export class SubscriptionRepository {
 
   async findByStripeSubscriptionId(stripeSubscriptionId: string) {
     const [result] = await this.db
-      .select()
+      .select({
+        id: subscriptions.id,
+        userId: subscriptions.userId,
+        stripeSubscriptionId: subscriptions.stripeSubscriptionId,
+        stripePriceId: subscriptions.stripePriceId,
+        stripeProductId: subscriptions.stripeProductId,
+        planId: subscriptions.planId,
+        planSlug: plans.slug,
+        status: subscriptions.status,
+        billingCycle: subscriptions.billingCycle,
+        currentPeriodStart: subscriptions.currentPeriodStart,
+        currentPeriodEnd: subscriptions.currentPeriodEnd,
+        cancelAt: subscriptions.cancelAt,
+        canceledAt: subscriptions.canceledAt,
+        cancelReason: subscriptions.cancelReason,
+        trialStart: subscriptions.trialStart,
+        trialEnd: subscriptions.trialEnd,
+        createdAt: subscriptions.createdAt,
+        updatedAt: subscriptions.updatedAt,
+      })
       .from(subscriptions)
+      .leftJoin(plans, eq(subscriptions.planId, plans.id))
       .where(eq(subscriptions.stripeSubscriptionId, stripeSubscriptionId))
       .limit(1)
 
@@ -31,8 +71,6 @@ export class SubscriptionRepository {
       .insert(subscriptions)
       .values({
         ...data,
-        plan: data.plan as 'free' | 'starter' | 'pro',
-        // sample_subscriptions は status/billingCycle に厳密な Enum 型制限なし
         status: data.status,
         billingCycle: data.billingCycle,
       })

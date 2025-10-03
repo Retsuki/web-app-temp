@@ -1,338 +1,287 @@
-import { relations, sql } from 'drizzle-orm'
-import { boolean, index, integer, jsonb, pgEnum, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
+import { relations, sql } from "drizzle-orm";
+import {
+	boolean,
+	index,
+	integer,
+	jsonb,
+	pgEnum,
+	pgTable,
+	text,
+	timestamp,
+	uuid,
+	varchar,
+} from "drizzle-orm/pg-core";
 
-export const PLAN = {
-  FREE: 'free',
-  STARTER: 'starter',
-  PRO: 'pro',
-} as const
+export const PLAN = { FREE: "free", STARTER: "starter", PRO: "pro" } as const;
+export type Plan = (typeof PLAN)[keyof typeof PLAN];
+export const planEnum = pgEnum(
+	"plan",
+	Object.values(PLAN) as [Plan, ...Plan[]],
+);
 
-// Enums定義（PLANを唯一のソースに統一）
-export type Plan = (typeof PLAN)[keyof typeof PLAN]
-export const planEnum = pgEnum('plan', Object.values(PLAN) as [Plan, ...Plan[]])
+// Enums
+export const LANGUAGE = { JA: "ja", EN: "en" } as const;
+export type Language = (typeof LANGUAGE)[keyof typeof LANGUAGE];
+export const languageEnum = pgEnum(
+	"language",
+	Object.values(LANGUAGE) as [Language, ...Language[]],
+);
 
-// プラン（lookup テーブル）
-export const plans = pgTable('plans', {
-  id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-  // 'free' | 'starter' | 'pro' | ...
-  slug: varchar('slug', { length: 50 }).notNull().unique(),
-  name: varchar('name', { length: 100 }).notNull(),
-  description: text('description'),
-  // マーケ用の表示情報や含まれる機能ラベル等の柔軟な格納先
-  metadata: jsonb('metadata').notNull().default(sql`'{}'::jsonb`),
-  isActive: boolean('is_active').default(true).notNull(),
-  displayOrder: integer('display_order').default(0).notNull(),
-  createdAt: timestamp('created_at').default(sql`now()`).notNull(),
-  updatedAt: timestamp('updated_at').default(sql`now()`).notNull(),
-})
+// プラン
+export const plans = pgTable("plans", {
+	id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+	slug: varchar("slug", { length: 50 }).notNull().unique(),
+	name: varchar("name", { length: 100 }).notNull(),
+	description: text("description"),
+	metadata: jsonb("metadata").notNull().default(sql`'{}'::jsonb`),
+	isActive: boolean("is_active").default(true).notNull(),
+	displayOrder: integer("display_order").default(0).notNull(),
+	createdAt: timestamp("created_at").default(sql`now()`).notNull(),
+	updatedAt: timestamp("updated_at").default(sql`now()`).notNull(),
+});
 
-// ユーザープロフィールテーブル
-export const profiles = pgTable('profiles', {
-  // ユーザーを一意に識別するUUID
-  id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+// プロフィール
+export const profiles = pgTable("profiles", {
+	id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+	userId: uuid("user_id").notNull().unique(),
+	nickname: varchar("nickname", { length: 50 }).notNull(),
+	email: varchar("email", { length: 255 }).notNull().unique(),
+	createdAt: timestamp("created_at").default(sql`now()`),
+	updatedAt: timestamp("updated_at").default(sql`now()`),
+	deletedAt: timestamp("deleted_at"),
+});
 
-  // Supabase AuthのユーザーID (auth.usersのUUIDに対応)
-  userId: uuid('user_id').notNull().unique(),
+// ユーザー設定
 
-  // ニックネーム
-  nickname: varchar('nickname', { length: 50 }).notNull(),
+export const userSettings = pgTable("user_settings", {
+	id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+	userId: uuid("user_id")
+		.notNull()
+		.references(() => profiles.userId, { onDelete: "cascade" })
+		.unique(),
+	language: languageEnum("language").default(LANGUAGE.JA),
+	createdAt: timestamp("created_at").default(sql`now()`).notNull(),
+	updatedAt: timestamp("updated_at").default(sql`now()`).notNull(),
+});
 
-  // メールアドレス
-  email: varchar('email', { length: 255 }).notNull().unique(),
-
-  // 言語設定 (ja, en など)
-  language: varchar('language', { length: 10 }).default('ja'),
-
-  // 作成日時
-  createdAt: timestamp('created_at').default(sql`now()`),
-
-  // 更新日時
-  updatedAt: timestamp('updated_at').default(sql`now()`),
-
-  // 削除日時（論理削除）
-  deletedAt: timestamp('deleted_at'),
-})
-
-// 汎用プロジェクトテーブル
+// プロジェクト
 export const projects = pgTable(
-  'projects',
-  {
-    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+	"projects",
+	{
+		id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+		userId: uuid("user_id")
+			.notNull()
+			.references(() => profiles.userId, { onDelete: "cascade" }),
+		name: varchar("name", { length: 255 }).notNull(),
+		description: text("description"),
+		status: varchar("status", { length: 50 }).notNull().default("active"),
+		tags: jsonb("tags").notNull().default(sql`'[]'::jsonb`),
+		metadata: jsonb("metadata").notNull().default(sql`'{}'::jsonb`),
+		startDate: timestamp("start_date"),
+		endDate: timestamp("end_date"),
+		priority: integer("priority").notNull().default(0),
+		progress: integer("progress").notNull().default(0),
+		createdAt: timestamp("created_at").default(sql`now()`).notNull(),
+		updatedAt: timestamp("updated_at").default(sql`now()`).notNull(),
+		deletedAt: timestamp("deleted_at"),
+	},
+	(table) => {
+		return {
+			userIdIdx: index("projects_user_id_idx").on(table.userId),
+			statusIdx: index("projects_status_idx").on(table.status),
+			createdAtIdx: index("projects_created_at_idx").on(table.createdAt),
+		};
+	},
+);
 
-    // ユーザー関連（Supabase AuthのユーザーIDで紐付け）
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => profiles.userId, { onDelete: 'cascade' }),
-
-    // プロジェクト基本情報
-    name: varchar('name', { length: 255 }).notNull(),
-    description: text('description'),
-    status: varchar('status', { length: 50 }).notNull().default('active'), // active, archived, completed
-
-    // プロジェクト詳細
-    tags: jsonb('tags').notNull().default(sql`'[]'::jsonb`), // タグ配列
-    metadata: jsonb('metadata').notNull().default(sql`'{}'::jsonb`), // カスタムメタデータ
-
-    // 日付関連
-    startDate: timestamp('start_date'),
-    endDate: timestamp('end_date'),
-
-    // 優先度と進捗
-    priority: integer('priority').notNull().default(0), // 0=低, 1=中, 2=高
-    progress: integer('progress').notNull().default(0), // 0-100%
-
-    // タイムスタンプ
-    createdAt: timestamp('created_at').default(sql`now()`).notNull(),
-    updatedAt: timestamp('updated_at').default(sql`now()`).notNull(),
-    deletedAt: timestamp('deleted_at'), // 論理削除
-  },
-  (table) => {
-    return {
-      userIdIdx: index('projects_user_id_idx').on(table.userId),
-      statusIdx: index('projects_status_idx').on(table.status),
-      createdAtIdx: index('projects_created_at_idx').on(table.createdAt),
-    }
-  },
-)
-
-// サブスクリプションテーブル
+// サブスクリプション
 export const subscriptions = pgTable(
-  'subscriptions',
-  {
-    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+	"subscriptions",
+	{
+		id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+		userId: uuid("user_id")
+			.notNull()
+			.references(() => profiles.userId, { onDelete: "cascade" }),
+		stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 })
+			.notNull()
+			.unique(),
+		stripePriceId: varchar("stripe_price_id", { length: 255 }).notNull(),
+		stripeProductId: varchar("stripe_product_id", { length: 255 }).notNull(),
+		planId: uuid("plan_id")
+			.notNull()
+			.references(() => plans.id),
+		status: varchar("status", { length: 50 }).notNull(),
+		billingCycle: varchar("billing_cycle", { length: 20 }).notNull(),
+		currentPeriodStart: timestamp("current_period_start").notNull(),
+		currentPeriodEnd: timestamp("current_period_end").notNull(),
+		cancelAt: timestamp("cancel_at"),
+		canceledAt: timestamp("canceled_at"),
+		cancelReason: text("cancel_reason"),
+		trialStart: timestamp("trial_start"),
+		trialEnd: timestamp("trial_end"),
+		createdAt: timestamp("created_at").default(sql`now()`).notNull(),
+		updatedAt: timestamp("updated_at").default(sql`now()`).notNull(),
+	},
+	(table) => {
+		return {
+			userIdIdx: index("subscriptions_user_id_idx").on(table.userId),
+			statusIdx: index("subscriptions_status_idx").on(table.status),
+			planIdx: index("subscriptions_plan_id_idx").on(table.planId),
+		};
+	},
+);
 
-    // ユーザー関連
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => profiles.userId, { onDelete: 'cascade' }),
-
-    // Stripe関連ID
-    stripeSubscriptionId: varchar('stripe_subscription_id', { length: 255 }).notNull().unique(),
-    stripePriceId: varchar('stripe_price_id', { length: 255 }).notNull(),
-    stripeProductId: varchar('stripe_product_id', { length: 255 }).notNull(),
-
-    // プラン情報
-    plan: planEnum('plan').notNull(),
-    // 正規化先のプラン参照（移行期間はNULL許容）
-    planId: uuid('plan_id').references(() => plans.id),
-    status: varchar('status', { length: 50 }).notNull(), // active, past_due, canceled, unpaid
-    billingCycle: varchar('billing_cycle', { length: 20 }).notNull(), // monthly, yearly
-
-    // 請求期間
-    currentPeriodStart: timestamp('current_period_start').notNull(),
-    currentPeriodEnd: timestamp('current_period_end').notNull(),
-
-    // 解約関連
-    cancelAt: timestamp('cancel_at'), // 解約予定日
-    canceledAt: timestamp('canceled_at'), // 解約実行日
-    cancelReason: text('cancel_reason'), // 解約理由
-
-    // 試用期間
-    trialStart: timestamp('trial_start'),
-    trialEnd: timestamp('trial_end'),
-
-    // タイムスタンプ
-    createdAt: timestamp('created_at').default(sql`now()`).notNull(),
-    updatedAt: timestamp('updated_at').default(sql`now()`).notNull(),
-  },
-  (table) => {
-    return {
-      userIdIdx: index('subscriptions_user_id_idx').on(table.userId),
-      statusIdx: index('subscriptions_status_idx').on(table.status),
-      planIdx: index('subscriptions_plan_idx').on(table.plan),
-      planIdIdx: index('subscriptions_plan_id_idx').on(table.planId),
-    }
-  },
-)
-
-// 支払い履歴テーブル
+// 支払い履歴
 export const paymentHistory = pgTable(
-  'payment_history',
-  {
-    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+	"payment_history",
+	{
+		id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+		userId: uuid("user_id")
+			.notNull()
+			.references(() => profiles.userId, { onDelete: "cascade" }),
+		subscriptionId: uuid("subscription_id").references(() => subscriptions.id, {
+			onDelete: "cascade",
+		}),
+		stripeInvoiceId: varchar("stripe_invoice_id", { length: 255 })
+			.notNull()
+			.unique(),
+		stripePaymentIntentId: varchar("stripe_payment_intent_id", { length: 255 }),
+		stripeChargeId: varchar("stripe_charge_id", { length: 255 }),
+		amount: integer("amount").notNull(),
+		currency: varchar("currency", { length: 10 }).notNull().default("jpy"),
+		status: varchar("status", { length: 50 }).notNull(),
+		description: text("description"),
+		periodStart: timestamp("period_start"),
+		periodEnd: timestamp("period_end"),
+		paymentMethod: varchar("payment_method", { length: 50 }),
+		last4: varchar("last4", { length: 4 }),
+		brand: varchar("brand", { length: 20 }),
+		refundedAmount: integer("refunded_amount").default(0),
+		refundedAt: timestamp("refunded_at"),
+		refundReason: text("refund_reason"),
+		paidAt: timestamp("paid_at"),
+		failedAt: timestamp("failed_at"),
+		createdAt: timestamp("created_at").default(sql`now()`).notNull(),
+	},
+	(table) => {
+		return {
+			userIdIdx: index("payment_history_user_id_idx").on(table.userId),
+			subscriptionIdIdx: index("payment_history_subscription_id_idx").on(
+				table.subscriptionId,
+			),
+			statusIdx: index("payment_history_status_idx").on(table.status),
+			createdAtIdx: index("payment_history_created_at_idx").on(table.createdAt),
+		};
+	},
+);
 
-    // ユーザー関連
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => profiles.userId, { onDelete: 'cascade' }),
-
-    // サブスクリプション関連
-    subscriptionId: uuid('subscription_id').references(() => subscriptions.id, {
-      onDelete: 'cascade',
-    }),
-
-    // Stripe関連
-    stripeInvoiceId: varchar('stripe_invoice_id', { length: 255 }).notNull().unique(),
-    stripePaymentIntentId: varchar('stripe_payment_intent_id', { length: 255 }),
-    stripeChargeId: varchar('stripe_charge_id', { length: 255 }),
-
-    // 支払い情報
-    amount: integer('amount').notNull(), // 金額（円）
-    currency: varchar('currency', { length: 10 }).notNull().default('jpy'),
-    status: varchar('status', { length: 50 }).notNull(), // paid, failed, pending, refunded
-    description: text('description'),
-
-    // 請求期間
-    periodStart: timestamp('period_start'),
-    periodEnd: timestamp('period_end'),
-
-    // 支払い方法
-    paymentMethod: varchar('payment_method', { length: 50 }), // card, bank_transfer
-    last4: varchar('last4', { length: 4 }), // カード下4桁
-    brand: varchar('brand', { length: 20 }), // visa, mastercard, amex等
-
-    // 返金情報
-    refundedAmount: integer('refunded_amount').default(0),
-    refundedAt: timestamp('refunded_at'),
-    refundReason: text('refund_reason'),
-
-    // タイムスタンプ
-    paidAt: timestamp('paid_at'),
-    failedAt: timestamp('failed_at'),
-    createdAt: timestamp('created_at').default(sql`now()`).notNull(),
-  },
-  (table) => {
-    return {
-      userIdIdx: index('payment_history_user_id_idx').on(table.userId),
-      subscriptionIdIdx: index('payment_history_subscription_id_idx').on(table.subscriptionId),
-      statusIdx: index('payment_history_status_idx').on(table.status),
-      createdAtIdx: index('payment_history_created_at_idx').on(table.createdAt),
-    }
-  },
-)
-
-// Webhookイベント履歴テーブル
+// Webhookイベント
 export const webhookEvents = pgTable(
-  'webhook_events',
-  {
-    id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
+	"webhook_events",
+	{
+		id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+		stripeEventId: varchar("stripe_event_id", { length: 255 })
+			.notNull()
+			.unique(),
+		eventType: varchar("event_type", { length: 100 }).notNull(),
+		apiVersion: varchar("api_version", { length: 50 }),
+		payload: jsonb("payload").notNull(),
+		objectId: varchar("object_id", { length: 255 }),
+		objectType: varchar("object_type", { length: 50 }),
+		status: varchar("status", { length: 20 }).notNull().default("pending"),
+		processedAt: timestamp("processed_at"),
+		failureReason: text("failure_reason"),
+		retryCount: integer("retry_count").default(0),
+		eventCreatedAt: timestamp("event_created_at").notNull(),
+		createdAt: timestamp("created_at").default(sql`now()`).notNull(),
+	},
+	(table) => {
+		return {
+			eventTypeIdx: index("webhook_events_event_type_idx").on(table.eventType),
+			statusIdx: index("webhook_events_status_idx").on(table.status),
+			objectIdIdx: index("webhook_events_object_id_idx").on(table.objectId),
+		};
+	},
+);
 
-    // Stripe Event情報
-    stripeEventId: varchar('stripe_event_id', { length: 255 }).notNull().unique(),
-    eventType: varchar('event_type', { length: 100 }).notNull(), // customer.subscription.created等
-    apiVersion: varchar('api_version', { length: 50 }),
+// 請求用顧客
+export const billingCustomers = pgTable("billing_customers", {
+	id: uuid("id").default(sql`gen_random_uuid()`).primaryKey(),
+	userId: uuid("user_id")
+		.notNull()
+		.references(() => profiles.userId, { onDelete: "cascade" })
+		.unique(),
+	stripeCustomerId: varchar("stripe_customer_id", { length: 255 })
+		.notNull()
+		.unique(),
+	planId: uuid("plan_id")
+		.notNull()
+		.references(() => plans.id),
+	createdAt: timestamp("created_at").default(sql`now()`).notNull(),
+	updatedAt: timestamp("updated_at").default(sql`now()`).notNull(),
+});
 
-    // ペイロード
-    payload: jsonb('payload').notNull(),
-    objectId: varchar('object_id', { length: 255 }), // 関連オブジェクトID（sub_xxx, in_xxx等）
-    objectType: varchar('object_type', { length: 50 }), // subscription, invoice, customer等
-
-    // 処理状態
-    status: varchar('status', { length: 20 }).notNull().default('pending'), // pending, processed, failed
-    processedAt: timestamp('processed_at'),
-    failureReason: text('failure_reason'),
-    retryCount: integer('retry_count').default(0),
-
-    // タイムスタンプ
-    eventCreatedAt: timestamp('event_created_at').notNull(), // Stripeでのイベント作成時刻
-    createdAt: timestamp('created_at').default(sql`now()`).notNull(),
-  },
-  (table) => {
-    return {
-      eventTypeIdx: index('webhook_events_event_type_idx').on(table.eventType),
-      statusIdx: index('webhook_events_status_idx').on(table.status),
-      objectIdIdx: index('webhook_events_object_id_idx').on(table.objectId),
-    }
-  },
-)
-
-// 請求用顧客テーブル（Stripe Customer をユーザー単位で管理）
-export const billingCustomers = pgTable('billing_customers', {
-  id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-
-  // ユーザー関連（Supabase AuthのユーザーIDで紐付け）
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => profiles.userId, { onDelete: 'cascade' })
-    .unique(),
-
-  // Stripe Customer ID（ユーザーと1対1）
-  stripeCustomerId: varchar('stripe_customer_id', { length: 255 }).notNull().unique(),
-
-  // タイムスタンプ
-  createdAt: timestamp('created_at').default(sql`now()`).notNull(),
-  updatedAt: timestamp('updated_at').default(sql`now()`).notNull(),
-})
-
-// プラン制限管理テーブル
-export const planLimits = pgTable('plan_limits', {
-  id: uuid('id').default(sql`gen_random_uuid()`).primaryKey(),
-
-  // プラン名
-  plan: planEnum('plan').notNull().unique(),
-  // 正規化先のプラン参照（移行期間はNULL許容）
-  planId: uuid('plan_id').references(() => plans.id),
-
-  // 制限値
-  monthlyUsageLimit: integer('monthly_usage_limit').notNull(), // 月間使用回数上限
-  projectsLimit: integer('projects_limit').notNull(), // プロジェクト数上限
-  membersPerProjectLimit: integer('members_per_project_limit').notNull(), // プロジェクトあたりのメンバー数上限
-
-  // 機能フラグ
-  features: jsonb('features').notNull().default(sql`'{}'::jsonb`), // { "api_access": true, "export": true, ... }
-
-  // 料金情報（表示用）
-  monthlyPrice: integer('monthly_price').notNull(), // 月額料金（円）
-  yearlyPrice: integer('yearly_price').notNull(), // 年額料金（円）
-  displayOrder: integer('display_order').notNull().default(0), // 表示順
-
-  // タイムスタンプ
-  createdAt: timestamp('created_at').default(sql`now()`).notNull(),
-  updatedAt: timestamp('updated_at').default(sql`now()`).notNull(),
-})
-
-// リレーション定義
+// Relations
 export const profilesRelations = relations(profiles, ({ many }) => ({
-  subscriptions: many(subscriptions),
-  paymentHistory: many(paymentHistory),
-  projects: many(projects),
-}))
+	subscriptions: many(subscriptions),
+	paymentHistory: many(paymentHistory),
+}));
 
-export const subscriptionsRelations = relations(subscriptions, ({ one, many }) => ({
-  profile: one(profiles, {
-    fields: [subscriptions.userId],
-    references: [profiles.userId],
-  }),
-  paymentHistory: many(paymentHistory),
-  plan: one(plans, {
-    fields: [subscriptions.planId],
-    references: [plans.id],
-  }),
-}))
+export const subscriptionsRelations = relations(
+	subscriptions,
+	({ one, many }) => ({
+		profile: one(profiles, {
+			fields: [subscriptions.userId],
+			references: [profiles.userId],
+		}),
+		paymentHistory: many(paymentHistory),
+		plan: one(plans, {
+			fields: [subscriptions.planId],
+			references: [plans.id],
+		}),
+	}),
+);
 
 export const paymentHistoryRelations = relations(paymentHistory, ({ one }) => ({
-  profile: one(profiles, {
-    fields: [paymentHistory.userId],
-    references: [profiles.userId],
-  }),
-  subscription: one(subscriptions, {
-    fields: [paymentHistory.subscriptionId],
-    references: [subscriptions.id],
-  }),
-}))
+	profile: one(profiles, {
+		fields: [paymentHistory.userId],
+		references: [profiles.userId],
+	}),
+	subscription: one(subscriptions, {
+		fields: [paymentHistory.subscriptionId],
+		references: [subscriptions.id],
+	}),
+}));
 
 export const projectsRelations = relations(projects, ({ one }) => ({
-  profile: one(profiles, {
-    fields: [projects.userId],
-    references: [profiles.userId],
-  }),
-}))
+	profile: one(profiles, {
+		fields: [projects.userId],
+		references: [profiles.userId],
+	}),
+}));
 
-export const billingCustomersRelations = relations(billingCustomers, ({ one }) => ({
-  profile: one(profiles, {
-    fields: [billingCustomers.userId],
-    references: [profiles.userId],
-  }),
-}))
-
-export const planLimitsRelations = relations(planLimits, ({ one }) => ({
-  plan: one(plans, {
-    fields: [planLimits.planId],
-    references: [plans.id],
-  }),
-}))
+export const billingCustomersRelations = relations(
+	billingCustomers,
+	({ one }) => ({
+		profile: one(profiles, {
+			fields: [billingCustomers.userId],
+			references: [profiles.userId],
+		}),
+		plan: one(plans, {
+			fields: [billingCustomers.planId],
+			references: [plans.id],
+		}),
+	}),
+);
 
 export const plansRelations = relations(plans, ({ many }) => ({
-  planLimits: many(planLimits),
-  subscriptions: many(subscriptions),
-}))
+	subscriptions: many(subscriptions),
+	billingCustomers: many(billingCustomers),
+}));
+
+export const userSettingsRelations = relations(userSettings, ({ one }) => ({
+	profile: one(profiles, {
+		fields: [userSettings.userId],
+		references: [profiles.userId],
+	}),
+}));

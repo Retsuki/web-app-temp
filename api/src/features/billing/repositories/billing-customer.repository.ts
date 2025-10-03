@@ -1,5 +1,5 @@
 import type { Database } from '../../../drizzle/index.js'
-import { billingCustomers, eq } from '../../../drizzle/index.js'
+import { billingCustomers, eq, plans } from '../../../drizzle/index.js'
 
 export class BillingCustomerRepository {
   constructor(private db: Database) {}
@@ -11,7 +11,12 @@ export class BillingCustomerRepository {
   }
 
   async create(userId: string, stripeCustomerId: string) {
-    const [result] = await this.db.insert(billingCustomers).values({ userId, stripeCustomerId }).returning()
+    // default to free plan
+    const [freePlan] = await this.db.select().from(plans).where(eq(plans.slug, 'free')).limit(1)
+    const [result] = await this.db
+      .insert(billingCustomers)
+      .values({ userId, stripeCustomerId, planId: freePlan?.id as string })
+      .returning()
 
     return result
   }

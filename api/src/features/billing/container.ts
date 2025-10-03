@@ -53,6 +53,7 @@ export class BillingContainer {
     this.updateSubscriptionUseCase = new UpdateSubscriptionUseCase(
       this.subscriptionRepository,
       stripeClient,
+      this.plansRepository,
     )
 
     this.cancelSubscriptionUseCase = new CancelSubscriptionUseCase(this.subscriptionRepository)
