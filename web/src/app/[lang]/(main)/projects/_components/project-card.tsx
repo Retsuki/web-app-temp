@@ -31,26 +31,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '../../../../../components/ui/skeleton'
-
-interface Project {
-  id: string
-  name: string
-  description: string | null
-  status: string
-  priority: number
-  progress: number
-  startDate: string | null
-  endDate: string | null
-  createdAt: string
-  updatedAt: string
-  tags: unknown[]
-}
+import type { GetApiV1Projects200ProjectsItem } from '@/lib/api/generated/schemas'
 
 interface ProjectCardProps {
-  project: Project
+  project: GetApiV1Projects200ProjectsItem
 }
 
 const statusConfig = {
@@ -71,18 +57,10 @@ const statusConfig = {
   },
 }
 
-const priorityConfig = {
-  0: { label: '低', className: 'bg-gray-100 text-gray-600' },
-  1: { label: '中', className: 'bg-yellow-100 text-yellow-700' },
-  2: { label: '高', className: 'bg-red-100 text-red-700' },
-}
-
 export const ProjectCard = ({ project }: ProjectCardProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const status = statusConfig[project.status as keyof typeof statusConfig] || statusConfig.active
-  const priority =
-    priorityConfig[project.priority as keyof typeof priorityConfig] || priorityConfig[0]
   const StatusIcon = status.icon
 
   const formatDate = (dateString: string | null) => {
@@ -147,9 +125,6 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
             <StatusIcon className="mr-1 h-3 w-3" />
             {status.label}
           </Badge>
-          <Badge variant="secondary" className={priority.className}>
-            {priority.label}優先度
-          </Badge>
         </div>
 
         {(project.startDate || project.endDate) && (
@@ -171,13 +146,7 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
           </div>
         )}
 
-        <div className="space-y-1">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">進捗</span>
-            <span className="font-medium">{project.progress}%</span>
-          </div>
-          <Progress value={project.progress} className="h-2" />
-        </div>
+        {/* 進捗情報はAPIから提供されないため非表示 */}
       </CardContent>
 
       <CardFooter className="pt-3">

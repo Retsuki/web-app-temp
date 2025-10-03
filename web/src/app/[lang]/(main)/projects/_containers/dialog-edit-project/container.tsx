@@ -39,11 +39,8 @@ const formSchema = z.object({
   name: z.string().min(1, 'プロジェクト名は必須です'),
   description: z.string().optional(),
   status: z.enum(['active', 'archived', 'completed']),
-  priority: z.number().min(0).max(2),
-  progress: z.number().min(0).max(100),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
-  tags: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -72,11 +69,8 @@ export function DialogEditProject({
       name: project.name,
       description: project.description || '',
       status: project.status as 'active' | 'archived' | 'completed',
-      priority: project.priority,
-      progress: project.progress,
       startDate: project.startDate ? new Date(project.startDate) : undefined,
       endDate: project.endDate ? new Date(project.endDate) : undefined,
-      tags: Array.isArray(project.tags) ? project.tags.join(', ') : '',
     },
   })
 
@@ -99,16 +93,8 @@ export function DialogEditProject({
         name: values.name,
         description: values.description || undefined,
         status: values.status,
-        priority: values.priority,
-        progress: values.progress,
         startDate: values.startDate?.toISOString(),
         endDate: values.endDate?.toISOString(),
-        tags: values.tags
-          ? values.tags
-              .split(',')
-              .map((tag) => tag.trim())
-              .filter(Boolean)
-          : [],
         metadata: project.metadata || {},
       },
     })
@@ -181,52 +167,10 @@ export function DialogEditProject({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="priority"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>優先度</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    defaultValue={String(field.value)}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="優先度を選択" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="0">低</SelectItem>
-                      <SelectItem value="1">中</SelectItem>
-                      <SelectItem value="2">高</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* 優先度はAPIから提供されないため入力項目を削除 */}
           </div>
 
-          <FormField
-            control={form.control}
-            name="progress"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>進捗率: {field.value}%</FormLabel>
-                <FormControl>
-                  <Slider
-                    value={[field.value]}
-                    onValueChange={([value]) => field.onChange(value)}
-                    max={100}
-                    step={1}
-                  />
-                </FormControl>
-                <FormDescription>プロジェクトの進捗状況を設定します</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* 進捗はAPIから提供されないため入力項目を削除 */}
 
           <div className="grid grid-cols-2 gap-4">
             <FormField
@@ -298,20 +242,7 @@ export function DialogEditProject({
             />
           </div>
 
-          <FormField
-            control={form.control}
-            name="tags"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>タグ</FormLabel>
-                <FormControl>
-                  <Input placeholder="例: Web, モバイル, デザイン (カンマ区切り)" {...field} />
-                </FormControl>
-                <FormDescription>カンマで区切ってタグを入力してください</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* タグはAPIから提供されないため入力項目を削除 */}
 
           <DialogFooter>
             <Button

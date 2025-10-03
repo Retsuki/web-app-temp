@@ -37,7 +37,6 @@ const createProjectSchema = z.object({
   name: z.string().min(1, 'プロジェクト名は必須です').max(255),
   description: z.string().optional(),
   status: z.enum(['active', 'archived', 'completed']),
-  priority: z.number().min(0).max(2),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
 })
@@ -58,7 +57,6 @@ export function DialogCreateProject({ open, onOpenChange, onSuccess }: DialogCre
       name: '',
       description: '',
       status: 'active',
-      priority: 0,
     },
   })
 
@@ -81,12 +79,9 @@ export function DialogCreateProject({ open, onOpenChange, onSuccess }: DialogCre
         name: data.name,
         description: data.description,
         status: data.status,
-        priority: data.priority,
         startDate: data.startDate?.toISOString(),
         endDate: data.endDate?.toISOString(),
-        tags: [],
         metadata: {},
-        progress: 0,
       },
     })
   }
@@ -159,31 +154,7 @@ export function DialogCreateProject({ open, onOpenChange, onSuccess }: DialogCre
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="priority"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>優先度</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    defaultValue={String(field.value)}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="優先度を選択" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="0">低</SelectItem>
-                      <SelectItem value="1">中</SelectItem>
-                      <SelectItem value="2">高</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* 優先度はAPIから提供されないため入力項目を削除 */}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

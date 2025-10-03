@@ -8,6 +8,13 @@
       "when": 1759526275321,
       "tag": "0000_condemned_goblin_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1759531559425,
+      "tag": "0001_whole_the_stranger",
+      "breakpoints": true
     }
   ]
 }

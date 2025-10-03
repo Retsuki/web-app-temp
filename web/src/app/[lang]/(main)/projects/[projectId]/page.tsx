@@ -1,16 +1,13 @@
-import { CalendarIcon, ClockIcon, FolderIcon, TagIcon } from 'lucide-react'
+import { CalendarIcon, ClockIcon, FolderIcon } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getApiV1ProjectsProjectIdServer } from '@/lib/api/server-api'
 import { cn } from '@/lib/utils'
@@ -34,9 +31,6 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       notFound()
     }
 
-    const priorityLabels = ['Low', 'Medium', 'High']
-    const priorityColors = ['text-slate-500', 'text-yellow-500', 'text-red-500']
-
     const statusColors: Record<string, string> = {
       active: 'bg-green-500',
       archived: 'bg-gray-500',
@@ -56,22 +50,11 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           <ProjectActions project={project} lang={lang} />
         </div>
 
-        {/* ステータスバッジと優先度 */}
+        {/* ステータスバッジ */}
         <div className="flex items-center gap-4 mb-6">
           <Badge className={cn(statusColors[project.status], 'text-white')}>{project.status}</Badge>
-          <span className={cn('font-medium', priorityColors[project.priority])}>
-            {priorityLabels[project.priority]} Priority
-          </span>
         </div>
 
-        {/* プログレスバー */}
-        <div className="mb-8">
-          <div className="flex justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Progress</span>
-            <span className="text-sm font-medium">{project.progress}%</span>
-          </div>
-          <Progress value={project.progress} className="h-3" />
-        </div>
 
         {/* メインコンテンツ */}
         <Tabs defaultValue="overview" className="space-y-4">
@@ -120,26 +103,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                 </CardContent>
               </Card>
 
-              {/* タグカード */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Tags</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {project.tags && Array.isArray(project.tags) && project.tags.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {project.tags.map((tag, index) => (
-                        <Badge key={index} variant="secondary">
-                          <TagIcon className="w-3 h-3 mr-1" />
-                          {String(tag)}
-                        </Badge>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No tags added</p>
-                  )}
-                </CardContent>
-              </Card>
+              {/* ここに追加情報カード等を配置可能 */}
             </div>
           </TabsContent>
 
