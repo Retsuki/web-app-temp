@@ -1,6 +1,0 @@
-name: web-app-temp-infra
-description: Infrastructure as Code for Web App Template using Pulumi
-runtime:
-  name: nodejs
-  options:
-    typescript: true
