@@ -16,6 +16,7 @@
     "db:migrate": "npm --prefix app-api run db:migrate",
     "db:check": "npm --prefix app-api run db:check",
     "db:seed": "npm --prefix app-api run db:seed",
+    "setup": "node scripts/setup.mjs",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop --project-id web_app_temp",
     "supabase:db:reset": "supabase db reset",
