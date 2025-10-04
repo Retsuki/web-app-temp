@@ -37,11 +37,17 @@ yarn-error.log*
 api/.env.dev
 api/.env.prod
 api/.env.local
+app-api/.env.dev
+app-api/.env.prod
+app-api/.env.local
 
 # Web environment files
 web/.env.dev
 web/.env.prod
 web/.env.local
+app-web/.env.dev
+app-web/.env.prod
+app-web/.env.local
 
 # Pulumi secrets - NEVER commit these
 pulumi/Pulumi.*.yaml

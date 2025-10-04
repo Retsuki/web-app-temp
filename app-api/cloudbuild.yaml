@@ -9,8 +9,8 @@ steps:
       - '-t'
       - 'gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest'
       - '-f'
-      - 'api/Dockerfile'
-      - 'api'
+      - 'app-api/Dockerfile'
+      - 'app-api'
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'

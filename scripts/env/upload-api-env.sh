@@ -4,7 +4,7 @@ set -euo pipefail
 # Configuration for API env secret upload
 PROJECT_EXPECTED="perfect-marketing-tool"
 SECRET_NAME="api-env-production"
-ENV_FILE="api/.env.production"
+ENV_FILE="app-api/.env.production"
 
 # Pre-flight checks
 if ! command -v gcloud >/dev/null 2>&1; then
@@ -54,4 +54,3 @@ while read -r NAME STATE; do
 done < <(gcloud secrets versions list "${SECRET_NAME}" --format="value(name,state)")
 
 echo "Done. '${SECRET_NAME}' updated to version ${NEW_VERSION}. Older versions disabled."
-

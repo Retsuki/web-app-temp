@@ -5,10 +5,10 @@
       "type": "node",
       "request": "launch",
       "name": "API: npm run dev",
-      "cwd": "${workspaceFolder}/api",
+      "cwd": "${workspaceFolder}/app-api",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "envFile": "${workspaceFolder}/api/.env",
+      "envFile": "${workspaceFolder}/app-api/.env",
       "skipFiles": ["<node_internals>/**"],
       "console": "integratedTerminal",
       "autoAttachChildProcesses": true

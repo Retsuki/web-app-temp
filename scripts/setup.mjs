@@ -57,8 +57,8 @@ function updateTomlPortsByScan(content, ops) {
 
 const ENV_TARGETS = [
   { dir: '.', example: '.env.example', env: '.env' },
-  { dir: 'api', example: '.env.example', env: '.env' },
-  { dir: 'web', example: '.env.example', env: '.env' },
+  { dir: 'app-api', example: '.env.example', env: '.env' },
+  { dir: 'app-web', example: '.env.example', env: '.env' },
 ];
 
 async function detectDefaultBase() {
@@ -111,8 +111,8 @@ async function main() {
     const readEnvForDefaults = async () => {
       const candidates = [
         ['.', '.env'], ['.', '.env.example'],
-        ['api', '.env'], ['api', '.env.example'],
-        ['web', '.env'], ['web', '.env.example'],
+        ['app-api', '.env'], ['app-api', '.env.example'],
+        ['app-web', '.env'], ['app-web', '.env.example'],
       ];
       const out = {};
       for (const [dir, file] of candidates) {

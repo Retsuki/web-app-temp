@@ -5,7 +5,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud secrets versions access latest --secret=web-env-production > /workspace/web/.env.production
+        gcloud secrets versions access latest --secret=web-env-production > /workspace/app-web/.env.production
   
   # Build the Docker image with build args from env file
   - name: 'gcr.io/cloud-builders/docker'
@@ -15,7 +15,7 @@ steps:
       - |
         # Source environment variables from Secret Manager
         set -a
-        source /workspace/web/.env.production
+        source /workspace/app-web/.env.production
         set +a
         
         # Build with environment variables as build args
@@ -26,8 +26,8 @@ steps:
           --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="$${NEXT_PUBLIC_SUPABASE_ANON_KEY}" \
           --build-arg NEXT_PUBLIC_SITE_URL="$${NEXT_PUBLIC_SITE_URL}" \
           --build-arg API_URL="$${API_URL}" \
-          -f ./web/Dockerfile \
-          ./web
+          -f ./app-web/Dockerfile \
+          ./app-web
 
   # Push the image to Google Container Registry
   - name: 'gcr.io/cloud-builders/docker'

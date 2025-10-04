@@ -16,7 +16,7 @@ SERVICE_NAME=${SERVICE_NAME:-web-app-api}
 API_NAME=${API_NAME:-stripe-webhook-api}
 GATEWAY_NAME=${GATEWAY_NAME:-stripe-webhook-gateway}
 CONFIG_NAME=${CONFIG_NAME:-stripe-webhook-config-$(date +%Y%m%d%H%M%S)}
-OPENAPI_SPEC=${OPENAPI_SPEC:-api-gateway-stripe-webhook/openapi2-run.yaml}
+OPENAPI_SPEC=${OPENAPI_SPEC:-app-stripe-gateway/openapi2-run.yaml}
 SERVICE_ACCOUNT_EMAIL=${SERVICE_ACCOUNT_EMAIL:-web-app-stripe-gw-sa@${PROJECT_ID}.iam.gserviceaccount.com}
 
 if ! command -v gcloud >/dev/null 2>&1; then
@@ -90,4 +90,3 @@ echo "[DONE] Gateway deployed: $GATEWAY_NAME"
 echo "Gateway Host: https://${HOST}"
 echo "Stripe Webhook URL: https://${HOST}/api/v1/stripe/webhook"
 echo "Tip: Override backend with BACKEND_URL=https://<cloud-run-url> ..."
-
